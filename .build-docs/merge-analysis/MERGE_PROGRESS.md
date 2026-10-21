@@ -60,12 +60,36 @@ with the merge adjustments in the prompt's section 7. Outputs:
   (A's 34 commits), H-B1..H-B2 (B's 5 commits); B-R1..B-R4 (B's code), B-D, B-X-EXCEL, B-X-EXT, B-X-DEAD,
   B-TRACE. If this computer is reclaimed before the audits are committed, these must be gathered again.
 
+### Phase 1 writing runs (to resume after an interruption)
+
+The audits are written by the workflow script
+`/root/.claude/projects/-home-user/3434dc8c-237a-58f7-ab88-3f86af826ad2/workflows/scripts/merge-audit-write-wf_969e1fc4-64f.js`
+(modes: `registry`, `sections`, `verifyShared`, `final`). Section drafts land in
+`~/merge-scratch/audit/<A|B>/<section>.md`; the assembled audits in
+`~/merge-scratch/audit/PROJECT_AUDIT_<name>.md`, then copied into this folder.
+
+| What | Status | Run ID (resume with `resumeFromRunId`) |
+|---|---|---|
+| Registry A (31 features, 157 rules) | done | wf_d4384abb-add |
+| Registry B (34 features, 144 rules) | done | wf_969e1fc4-64f |
+| Shared 12A (12 shared commits) | written; check re-running | wf_a1f47ea6-0e8 |
+| A sections S3a, S67, S12BF, X345 | running | wf_02b98075-ec9 |
+| A sections S3b, S45, S89 | running | wf_ca6e1fb9-378 |
+| A sections S2, S10, S12own, X12 | running | wf_31fae4d3-ca1 |
+| B sections S3a, S67, S12BF, X345 | running | wf_6d3d2949-6f1 |
+| B sections S3b, S45, S89 | running | wf_a3e4fe43-d98 |
+| B sections S2, S10, S12own, X12 | running | wf_33f178ac-b1e |
+| A final (S11, S1, assembly, self-consistency, completeness) | not started | |
+| B final | not started | |
+
+Feature split for Section 3: A-F1..A-F15 / A-F16..A-F31; B-F1..B-F17 / B-F18..B-F34.
+
 ## Phase status
 
 | Phase | Status | Date | Notes |
 |---|---|---|---|
 | 0 — Set up and check access | Done | 21-10-2026 | Blockers cleared the same day |
-| 1 — Audit A and B | In progress — evidence gathering | 21-10-2026 | 25 read-only readers writing notes to `~/merge-scratch/notes/` (see below) |
+| 1 — Audit A and B | In progress — writing the 12 sections of each audit | 21-10-2026 | Notes done (25 readers); registries done; shared 12A drafted; a usage limit at about 05:35 UTC stopped the first section run, relaunched 06:35 UTC |
 | 2 — Compare A and B | Not started | | |
 | 3 — Numbered decision list | Not started | | |
 | 4 — Taking the author's answers | Not started | | |
