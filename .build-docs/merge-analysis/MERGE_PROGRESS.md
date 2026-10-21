@@ -45,12 +45,27 @@ with the merge adjustments in the prompt's section 7. Outputs:
 `.build-docs/merge-analysis/PROJECT_AUDIT_AnnualStatement_oldv1.md` and
 `.build-docs/merge-analysis/PROJECT_AUDIT_AnnualStatement_oldv2.md`.
 
+### Phase 1 working set (scratch, not committed)
+
+- Scratch copies of each HEAD for reading and running: `~/merge-scratch/A-copy`, `~/merge-scratch/B-copy`
+  (made with `git archive` from the combined repository, so line numbers match the repositories).
+- Python 3.14.6 environments: `~/merge-scratch/venv-A` (tkinter, openpyxl 3.1.5, lxml, pytest — A's
+  `requirements.txt`; pywin32 is Windows-only and not installable here) and `~/merge-scratch/venv-B`
+  (PyQt5, openpyxl, lxml, pytest).
+- A's test suite, first run (RAN, 21-10-2026): 288 tests collected. With a virtual display
+  (`xvfb-run`): **1 failed, 287 passed**. Without a display: **14 failed, 241 passed, 33 skipped**.
+  The audit explains each failure and skip.
+- Notes from the readers: `~/merge-scratch/notes/<id>.md` — A-R1..A-R4 (A's code), A-X-DEAD, A-X-EXCEL,
+  A-X-EXT, A-T (tests), A-D (older documents), A-TRACE (live traces); H-S (12 shared commits), H-A1..H-A3
+  (A's 34 commits), H-B1..H-B2 (B's 5 commits); B-R1..B-R4 (B's code), B-D, B-X-EXCEL, B-X-EXT, B-X-DEAD,
+  B-TRACE. If this computer is reclaimed before the audits are committed, these must be gathered again.
+
 ## Phase status
 
 | Phase | Status | Date | Notes |
 |---|---|---|---|
 | 0 — Set up and check access | Done | 21-10-2026 | Blockers cleared the same day |
-| 1 — Audit A and B | Not started | | |
+| 1 — Audit A and B | In progress — evidence gathering | 21-10-2026 | 25 read-only readers writing notes to `~/merge-scratch/notes/` (see below) |
 | 2 — Compare A and B | Not started | | |
 | 3 — Numbered decision list | Not started | | |
 | 4 — Taking the author's answers | Not started | | |
