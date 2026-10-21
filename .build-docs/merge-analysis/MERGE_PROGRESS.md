@@ -1,0 +1,112 @@
+# Merge progress — Annual Statement 2.0
+
+> Read this first after any break, compaction or "continue". The full instruction for
+> this session is `.build-docs/merge-analysis/MERGE_ANALYSIS_PROMPT.md` (copied byte for
+> byte from the attachment, 34,093 bytes, 538 lines, SHA-256
+> `ce093597f1196b920909b889188a3d66a08934c528e9dd37fc25ae989f5a551e`).
+
+## Where we are
+
+Phase 0 (set up and check access) — **done** (21-10-2026). Phase 1 (the two audits) is next.
+
+The two Phase 0 blockers are cleared:
+
+1. NEW had no commits. The author added a README.md on GitHub; `main` now starts at
+   `328deb46f01702d3bc6131e68ae0f6150cb8a30b` ("Initial commit", README.md only). My
+   branch `claude/pensive-feynman-0mz1aa` is built on top of it.
+2. `rebuild_pipeline_FINAL.md` was missing (the author first attached `CLAUDE_TEMPLATE.md`
+   by mistake). The author attached the right file on 21-10-2026; it matches its
+   fingerprint exactly. `CLAUDE_TEMPLATE.md` is not kept in NEW.
+
+Snapshots analysed (every document names these):
+
+| Label | Repository | Branch | HEAD commit (the snapshot) | Date of HEAD |
+|---|---|---|---|---|
+| A | goyal-sidhant/AnnualStatement_oldv1 | main | `bf2f1dd56f088d019bed6022428aab9bf0eb423d` | 27-07-2026 |
+| B | goyal-sidhant/AnnualStatement_oldv2 | main | `b0e7d0e8853845ce41ba0f0d2df849feed6bc88c` | 09-02-2026 |
+| NEW | goyal-sidhant/Annual_Statement_2.0 | `claude/pensive-feynman-0mz1aa` on `main` `328deb4` | — | 21-10-2026 |
+
+Where things are on this computer:
+
+- A checkout: `/home/user/AnnualStatement_oldv1` (full history, not shallow, clean)
+- B checkout: `/home/user/AnnualStatement_oldv2` (full history, not shallow, clean)
+- NEW checkout: `/home/user/Annual_Statement_2.0`
+- Combined scratch repository: `~/merge-scratch/combined` (remotes `A` and `B`)
+
+If this computer was reclaimed: clone A and B again (read only), fetch NEW's branch, rebuild
+`~/merge-scratch/combined` (`git init`, `git remote add A <A clone>`, `git remote add B <B
+clone>`, fetch both `main`s).
+
+## Exact next action
+
+Phase 1 — audit A, then B, with `.build-docs/toolkit/Project_Audit_FINAL.md` (all 12
+sections, every file line by line, `git show` for every commit, self-consistency review),
+with the merge adjustments in the prompt's section 7. Outputs:
+`.build-docs/merge-analysis/PROJECT_AUDIT_AnnualStatement_oldv1.md` and
+`.build-docs/merge-analysis/PROJECT_AUDIT_AnnualStatement_oldv2.md`.
+
+## Phase status
+
+| Phase | Status | Date | Notes |
+|---|---|---|---|
+| 0 — Set up and check access | Done | 21-10-2026 | Blockers cleared the same day |
+| 1 — Audit A and B | Not started | | |
+| 2 — Compare A and B | Not started | | |
+| 3 — Numbered decision list | Not started | | |
+| 4 — Taking the author's answers | Not started | | |
+| 5 — Starting files | Not started | | |
+| 6 — Final checks and hand-over | Not started | | |
+
+## Facts verified
+
+Checked on 21-10-2026 against the clones (read, not run, except where a git command is
+named). "✓" = confirmed as stated; "⚠" = differs or needs a note.
+
+| # | Fact in the prompt | Result | Evidence |
+|---|---|---|---|
+| 1 | A: 46 commits, last 27-07-2026, Tkinter. B: 17 commits, last 09-02-2026, "v4.0" PyQt5 rewrite | ✓ | `git rev-list --count`: A 46, B 17. A HEAD `bf2f1dd` 27-07-2026 07:48 +0530; B HEAD `b0e7d0e` 09-02-2026 08:42 +0530. A imports only `tkinter` (18 × `import tkinter as tk`); B imports only `PyQt5`. B calls itself v4.0 (`gui/__init__.py:11` `__version__ = '4.0.0'`, `main.py:42`, `gui/pyqt_main_window.py:71`). A's `requirements.txt` line 1 still says "v3.0" |
+| 2 | Shared start `edac6a3` (31-08-2025); 12 shared commits; split after `47a1492` (30-10-2025); A then 34 (2 in March 2026, 32 in July 2026), B then 5 (07-02-2026 to 09-02-2026); one branch `main` each | ✓ (one note) | `git merge-base A/main B/main` = `47a1492`; `git rev-list --count 47a1492` = 12; A-only 34 (2 × 2026-03, 32 × 2026-07); B-only 5 (3 on 07-02, 1 on 08-02, 1 on 09-02-2026). Both root commits = `edac6a3`. `git ls-remote` shows only `refs/heads/main` on GitHub for each. **Note:** the clones also hold a local branch `claude/pensive-feynman-0mz1aa` and a matching local tracking ref, made by this session's setup before I started — they exist only on this computer, not on GitHub, and I have not touched them. One of the 12 shared commits is a merge (`9c56a1c`) |
+| 3 | No third project; `9c56a1c` mentions "AnnualStatement", A's earlier name, which GitHub forwards to oldv1 | ✓ today, ⚠ for 2025 | Today `git ls-remote https://github.com/goyal-sidhant/AnnualStatement` returns A's HEAD `bf2f1dd`, so the name forwards to A. **But** GitHub's records say B's repository was created on 31-08-2025 (16:38 UTC, minutes before the first commit) and A's on 07-02-2026 — the same day as B's v4.0 commits. A repository's creation date does not change when it is renamed, so on 29-10-2025, when `9c56a1c` pulled from "AnnualStatement", that name most likely belonged to the repository now called **oldv2 (B)**. A probably took the name later, which is why it forwards to A now. Confidence MEDIUM–HIGH. Either way there is no third project: both share the same 12 commits. How to check: you will remember whether, in February 2026, you renamed the original repository and created a new one |
+| 4 | Same four screens; extractor was separate (`launch_extractor.py`) before the split; A added a "Step 4: Extract" tab (July 2026), B an extraction view (February 2026) | ✓ (one note) | A: `gui/main_window.py` builds `SetupTab`, `ValidationTab`, `ProcessingTab`, `ExtractTab` (lines ~141–146); "Step 4: Extract" added in `bfcb24a` (26-07-2026). B: `gui/pyqt_main_window.py:90-93` tabs "Step 1: Setup", "Step 2: Validation", "Step 3: Processing", "Step 4: Extract && Refresh" (shown as "Extract & Refresh"), from `c258047` (07-02-2026). **Note:** `launch_extractor.py` still exists in both: in A it still opens the extractor as its own Tkinter window; in B it opens the main window already switched to Tab 4 |
+| 5 | Documents in A: `PROJECT_AUDIT_ANNUALSTATEMENT.md` (March 2026), the design note, `tests/README.md`, `.claude/settings.local.json` | ✓ (one note) | Audit added `fc279af` 04-03-2026, revised `f7eb8f1` 05-03-2026; design note `b276542` 25-07-2026; `tests/README.md` `6c1e1c6` 23-07-2026. **Note:** `.claude/settings.local.json` is older than A's own commits — it came in with shared commit `bd176bf` (30-10-2025); B later deleted it. No HANDOVER.md or FILE_INDEX.md exists now or anywhere in either history |
+| 6 | A has pytest (about 180 test functions), B none; A's `requirements.txt` makes pywin32 compulsory on Windows (July 2026 commit, so reports cannot lose Power Query); in B that line is commented out | ✓ | 183 `def test_` functions in 18 files under `tests/` (counted with `git grep`; the number pytest collects may differ — Phase 1 runs it). B has no test file in its tree or history after the split. A `requirements.txt` line 9: `pywin32>=305; sys_platform == 'win32'`; commit `be6418c` (26-07-2026) "Require pywin32 on Windows so reports cannot lose Power Query". B `requirements.txt` last line: `# pywin32>=306` |
+| 7 | No Excel template, sample input, CSV, JSON data or PDF ever committed; only data-like file is `gst_organizer.log` (added in the first commit, deleted in the second, same day), which appears to hold client business names inside file names; both old repositories public on 21-10-2026 | ✓ (one addition) | Every file ever added in either history: 82 `.py`, 70 `.pyc`, 4 `.md`, 1 `.txt`, 1 `.ini`, 1 `.json` (`.claude/settings.local.json`), 1 `.gitignore`, 1 `.log`. No `.xlsx/.xls/.csv/.pdf`. Log added `edac6a3` 22:11 and deleted `cbfa4a5` 22:14 on 31-08-2025; 5,689 lines, all Python `logging` INFO lines (mostly from `core.file_parser`), dated 23-07-2025 to 31-08-2025; 2,852 lines name files — consistent with client names inside file names (content not read further, nothing quoted). 0 GSTIN-like and 0 PAN-like strings in it. Both repositories `"private": false` on GitHub. **Addition:** the first commit also held 70 compiled Python files (`__pycache__/*.pyc`, removed in `01862a0`, 29-10-2025). Compiled files carry the folder path of the computer they were made on; four such paths are inside them. They look like your own working-folder path, not client data, but I have not quoted them anywhere. One compiled file (`gui/__pycache__/app.*.pyc`) belongs to a `gui/app.py` that was never committed |
+| 8 | NEW empty (no commits) and public | ✓ | GitHub lists no branches; `git ls-remote` empty; repository created 21-10-2026 02:02 UTC, `"private": false`. Later the same day the author added README.md, so `main` now exists (`328deb4`) |
+
+### Toolkit files saved — fingerprint check
+
+All five copied from the attachments on this computer (none retyped), then checked.
+
+| File | Saved as | Bytes | Lines | SHA-256 matches the prompt? |
+|---|---|---|---|---|
+| `rebuild_pipeline_FINAL.md` | `.build-docs/toolkit/rebuild_pipeline_FINAL.md` | 76,645 | 1,594 | ✓ `a430b32c…03be` (attached second, after a wrong file) |
+| `Project_Audit_FINAL.md` | `.build-docs/toolkit/Project_Audit_FINAL.md` | 22,846 | 259 | ✓ `7bfcc6a9…0770` |
+| `REBUILD_BRIEF_TEMPLATE.md` | `.build-docs/toolkit/REBUILD_BRIEF_TEMPLATE.md` | 4,463 | 127 | ✓ `821a46f9…565a` |
+| `REBUILD_BRIEF_ASSISTANT.md` | `.build-docs/toolkit/REBUILD_BRIEF_ASSISTANT.md` | 13,124 | 310 | ✓ `4db4a1cc…15d7` |
+| `DECISIONS_LOG_TEMPLATE.md` | `.build-docs/toolkit/DECISIONS_LOG_TEMPLATE.md` | 3,478 | 83 | ✓ `0e486f67…9930` |
+
+The CLAUDE.md copy inside `rebuild_pipeline_FINAL.md` was checked too (needed in Phase 5):
+lines 189–1062 = 874 lines, 47,951 bytes, SHA-256 `73c8674d…42d9` ✓; its part from
+`# HOW WE BUILD — MANDATORY FOR EVERY PROJECT` to the end = 822 lines, 45,352 bytes,
+SHA-256 `4158e750…c471` ✓. Line 189 is `# Project: [PROJECT_NAME] — Rebuild`, line 1062 is
+`---`, line 1063 is the closing fence, as the prompt says.
+
+The wrongly attached `CLAUDE_TEMPLATE.md` (42,719 bytes, 752 lines, SHA-256
+`d13bc99e…8ba0`) is a different version of the CLAUDE.md template — first line
+`# Project: [PROJECT_NAME]`, with new-project lines in Reference Documents and shorter
+wording in Standards 2–4. Its Standards 12 and 13 read the same as the pipeline's copy. It
+was removed from NEW before the first commit.
+
+### Phase 0 step 3 — the two current versions compared (summary)
+
+`git diff --stat bf2f1dd b0e7d0e`: 82 files differ, 4,142 lines added and 8,797 removed
+going from A to B. Of the 22 file paths both heads share, 7 are byte-identical
+(`README.md`, `core/__init__.py`, `power_query_extractor/__init__.py`,
+`power_query_extractor/config/__init__.py`, `power_query_extractor/config/cell_mappings.py`,
+`power_query_extractor/core/__init__.py`, `power_query_extractor/gui/__init__.py`) — so the
+cell mappings have not changed on either side since the split. Changed on both sides since
+the split: `.gitignore`, `core/excel_handler.py`, `core/file_organizer.py`,
+`core/file_parser.py`, `main.py`, `power_query_extractor/core/report_processor.py`,
+`power_query_extractor/gui/extractor_window.py`, `requirements.txt`, `utils/helpers.py`,
+plus GUI files that B deleted and A edited. File-by-file detail goes into the audits and
+MERGE_COMPARISON.md.
