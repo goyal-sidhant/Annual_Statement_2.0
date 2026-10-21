@@ -84,7 +84,7 @@ when the author says "continue".**
 | 2 | A sections S3b, S45, S89 | **done** — written and checked, 21-10-2026 17:15 UTC | wf_ca6e1fb9-378; wf_b9ff97f3-7ab |
 | 3 | A sections S2, S10, S12own, X12 | **done** — written and checked, 21-10-2026 | wf_d2f12f73-454 |
 | 4 | Check of shared 12A (12 shared commits) | **done** — 13 corrections in place, 21-10-2026 | wf_ba37bbb8-fd1 |
-| 5 | A final (S11, S1, assembly, self-consistency, completeness) → commit audit A | running | see run list |
+| 5 | A final (S11, S1, assembly, self-consistency, completeness) → commit audit A | running | wf_3971ed50-2f7 |
 | 6 | B sections S3a, S67, S12BF, X345 | stopped early (partial S3a) — resume | wf_6d3d2949-6f1 |
 | 7 | B sections S3b, S45, S89 | stopped early (partial S3b, S45) — resume | wf_a3e4fe43-d98 |
 | 8 | B sections S2, S10, S12own, X12 | stopped early (partial S10) — resume | wf_33f178ac-b1e |
