@@ -82,8 +82,8 @@ when the author says "continue".**
 | — | Registry B (34 features, 144 rules) | done | wf_969e1fc4-64f |
 | 1 | A sections S3a, S67, S12BF, X345 | **done** — written and adversarially checked (117 corrections in place), 21-10-2026 13:28 UTC | wf_02b98075-ec9 |
 | 2 | A sections S3b, S45, S89 | **done** — written and checked, 21-10-2026 17:15 UTC | wf_ca6e1fb9-378; wf_b9ff97f3-7ab |
-| 3 | A sections S2, S10, S12own, X12 | running (fresh run; the earlier one had no finished agents) | wf_d2f12f73-454 |
-| 4 | Check of shared 12A (12 shared commits; draft written) | stopped early — resume | wf_a1f47ea6-0e8 |
+| 3 | A sections S2, S10, S12own, X12 | **done** — written and checked, 21-10-2026 | wf_d2f12f73-454 |
+| 4 | Check of shared 12A (12 shared commits; draft written) | running (fresh run, verifyShared) | see run list |
 | 5 | A final (S11, S1, assembly, self-consistency, completeness) → commit audit A | not started | |
 | 6 | B sections S3a, S67, S12BF, X345 | stopped early (partial S3a) — resume | wf_6d3d2949-6f1 |
 | 7 | B sections S3b, S45, S89 | stopped early (partial S3b, S45) — resume | wf_a3e4fe43-d98 |
