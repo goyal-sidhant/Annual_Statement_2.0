@@ -1,0 +1,153 @@
+[
+ [
+  "S3a",
+  [
+   "Section 7 must include the 25 findings listed at the end of S3a.md (e.g. silent death without a console; install offer installs all of requirements.txt incl. pytest; Dark Mode tick off-window and status bar hidden at 1000x700; close during Step 3 kills the worker, close during Step 4 gives no warning; typed paths/mode not saved and an empty length box blocks every save and ends every run; checklist remembered-existence answers go stale and a file passes as a folder; 'Full pipeline' does not refresh and 'organise ... no Excel automation' is untrue on Windows; length setting shortens only Level 2; silent scan drops, hyphen mis-filing, .xlsm never matches; Re-scan mid-run aborts the run; number-looking client/state text breaks keys; Resume does not resume; same-minute overwrite; clients sharing one folder; Links cells for missing types keep template text; missing Links sheet reported as success; user's Excel taken over, hidden and quit; openpyxl fallback drops Power Query; 14 [DEBUG] lines).",
+   "A-F15 -> A-F16/A-F20/A-F21: a client without Sales, Sales Reco or Annual Report files gets a Sales report that is an unchanged template copy (no Links cell written), logged '✅ Success', counted in 'Sales Reports Created', and shown in Step 4 with has_sales=True and the Sales tick pre-ticked, so Step 4 would refresh it (RAN).",
+   "A-F16: the summary workbook's 'Include Client Name in Folders' shows only the global tick (processing_handler.py:225) - it said 'No' while a per-client flag put the name into one client's folders (RAN). The organisation text report's 'Successfully Copied'/'Folders Created' are run-wide running totals (RAN again: 2 files -> 'Successfully Copied: 9, Folders Created: 11').",
+   "A-F17: after a fatal error at the very start of a run (e.g. empty length box), the progress area keeps the previous run's '📊 Progress: 100.0%' and 'Processing complete' text; the 'Processing Complete' and 'Processing Error' message boxes are raised from the worker thread (RAN: thread names recorded).",
+   "A-F2/A-F7/A-F17 (UI, Section 10): status-bar messages are overwritten at once by the tab-change text - 'Welcome to GST File Organizer v3.0' (run()) and 'Found N clients' (scan) are never visible (RAN).",
+   "A-F27: typed paths and the processing-mode radio are not saved; a non-numeric 'Max client folder name length' box makes every save_cache raise TclError (RAN).",
+   "A-F10/A-F27: per-client folder-name flags keep keys of clients from earlier scans (client_handler.py:49 sets but never clears); turning the global tick OFF leaves all per-client flags ON (RAN).",
+   "A-F14/Section 9 (Standard 12): fake-COM run confirms the COM call order GetActiveObject -> Visible/DisplayAlerts/ScreenUpdating False -> Open staging copy -> write non-empty cells -> Save -> Close -> ScreenUpdating True -> DisplayAlerts True -> Quit (always) -> CoUninitialize; with no Links sheet it calls Sheets.Add and returns True; an exception in the finally block skips Quit/CoUninitialize and leaves the staging file while the report already exists at the destination.",
+   "Section 8/9 (threading): Step 3's worker can only talk to Tk while the main loop runs - when the harness pumped root.update() instead of mainloop(), every Tk call from the worker failed with 'RuntimeError: main thread is not in main loop' (the same error GUI exp4 saw after closing the window).",
+   "A-F11: after a Step 3 run the client records hold the cleaned copy names (in-place rename, core/file_organizer.py:233-246), so a later Dry Run lists names not present in the source folder (inference from RAN data, HIGH).",
+   "Section 12 (history): the 14 user-visible '[DEBUG]' lines already existed at 47a1492 (14 at 47a1492 and 14 at bf2f1dd, RAN grep); 064c634's message says they 'are intentionally left'; the whole-file install is deliberate per a5ad487's message; 7347383's message says 'a path-length guard remains the durable fix'.",
+   "Section 9 (Standard 13 facts): A requires a console (main.py:17 raises with sys.stdout None, no log created) and offers to pip-install into the running Python; the log file lands in the current folder; logs/ and temp/ are created in the program folder and never used (RAN)."
+  ],
+  [
+   "UNREGISTERED: Step 3 copy log line names the document type as the destination folder ('📁 <original file> → <type> folder', e.g. '→ GSTR-2B Reco folder' for a file that went into ITC, '→ Annual Report folder' for one in the Version folder) - gui/handlers/processing_handler.py:284 (UI text rule not covered by A-R140)"
+  ],
+  [
+   "Do the real ITC and Sales templates hold any text (sample paths or file names) in their Links cells B2-B11? Today, cells for file types a client does not have keep whatever the template contains (RAN).",
+   "Should a client that has no Sales, Sales Reco or Annual Report file get a Sales report at all? Today it gets an unfilled copy of the template, reported as success and pre-ticked in Step 4. [GST RULE area: which returns feed which report - your decision]",
+   "When a client has several files of one type, which one should feed the report? Today the first in alphabetical path order is linked and nothing tells the user. [GST RULE - your decision]",
+   "Should 'Resume' continue inside the interrupted run's own Version folder and skip files already copied? Today it makes a new Version folder and copies everything again unless started in the same minute.",
+   "Should 'Full pipeline' start the Power Query refresh automatically, or should its description and help text be changed? (Today it only switches to Step 4 and scans.)",
+   "Is a console window wanted at start-up? Should the install offer install the whole requirements.txt (including pytest), or only the missing package?",
+   "Should the 'Max client folder name length' setting also shorten the Level-4 folders, copied file names and report names? Should typed values below 15 be refused?",
+   "When the global 'Include client name' tick is turned OFF, should the per-client ticks be cleared too?",
+   "Should Step 2 list the unrecognised files, and the files the scan drops silently (small files, sub-folders, .xlsb/.xltx/.csv/.xlsm)?",
+   "Do source file names ever have an all-digit client name, a state written as digits, or a hyphen inside the client name? Each behaves badly today.",
+   "Do you or your staff keep your own Excel open while Step 3 runs? The code attaches to that Excel, hides it and then quits it.",
+   "Should Scan, Re-scan, Browse and the Step 2 buttons be locked while Step 3 runs?",
+   "Keep or remove the 14 '[DEBUG]' lines in the Step 3 log?"
+  ]
+ ],
+ [
+  "S67",
+  [
+   "A-F24 / consolidated workbook: 9 columns (IGST/CGST/SGST on 'IMS Reco', 'Extra In Purchase', 'Extra In GSTR2B') hold Diff GSTR-3B!J15/K15/L15 values instead of their configured cells (data_consolidator.py:141-150). RAN me r2: 13 columns OK, 9 mismatched. The lookup is in shared commits, so project B probably has the same defect. [GST RULE] for which cell is right.",
+   "A-F13 'Resume' re-copies everything unless the run happens in the same minute, so it never resumes across minutes (RAN me r3). The README:145 description is not true.",
+   "A-F14/A-F15: a template without a Links sheet produces useless reports marked as success (COM path adds the sheet; openpyxl path writes nothing).",
+   "A failed openpyxl save leaves a broken file under the final name. RAN me r2b: a 3010-byte PQ_Extraction_Report that cannot be opened. There are no temporary-name saves anywhere.",
+   "A-F21/A-F22: a failed refresh leaves a _Refreshed_ copy carrying the original's date. The next Skip-Refresh run reuses it with status success (RAN me r4).",
+   "A rescan during Step 3 stops the WHOLE run ('Fatal error'). It is not counted as one failed client (processing_handler.py:232 vs :243, RAN me r5).",
+   "A client or state written only in digits ('0042', '27') comes back from the Treeview as an int. This breaks Dry Run, Start and Export, and one such client stops the whole run (RAN me r5).",
+   "Step 4 run-folder scan: a newer FILE named 'Annual Statement-…' is chosen as level1_folder, and the scan then fails with 'Not a directory'. Pointing at a run folder itself finds nothing (RAN me r7; extractor_window.py:622-668).",
+   "sanitize_filename treats a trailing dot differently on Python 3.14 and on 3.11/3.13. The same client gets different file names on PCs with different Python versions (RAN me).",
+   "main.py:17 crashes before logging or any window when there is no console (pythonw, double-click, shortcut), so the program dies silently. This matters for the author's Standard 13 launch style.",
+   "core/excel_handler.py:56/242: excel_app is never set, so Step 3 always calls Quit() on whatever Excel it attached to via GetActiveObject, including the user's own open Excel.",
+   "Step 4 Start can be pressed again inside the main window and start a second worker. There is no Stop button in the tab (A-G65).",
+   "After a 'full' Step 3 run the hand-over overwrites Step 4's folder unconditionally (processing_handler.py:166-168), bypassing extract_tab.py:121-131 (A-G65).",
+   "Defensive-coding rating: MODERATE overall. Step 3 Excel reports, Step 4 refresh and the consolidated workbook are FRAGILE. Handler counts: 147 handlers, 68 leave no trace, 124 never show anything to the user, 23 bare excepts.",
+   "Logs are written in the START folder (main.py:24) with the PC's default code page. With cp1252 the emoji success/failure lines are lost (RAN me r6). Logs contain client names and figures (confidentiality).",
+   "There is no GSTIN/PAN logic anywhere, no period/financial-year check, and no free-space check (READ, grep)."
+  ],
+  [],
+  [
+   "Q1 (A-G1): On the 'IMS Reco', 'Extra In Purchase' and 'Extra In GSTR2B' sheets of the consolidated workbook, are the IGST/CGST/SGST columns meant to show the configured cells (IMS_Reco!AA1/AD1/AG1, ExtraInPurchase!O1/P1/Q1, ExtraInGSTR2B!S1/T1/U1) or the Diff GSTR-3B figures the code actually writes? [GST RULE]",
+   "Q2 (A-G5): What do the real ITC and Sales templates hold in the Links cells for file types a client does not have? The templates are not in the repository.",
+   "Q3 (A-G6): When a client has two or more files of one type, which one should feed the report, or should the run stop and ask? [GST RULE]",
+   "Q4 (A-G10): What was 'Resume' meant to do, and has anyone relied on it?",
+   "Q5 (A-G22, A-G23, A-G56): How and from which folder do staff start the program: a console, double-click, shortcut or pythonw; a local or a shared network folder?",
+   "Q6 (A-G54, A-G55): Do staff usually have other Excel workbooks open, or use the PC for other work, while Step 3 or Step 4 runs?",
+   "Q7 (A-G33, A-G34): Do client or state names in real file names ever contain a hyphen? How are such files named today?",
+   "Q8 (A-G36, A-G77): Which state spellings actually appear in file names (full names, short forms, codes, '&' versus 'and')?",
+   "Q9 (A-G39): Is the tool expected to notice files from different periods or financial years in one source folder? [GST RULE]",
+   "Q10 (A-G3, A-G44, A-G79): Which Excel version and display language are on office PCs? Is the Data ribbon in English everywhere (the refresh presses Alt+A, R, A)? Are there add-ins or Protected View dialogs?",
+   "Q11 (A-G46): Do the templates' Power Query sources use drive letters or \\\\server\\share paths, and do all PCs map the same letters?",
+   "Q12 (A-G15, A-G16): Which 'Refreshed File Suffix' values are used in practice?",
+   "Q13 (A-G2, A-G3): What value in Info!BB2 means 'refresh worked', and can it be present when part of the refresh failed? [GST RULE]",
+   "Q14 (A-G7, A-G31, A-G57): Is the program ever run on macOS or Linux, or only on Windows?",
+   "Q15 (A-G32, A-G65): Is the standalone extractor (power_query_extractor/extractor_main.py) still used?",
+   "Q16 (A-G71, A-G9): Can two people run Step 3 or Step 4 at the same time against the same target or run folder?",
+   "Q17 (A-G48, A-G49, A-G50): How many files does a typical source folder hold, and is it on a network share?",
+   "Q18 (A-G21, A-G41): Is it intended that 'Max client folder name length' shortens only the client folder and not the ITC (<client>) folders, file names and report names?"
+  ]
+ ],
+ [
+  "S12BF",
+  [
+   "The VERIFICATION RULE passes: no file that was never changed imports a name added later (RAN, verify_imports.py). Other sections still should not equate 'file never changed' with 'behaviour never changed': data_consolidator.py has never changed, yet it began putting another cell's value into 9 columns when 47a1492 changed its configuration (A-R88, gap A-G1). Effect: edac6a3 config 0 of 8 columns; 47a1492 and bf2f1dd 9 of 22 (RAN).",
+   "The consolidator cross-wiring comes from a shared commit (47a1492, shared - before the split on 30-10-2025), so the comparison with project B must treat it as inherited by both projects.",
+   "7347383 did not change the positions of the Links cells, but it did change the folder text written into ITC B2/B7/B10 and Sales B2/B8 (…/ITC instead of …/Other ITC related files, etc.). Section 5's description of A-R54/A-R55 and the author's template questions should reflect this.",
+   "pywin32 was used but not declared from edac6a3 (31-08-2025) to 064c634 (23-07-2026). README.md:104-108 has never matched requirements.txt (openpyxl>=3.0.0 never existed).",
+   "The texts `RefreshAll`, `CalculateUntilAsyncQueriesDone` and `DispatchEx` occur in no .py file at any of A's 46 commits (RAN, pickaxe). In A's git history the key-press refresh is the only refresh method ever used (relevant to Section 8 design decisions).",
+   "Stale texts still call pywin32 optional (report_processor.py:11-13, extract_tab.py:21-23 and 101-105), although be6418c made it essential on Windows. The Step 4 notice cannot appear for a missing pywin32.",
+   "Hover texts added in bf2f1dd disagree with the code: organise-only says 'no Excel automation' (setup_tab.py:96-97); the full pipeline 'then open each report in Excel to refresh' (:98-100); Resume 'skipping files already in place' (:108-109). This affects Section 3 (A-F5, A-F13, A-F31) and Section 7 (A-G66, A-G10).",
+   "Every dead item listed in the registry (EXCEL_SAFETY, validate_results, cleanup_on_error, get_cached_value, _write_section, _create_details_sheet, auto_refresh_if_missing, show_timestamp, recent_folders, etc.) has had an unchanged number of mentions in every commit since edac6a3 (RAN, pickaxe): dead from day one, never wired in.",
+   "The only changes ever made to [GST RULE]-tagged rules are: 47a1492 (A-R77–A-R82 added; A-R88 effect), bd176bf (A-R89: unticked reports show Missing), 5c8ce95 (A-R2), 33d0baf (A-R17/A-R23 key alignment; A-R60 start guard), 510f7b4 (A-R60 hand-over appended), 275d9a4 (A-R59 recognition), 7347383 (A-R54/A-R55 values) and 322717f (A-R1–A-R6 display only). All other GST rules are textually identical to edac6a3.",
+   "Since 12d505f, Step 3 reports are saved by Excel in %TEMP%\\gst_excel_temp and then copied. Excel may record that folder inside the workbook (x15ac:absPath; MEDIUM, not verifiable on Linux)."
+  ],
+  [
+   "UNREGISTERED: \"Invalid or corrupted Excel file\" variation (edac6a3, removed a603c02; it could never fire)",
+   "UNREGISTERED: old-format extraction mapping `power_query_extractor/config/cell_mappings copy.py` [GST RULE] (edac6a3, deleted 47a1492; could not be imported; four commented-out candidate cells)",
+   "UNREGISTERED: check of typed values in the max-length box (10–100) and the hint \"Names >10 chars will show warning\" (edac6a3, removed 322717f)",
+   "UNREGISTERED: dark-mode switch permanently enlarging the tabs via TNotebook.Tab padding=[20, 10] (edac6a3, removed 725fbaf)",
+   "UNREGISTERED: pywin32 treated as optional on Windows (c463256/f363946, reversed 10 minutes later by be6418c)"
+  ],
+  [
+   "Do the Power Queries in the ITC/Sales templates read the folder paths from the Links cells, or do any of them rely on the old folder names 'Other ITC related files', 'Sales related files' or 'GSTR-3B Exports' (renamed in 7347383)?",
+   "[GST RULE] Are the 14 extraction cells added on 30-10-2025 (A-R77–A-R82) still at those sheets and cell positions in today's ITC template ⚠? And which cells are meant to feed the IGST/CGST/SGST columns of 'IMS Reco', 'Extra In Purchase' and 'Extra In GSTR2B' (the code shows Diff GSTR-3B J15/K15/L15 there)?",
+   "When both an IMS Reco file and its '(1)' duplicate download exist for a client, which should feed the ITC report? Since 5c8ce95, the '(1)' copy sorts first and is the one linked.",
+   "[GST RULE] Is the two-letter state list (A-R21) your reference list ⚠? The tests also pin the quirk 'Unknown Place' → 'UP'.",
+   "Before git (June–August 2025), did you try Excel's own refresh command through COM (RefreshAll / CalculateUntilAsyncQueriesDone) before settling on the Alt+A, R, A key presses? It never appears in A's git history.",
+   "Did the move to the shorter share root assumed by 7347383 happen? Its own model leaves a thin margin (215 vs ~218 characters ⚠). Do you want the path-length guard the commit calls 'the durable fix'?",
+   "What should 'Resume' do? The hover text added in bf2f1dd says it skips files already in place, but each run creates a new Version folder, so it only skips within the same minute.",
+   "Which 'Refreshed File Suffix' values are used in practice, and should the suffix be remembered between sessions? Short suffixes such as _R{timestamp} make the original report count as refreshed.",
+   "Should requirements.txt pin exact versions and leave out pytest (Standard 13)? Should the program ever run pip itself (a5ad487)?",
+   "Which Python will users run (normal 3.14 or the free-threaded python3.14t mentioned in c463256)? Will the shared runtime include tkinter?",
+   "Is the README's pywin32 post-install step still part of your set-up?",
+   "gst_organizer.log and the compiled files with your folder paths are still readable at edac6a3 in both repositories. Do you want the history rewritten?"
+  ]
+ ],
+ [
+  "X345",
+  [
+   "RAN (me) re-confirmed A-G1: the real DataConsolidator, given made-up values per configured cell, put Diff GSTR-3B J15/K15/L15 into the IGST/CGST/SGST columns of the IMS Reco, Extra In Purchase and Extra In GSTR2B sheets. 13 columns OK, 9 MISMATCH (data_consolidator.py:139-150). No test covers this (Sections 3 A-F24, 5 A-R88, 7 A-G1, 12).",
+   "Mutations M08, M16 and M21 survive the whole suite (RAN, me). So the fixes of c89c1d4 (refresh_status after a theme toggle), 33d0baf fix 3 (per-client folder key by state code) and 2aaa2b1's Skip Refresh wiring in report_processor.py:140-147 have no test protecting them. Section 12 should not describe them as tested.",
+   "tests/test_main_window_tabs.py rewrites the user's real ~/.gst_organizer_cache.json when it holds dark_mode true (RAN). It also creates %TEMP%/gst_excel_temp. Supports A-G60; relevant to Sections 9 and 13.",
+   "The subprocess probe tests write .pyc files into the project's own folders even when pytest runs with -B. This matters for Standard 13 (rebuild_pipeline_FINAL.md:969-970) if tests ever run from a shared folder.",
+   "HANDOVER.md and FILE_INDEX.md never existed in any commit of A or B, nor in the checkout (RAN). Sections 1 and 2 should state this.",
+   "The Step 3 log says 'press Process to refresh' (gui/handlers/processing_handler.py:170-172), but the Step 4 button is labelled '🚀 Start Processing' (extractor_window.py:328-340). Relevant to Section 10 and A-G69.",
+   "Docstring and comment errors for Sections 2, 8 and 10:\n- gui/utils/setup_validation.py:68 `_short` says 'Trim the middle'; it trims the start and returns 45 characters.\n- gui/tabs/validation_tab.py:27 says '40%/60%'; the left column is a fixed 450 px (:30).\n- report_processor.py:541/543 logs 'read-only mode'; the file is opened read-write (:737).\n- gui/widgets/tooltip.py:1 says tooltips show truncated paths only; they are also used for help texts since bf2f1dd.",
+   "These texts still call pywin32 optional, although be6418c made it required on Windows: report_processor.py:11-13, gui/tabs/extract_tab.py:20-22, and the user-visible notice at gui/tabs/extract_tab.py:101-105.",
+   "The version label 'v3.0 | Production Ready' and __version__ '3.0.0' are unchanged since edac6a3 through all 34 of A's own commits (A-R156).",
+   "Commit-message test counts for Section 12A (RAN, collected per commit): 322717f gives a wrong breakdown (19+8, not 21+9); d64d3a9 says 140 but has 132; 2aaa2b1 says 20 new but added 21. From a677670 to aeb83cf, 1-4 test files could not load on a Python without pywin32 (ModuleNotFoundError: pythoncom), until c463256.",
+   "Confidentiality for Section 2 and other writers: the company-like name occurs only in PROJECT_AUDIT_ANNUALSTATEMENT.md lines 130,133,134,158,160-162,177,179,180,182,227,228,231,232. It was introduced by f7eb8f1, is in 33 A commits and is not in B. Lines 5 and 663 of the same file hold the author's local path. Never quote either."
+  ],
+  [],
+  [
+   "X6-Q1 [GST RULE] ⚠ The IGST/CGST/SGST columns of the IMS Reco, Extra In Purchase and Extra In GSTR2B sheets show Diff GSTR-3B!J15/K15/L15 instead of their configured cells (IMS_Reco!AA1/AD1/AG1, ExtraInPurchase!O1/P1/Q1, ExtraInGSTR2B!S1/T1/U1). Which cells are intended? Was this ever noticed in a past PQ_Extraction_Report? (data_consolidator.py:137-150)",
+   "X6-Q3 [GST RULE] ⚠ What does Info!BB2 hold in the empty templates and after a good refresh? Is 'not empty / not 0 / not an error' the right success test? (report_processor.py:638-685)",
+   "X6-Q11 [GST RULE] When a client has two files of one type (e.g. an original and a '(1)' copy), which one should feed the report? Or should the run stop? (utils/helpers.py:361; core/excel_handler.py:628-700)",
+   "X6-Q12 [GST RULE] ⚠ Is 'all six types, no duplicates, any number of GSTR-3B' the set every client must have? (utils/constants.py:68-75; core/file_parser.py:252-286)",
+   "X6-Q16 [GST RULE] ⚠ Period/year parts of file names are never checked. Should files of different periods ever be mixed? (core/file_parser.py:97-106)",
+   "X6-Q20/Q21 [GST RULE] ⚠ Do real file names contain hyphens in client names? How is the state written: full name, letter code, or numeric code? (utils/constants.py:15-55; utils/helpers.py:592-618)",
+   "X6-Q26 [GST RULE] What do the templates' Links cells hold for file types a client lacks? (core/excel_handler.py:192-193, 300-301)",
+   "X6-Q33 What should 'Resume' do? Today it makes a new Version folder each run and skips nothing unless resumed in the same minute. (core/file_organizer.py:102-108, 283-287)",
+   "X6-Q41 Do staff keep their own Excel open during Step 3 or Step 4? Has Excel ever closed by itself? (core/excel_handler.py:123-133, 238-246)",
+   "X6-Q42/Q43 Do staff work on the PC during a Step 4 refresh? Which Excel version and UI language are used (Alt+A, R, A key tips)? (report_processor.py:258-293)",
+   "X6-Q55 Should 'full pipeline' start the refresh itself, as its label promises? Is the 'Continue to extraction' button still wanted? (processing_handler.py:136-175)",
+   "X6-Q57 How do you refresh an older Annual Statement batch? Pointing Step 4 at it finds nothing. (extractor_window.py:622-632)",
+   "X6-Q62 How do staff start the program (console, pythonw, shortcut) and from which folder? (main.py:17, 20-27)",
+   "X6-Q63/Q64 Where should settings and logs live? Should the program ever pip-install packages, and should that be the whole requirements.txt including pytest? (cache_manager.py:15; dependency_installer.py:88-158)",
+   "X6-Q66 Is pywin32 meant to be required on Windows (be6418c)? If yes, should the Step 4 notice and comments stop calling it optional? (extract_tab.py:84-105; report_processor.py:11-13)",
+   "X6-Q77 Did running the tests ever change your ~/.gst_organizer_cache.json? (tests/test_main_window_tabs.py:36-38)",
+   "X6-Q78 d64d3a9 says 140 tests, but it has 132. Do the uncommitted harnesses named in seven commit messages still exist?",
+   "X6-Q81 Is the company-like name in PROJECT_AUDIT_ANNUALSTATEMENT.md lines 130-232 a real client?",
+   "X6-Q82 Are the repositories private? Should history be rewritten to remove gst_organizer.log, the .pyc paths and the share path in commit messages?"
+  ]
+ ]
+]

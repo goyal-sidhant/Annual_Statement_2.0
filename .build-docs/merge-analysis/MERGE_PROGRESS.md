@@ -39,7 +39,7 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**Paused by the author (21-10-2026, short of session limit).** When the author says "continue": resume queue item 1 (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
+**Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
 Phase 1 — audit A, then B, with `.build-docs/toolkit/Project_Audit_FINAL.md` (all 12
 sections, every file line by line, `git show` for every commit, self-consistency review),
@@ -80,8 +80,8 @@ when the author says "continue".**
 |---|---|---|---|
 | — | Registry A (31 features, 157 rules) | done | wf_d4384abb-add |
 | — | Registry B (34 features, 144 rules) | done | wf_969e1fc4-64f |
-| 1 | A sections S3a, S67, S12BF, X345 | **S3a and S67 written (not yet checked)**; S12BF and X345 not written. Resuming replays the two writers from cache and runs their checkers, then S12BF and X345 | wf_02b98075-ec9 |
-| 2 | A sections S3b, S45, S89 | stopped early — resume | wf_ca6e1fb9-378 |
+| 1 | A sections S3a, S67, S12BF, X345 | **done** — written and adversarially checked (117 corrections in place), 21-10-2026 13:28 UTC | wf_02b98075-ec9 |
+| 2 | A sections S3b, S45, S89 | running (resumed 13:30 UTC) | wf_ca6e1fb9-378 |
 | 3 | A sections S2, S10, S12own, X12 | stopped early (a partial S10 draft exists) — resume | wf_31fae4d3-ca1 |
 | 4 | Check of shared 12A (12 shared commits; draft written) | stopped early — resume | wf_a1f47ea6-0e8 |
 | 5 | A final (S11, S1, assembly, self-consistency, completeness) → commit audit A | not started | |
