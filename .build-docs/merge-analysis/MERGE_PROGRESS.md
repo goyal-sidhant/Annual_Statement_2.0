@@ -39,6 +39,8 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
+**Paused by the author (21-10-2026, short of session limit).** When the author says "continue": resume queue item 1 (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
+
 Phase 1 — audit A, then B, with `.build-docs/toolkit/Project_Audit_FINAL.md` (all 12
 sections, every file line by line, `git show` for every commit, self-consistency review),
 with the merge adjustments in the prompt's section 7. Outputs:
@@ -68,25 +70,29 @@ The audits are written by the workflow script
 `~/merge-scratch/audit/<A|B>/<section>.md`; the assembled audits in
 `~/merge-scratch/audit/PROJECT_AUDIT_<name>.md`, then copied into this folder.
 
-**The author's instruction (21-10-2026): run ONE workflow at a time; start the next only when
-the previous one has finished.** The queue, in order:
+**The author's instructions (21-10-2026): run ONE workflow at a time; start the next only when
+the previous one has finished.** Then, being short of session limit, the author asked to let only
+A-S3a and A-S67 finish and to **pause everything else until the next session window**. Both
+finished at about 07:15 UTC; the run was stopped at 07:17 UTC. **Nothing is running. Resume only
+when the author says "continue".**
 
 | # | What | Status | Run ID (resume with `resumeFromRunId`) |
 |---|---|---|---|
 | — | Registry A (31 features, 157 rules) | done | wf_d4384abb-add |
 | — | Registry B (34 features, 144 rules) | done | wf_969e1fc4-64f |
-| 1 | A sections S3a, S67, S12BF, X345 | running | wf_02b98075-ec9 |
-| 2 | A sections S3b, S45, S89 | stopped early — resume next | wf_ca6e1fb9-378 |
-| 3 | A sections S2, S10, S12own, X12 | stopped early — resume | wf_31fae4d3-ca1 |
+| 1 | A sections S3a, S67, S12BF, X345 | **S3a and S67 written (not yet checked)**; S12BF and X345 not written. Resuming replays the two writers from cache and runs their checkers, then S12BF and X345 | wf_02b98075-ec9 |
+| 2 | A sections S3b, S45, S89 | stopped early — resume | wf_ca6e1fb9-378 |
+| 3 | A sections S2, S10, S12own, X12 | stopped early (a partial S10 draft exists) — resume | wf_31fae4d3-ca1 |
 | 4 | Check of shared 12A (12 shared commits; draft written) | stopped early — resume | wf_a1f47ea6-0e8 |
 | 5 | A final (S11, S1, assembly, self-consistency, completeness) → commit audit A | not started | |
-| 6 | B sections S3a, S67, S12BF, X345 | stopped early — resume | wf_6d3d2949-6f1 |
-| 7 | B sections S3b, S45, S89 | stopped early — resume | wf_a3e4fe43-d98 |
-| 8 | B sections S2, S10, S12own, X12 | stopped early — resume | wf_33f178ac-b1e |
+| 6 | B sections S3a, S67, S12BF, X345 | stopped early (partial S3a) — resume | wf_6d3d2949-6f1 |
+| 7 | B sections S3b, S45, S89 | stopped early (partial S3b, S45) — resume | wf_a3e4fe43-d98 |
+| 8 | B sections S2, S10, S12own, X12 | stopped early (partial S10) — resume | wf_33f178ac-b1e |
 | 9 | B final → commit audit B | not started | |
 
-Stopped writers may have left partial drafts in `~/merge-scratch/audit/<A|B>/`; the section
-prompt tells a re-run to read such a file and finish only what is missing.
+Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
+S67.md (Sections 6–7, gaps A-G1.., 208 KB), S10.md (partial); B — S3a.md, S3b.md, S45.md, S10.md
+(all partial). A re-run reads an existing draft and finishes only what is missing.
 
 Feature split for Section 3: A-F1..A-F15 / A-F16..A-F31; B-F1..B-F17 / B-F18..B-F34.
 
