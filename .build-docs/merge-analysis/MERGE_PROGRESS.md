@@ -68,19 +68,25 @@ The audits are written by the workflow script
 `~/merge-scratch/audit/<A|B>/<section>.md`; the assembled audits in
 `~/merge-scratch/audit/PROJECT_AUDIT_<name>.md`, then copied into this folder.
 
-| What | Status | Run ID (resume with `resumeFromRunId`) |
-|---|---|---|
-| Registry A (31 features, 157 rules) | done | wf_d4384abb-add |
-| Registry B (34 features, 144 rules) | done | wf_969e1fc4-64f |
-| Shared 12A (12 shared commits) | written; check re-running | wf_a1f47ea6-0e8 |
-| A sections S3a, S67, S12BF, X345 | running | wf_02b98075-ec9 |
-| A sections S3b, S45, S89 | running | wf_ca6e1fb9-378 |
-| A sections S2, S10, S12own, X12 | running | wf_31fae4d3-ca1 |
-| B sections S3a, S67, S12BF, X345 | running | wf_6d3d2949-6f1 |
-| B sections S3b, S45, S89 | running | wf_a3e4fe43-d98 |
-| B sections S2, S10, S12own, X12 | running | wf_33f178ac-b1e |
-| A final (S11, S1, assembly, self-consistency, completeness) | not started | |
-| B final | not started | |
+**The author's instruction (21-10-2026): run ONE workflow at a time; start the next only when
+the previous one has finished.** The queue, in order:
+
+| # | What | Status | Run ID (resume with `resumeFromRunId`) |
+|---|---|---|---|
+| — | Registry A (31 features, 157 rules) | done | wf_d4384abb-add |
+| — | Registry B (34 features, 144 rules) | done | wf_969e1fc4-64f |
+| 1 | A sections S3a, S67, S12BF, X345 | running | wf_02b98075-ec9 |
+| 2 | A sections S3b, S45, S89 | stopped early — resume next | wf_ca6e1fb9-378 |
+| 3 | A sections S2, S10, S12own, X12 | stopped early — resume | wf_31fae4d3-ca1 |
+| 4 | Check of shared 12A (12 shared commits; draft written) | stopped early — resume | wf_a1f47ea6-0e8 |
+| 5 | A final (S11, S1, assembly, self-consistency, completeness) → commit audit A | not started | |
+| 6 | B sections S3a, S67, S12BF, X345 | stopped early — resume | wf_6d3d2949-6f1 |
+| 7 | B sections S3b, S45, S89 | stopped early — resume | wf_a3e4fe43-d98 |
+| 8 | B sections S2, S10, S12own, X12 | stopped early — resume | wf_33f178ac-b1e |
+| 9 | B final → commit audit B | not started | |
+
+Stopped writers may have left partial drafts in `~/merge-scratch/audit/<A|B>/`; the section
+prompt tells a re-run to read such a file and finish only what is missing.
 
 Feature split for Section 3: A-F1..A-F15 / A-F16..A-F31; B-F1..B-F17 / B-F18..B-F34.
 
