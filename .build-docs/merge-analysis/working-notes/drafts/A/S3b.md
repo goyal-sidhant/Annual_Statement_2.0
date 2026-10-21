@@ -13,7 +13,7 @@ Both are written by plain Python; the workbook is made with **openpyxl** (a Pyth
 
 | What | File and lines (READ) |
 |---|---|
-| Organisation text report: file name, contents, the three counts, writing | `core/file_organizer.py:317-379` (name `:330`; folder list `:346-350`; files per type `:355-360`; counts `:362-368`; written as UTF-8 `:371-372`; any error → logged, `None` returned `:377-379`) |
+| Organisation text report: file name, contents, the three counts, writing | `core/file_organizer.py:317-379` (name `:330`; folder list `:346-350`; files per type `:355-360`; counts `:362-368`; written as UTF-8 (a text encoding that can hold every character) `:371-372`; any error → logged, `None` returned `:377-379`) |
 | The run-wide lists behind two of the counts | `core/file_organizer.py:50-51` (`created_folders`, `copied_files`), filled at `:100, :108, :139` (folders), `:172` / `:195` (Level 1), `:231` (every copy result) |
 | Called once per client; the return value is ignored | `gui/handlers/processing_handler.py:414` |
 | Data collected for the workbook during the run | `gui/handlers/processing_handler.py:209-226` (the `summary_data` dictionary, a lookup table of named values); report counters `:315-317, :321, :325, :337, :346, :382-384, :395, :401, :409`; one client row per SUCCESSFUL client `:416-429`; one file row per copy result `:431-438`; one error row per failed client `:442-453` |
@@ -30,19 +30,19 @@ None: automatic during and at the end of Step 3, after the user presses "🚀 ST
 
 #### How the traces in this part were run (applies to A-F16 to A-F31)
 
-- **Scratch copy.** All runs used `/root/merge-scratch/run/A-S3b/A`, a copy of the snapshot without `__pycache__` folders (Python's compiled-file caches); `diff -rq` against `/root/merge-scratch/A-copy` was empty and the sha256 checksums (fingerprints of the file contents) of both were identical before the runs (`out/acopy_checksums_before_v2.txt`, `out/copy_checksums_before_v2.txt`). Runs used `/root/merge-scratch/venv-A/bin/python -B` (Python 3.14.6, Tk 9.0, openpyxl 3.1.5) with `PYTHONDONTWRITEBYTECODE=1`, and `HOME` and `TMPDIR` pointed into the scratch folder, so the settings file and Excel's staging folder were only written there.
-- **Scripts and outputs.** Scripts are in `/root/merge-scratch/run/A-S3b/scripts/`, outputs in `/root/merge-scratch/run/A-S3b/out/` (same name, `.txt`). Some scripts were first written by an earlier, interrupted run of this same task; every one of them was read again and re-run for this text (all outputs quoted here are from the re-runs on 21-10-2026, 13:33-13:44). Scripts new in this run: `t19b_scan_realistic.py`, `t28_dark.py`, `t29_launcher.py`, `t29b_getattr.py`, `t30_logfile.py`, `t30b_basicconfig.py` (run 21-10-2026 after the others), `t31_help.py`.
+- **Scratch copy.** All runs used `/root/merge-scratch/run/A-S3b/A`, a copy of the snapshot without `__pycache__` folders (Python's compiled-file caches); `diff -rq` against `/root/merge-scratch/A-copy` was empty and the sha256 checksums (fingerprints of the file contents) of both were identical before the runs (`out/acopy_checksums_before_v2.txt`, `out/copy_checksums_before_v2.txt`). Runs used `/root/merge-scratch/venv-A/bin/python -B` (Python 3.14.6, Tk 9.0 — Tk is the window toolkit built into Python, used here through Tkinter —, openpyxl 3.1.5) with `PYTHONDONTWRITEBYTECODE=1`, and `HOME` and `TMPDIR` pointed into the scratch folder, so the settings file and Excel's staging folder (the temporary local folder in which Step 3 builds a report before copying it to its place) were only written there.
+- **Scripts and outputs.** Scripts are in `/root/merge-scratch/run/A-S3b/scripts/`, outputs in `/root/merge-scratch/run/A-S3b/out/` (same name, `.txt`). Some scripts were first written by an earlier, interrupted run of this same task; every one of them was read again and re-run for this text (all outputs quoted here are from the re-runs on 21-10-2026, 13:33-13:44). Scripts new in this run: `t19b_scan_realistic.py`, `t28_dark.py`, `t29_launcher.py`, `t29b_getattr.py`, `t30_logfile.py`, `t30b_basicconfig.py` (run 21-10-2026 after the others), `t31_help.py`. A verification pass re-ran every script once more (copies in `/root/merge-scratch/run/VERIFY-A-S3b/`, 21-10-2026, 14:43-14:51) and got the same results apart from clock times, made-up file sizes and the virtual screen size (details at the end of this part).
 - **Windows.** Window traces ran under **Xvfb** (a virtual screen, so Tk windows can be built without a monitor). Message boxes were replaced by recorders so no click is needed.
 - **Excel through COM** (COM = Windows' way for one program to drive another; here Python drives Microsoft Excel through the **pywin32** package) cannot run on this Linux machine. Those parts are traced **by reading**. For Step 4 the real Python code was additionally driven through `scripts/fakecom.py`, a **fake COM layer** (a stand-in that records every call and reads workbooks with openpyxl): it shows the order of the Python calls and the branches taken, **never** what real Excel would do.
 - **Invented clients.** `<Client A>` = the made-up "ClientA Traders", state Maharashtra; `<Client B>` = the made-up "ClientB Industries Private Limited", Gujarat; `<Client C>` = the made-up "ClientC Services LLP", Karnataka. They appear inside made-up file names because the program reads the client from the file name; they are not real clients. `<target>` stands for the scratch target folder.
 
 #### Concrete trace (RAN, me: `scripts/t16_17_step3.py` → `out/t16_17_step3.txt`)
 
-**Input:** a source folder with three clients — `<Client A>` and `<Client B>` complete (7 files each: GSTR-2B Reco, IMS Reco, two GSTR-3B months, Sales, Sales Reco, Annual Report), `<Client C>` missing its Sales file (6 files) — plus `notes for ClientC.xlsx`, which matches no pattern. Two templates with a `Links` sheet. The **real** Step 3 worker `ProcessingHandler.process_files_thread` (`gui/handlers/processing_handler.py:182-530`) is driven by a stub window object (a stand-in for the main window that records log lines, progress and message boxes, and whose `root.after` runs a call at once). On Linux the reports are built by the openpyxl path (A-F14, A-F15 in part 1). The run time stamp was fixed per run so that later runs get a new Level-1 folder.
+**Input:** a source folder with three clients — `<Client A>` and `<Client B>` complete (7 files each: GSTR-2B Reco, IMS Reco, two GSTR-3B months, Sales, Sales Reco, Annual Report), `<Client C>` missing its Sales file (6 files) — plus `notes for ClientC.xlsx`, which matches no pattern. Two templates with a `Links` sheet (the sheet into which Step 3 writes folder paths and file names that the template's queries read). The **real** Step 3 worker `ProcessingHandler.process_files_thread` (`gui/handlers/processing_handler.py:182-530`) is driven by a stub window object (a stand-in for the main window that records log lines, progress and message boxes, and whose `root.after` runs a call at once). On Linux the reports are built by the openpyxl path (A-F14, A-F15 in part 1). The run time stamp was fixed per run so that later runs get a new Level-1 folder.
 
 **Run R1 (fresh, stamp `211026 1030`), step by step:**
 
-1. Scan (`core/file_parser.py`, A-F7): `<Client A>` 'Complete' 7 files 100.0 %; `<Client B>` 'Complete' 7 files 100.0 %; `<Client C>` 'Missing 1 files' 6 files, missing `['Sales']`, 83.3 % [GST RULE] (the completeness rule A-R28/A-R29, described only); variations: `('notes for ClientC.xlsx', 'No matching pattern found', 'Check file naming convention', 4831)`.
+1. Scan (`core/file_parser.py`, A-F7): `<Client A>` 'Complete' 7 files 100.0 %; `<Client B>` 'Complete' 7 files 100.0 %; `<Client C>` 'Missing 1 files' 6 files, missing `['Sales']`, 83.3 % [GST RULE] (the completeness rule A-R28/A-R29, described only); variations: `('notes for ClientC.xlsx', 'No matching pattern found', 'Check file naming convention', 4831)` (the last value is the made-up file's size in bytes; it depends on the generated file: 4831 in the writer's run, 4833 when the verifier re-ran the same script on 21-10-2026, 14:43).
 2. `processing_handler.py:209-226`: `summary_data` starts with `total_clients = 3`, all counters 0, the processing mode, the target folder text, and — at `:224` — a **reference** to the very list `app.variations` (not a copy).
 3. For each client (`:228-453`): folders created (`:253`; the first client's Level-1 folder is kept, `:255-256`), files copied (`:271-273`), ITC report → `reports_generated`, `itc_reports_created` +1 (`:315-317`), Sales report → `sales_reports_created` +1 (`:382-384`), then `create_organization_report(folders, client_info)` (`:414`):
    - `core/file_organizer.py:330`: name `_Organization_Report_ClientA Traders_Maharashtra.txt` — client and state **exactly as written in the file names** (with spaces; the state NAME, not the code) [GST RULE] (state text, A-R23, described only);
@@ -75,10 +75,10 @@ The workbook read back (RAN):
 
 > **BUG (for Section 7; not yet in Section 7): after Stop, the summary workbook does not account for the clients that were not processed.** "Total Clients 3, Successful 1, Failed 0" (RAN R4): the two unprocessed clients are in no sheet and no count, and nothing says the run was stopped (`processing_handler.py:229-230` breaks without recording them; the box wording is A-G69). HIGH (mechanism).
 
-> **BUG (for Section 7; matches A-G19 / A-G69, now RAN): when no client succeeds there is no workbook, yet the run "completes successfully".** No `GST_Processing_Summary_…` file, no "Output location", no folder opened, but "PROCESSING COMPLETE" and "Successfully processed 0/3 clients" (RAN R3). The reasons for the failures exist only in the on-screen log and the log file. HIGH.
+> **BUG (for Section 7; the box wording matches A-G69, now RAN; the missing workbook itself is not yet in Section 7 — neither A-G19 nor A-G69 mentions it): when no client succeeds there is no workbook, yet the run "completes successfully".** No `GST_Processing_Summary_…` file, no "Output location", no folder opened, but "PROCESSING COMPLETE" and "Successfully processed 0/3 clients" (RAN R3). The reasons for the failures exist only in the on-screen log and the log file. HIGH.
 
 - **Failed clients appear only on the Errors sheet** (R2, RAN): Client Status lists successful clients only (`:416-429` runs only on success), so the Client Status sheet alone does not show that a client is missing.
-- **"Success" means "no exception", not "both reports made"** (READ): the client row is always `'Success'` (`:423`) once the per-client `try` ends normally, even if both reports failed (they only add to "Report Creation Errors", `:321, :325, :395, :401, :409`). The flags `itc_report_created` / `sales_report_created` are collected (`:427-428`) and never written (`core/excel_handler.py:479-491` writes six columns only). In this trace every report succeeded, so the case was not run (READ, HIGH; A-G19).
+- **"Success" means "no exception", not "both reports made"** (READ): the client row is always `'Success'` (`:423`) once the per-client `try` ends normally, even if both reports failed (they only add to "Report Creation Errors", `:321, :325, :337, :346, :395, :401, :409`). The flags `itc_report_created` / `sales_report_created` are collected (`:427-428`) and never written (`core/excel_handler.py:479-491` writes six columns only). In this trace every report succeeded, so the case was not run (READ, HIGH; A-G19).
 - **"Complete %" is text** (`'83.3%'`, `core/excel_handler.py:485`), so Excel cannot add or sort it as a number; "Processing Date" is the run stamp text `211026 1030` (day-month-year and minute), not a date (RAN).
 - **The workbook is written straight to the share** (`:402`, no temporary file) and a second run in the same minute overwrites it with only its own clients (RAN TRACE T6 run 2: 5 clients → 1 client; A-G9); an interrupted save leaves a broken workbook under the final name (A-G12).
 - **The Variations sheet reads the live list** (`processing_handler.py:224` passes a reference): a Re-scan pressed during the run empties it, and the sheet then says "No file variations found" (RAN GUI exp8; A-G13).
@@ -90,13 +90,13 @@ Rules involved: A-R61 (summary workbook layout), A-R62 (organisation text report
 
 #### Older documents against the code
 
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:237-245` (F5.1-F5.4): five sheets at Level 1, name `GST_Processing_Summary_DDMMYY_HHMM.xlsx`, "automatic at end of processing" — still true, except that "automatic" holds only when at least one client succeeded (`processing_handler.py:456`). The document does not mention the run-wide counts in the text report.
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:237-245` (F5.1-F5.4): five sheets at Level 1, name `GST_Processing_Summary_DDMMYY_HHMM.xlsx`, "automatic at end of processing" — still true, except that "automatic" holds only when at least one client succeeded (`processing_handler.py:456`). The document does not mention the run-wide counts in the text report. Its location "create_summary_report method, lines 319-357" (`PROJECT_AUDIT_ANNUALSTATEMENT.md:239`) was right when it was written (`core/excel_handler.py:319@f7eb8f1`, A only (after the split), READ) but is stale now: the method is at `core/excel_handler.py:371-409` at the snapshot (the file grew in A's later commits).
 - `README.md:182, 195` (RM26): summary file `GST_Processing_Summary_DDMMYYYY_HHMMSS.xlsx` — never true (the stamp is `DDMMYY_HHMM`, `processing_handler.py:186, 462-464`). `README.md:190, 204` (RM29): `_Organization_Report_ClientName_State.txt` in the Version folder, "Processing log for each client" — the name is still true (raw client name, full state name); as a "processing log" it is misleading, because two of its three counts are run-wide (see above). `README.md:196-200` (RM31): the five sheet names — still true.
 - `README.md:43, 261, 310` (RM6) "Files are verified before finalization": the summary workbook is checked only for "the file exists" (`core/excel_handler.py:405`).
 
 #### History
 
-Both builders are unchanged since the first commit: `git blame` (RAN) attributes all 231 lines of `core/excel_handler.py:371-601` and all 63 lines of `core/file_organizer.py:317-379` to `edac6a3` (shared - before the split on 30-10-2025); the leftover `# NEW` markers at `core/excel_handler.py:449-451` are from that commit. The data collection in the worker (`gui/handlers/processing_handler.py:413-475`) is also from `edac6a3`; the only later change in `:413-530` is the workflow hand-over call (`510f7b4`, A only (after the split)).
+Both builders are unchanged since the first commit: `git blame` (a git command that shows, for every line, the commit that last changed it; RAN) attributes all 231 lines of `core/excel_handler.py:371-601` and all 63 lines of `core/file_organizer.py:317-379` to `edac6a3` (shared - before the split on 30-10-2025); the leftover `# NEW` markers at `core/excel_handler.py:449-451` are from that commit. The data collection in the worker (`gui/handlers/processing_handler.py:413-475`) is also from `edac6a3`; the only later change in `:413-530` is the workflow hand-over call (`510f7b4`, A only (after the split)).
 
 ### A-F17: Processing progress and log (Start / Stop, ETA, completion)
 
@@ -138,7 +138,7 @@ To make the time estimate visible, the trace replaced the clock used by `Progres
 | Summary (270 s, all clients done) | `current` is still 2 — the last client is never counted — so ETA = (3 − 2) ÷ (2 ÷ 270) = 135 s (`:457`) | `95`, "Creating summary report \| ETA: 2m 15s" |
 | End | elapsed from the tracker (`:478-482`) | `100`, "Processing complete \| Total time: 4m 30s" |
 
-Then (RAN): log "🎉 ════════ PROCESSING COMPLETE ════════", "✅ Processed: 3/3 clients", "📁 Files organized: 20", "📊 Reports created: 6", "📂 Output location: <target>/Annual Statement-211026 1030", "⏱️ Total processing time: …"; box `('Processing Complete', 'Successfully processed 3/3 clients\n\nFiles organized in:\n<target>')` — it names the **target** folder, not the new Level-1 folder; then `xdg-open "<target>/Annual Statement-211026 1030"` (`:512`; on Windows `os.startfile`, `:508`) and "📂 Opened output folder" logged although the stub returned the "command not found" code 32512 (the `os.system` result is not checked); buttons: Start `normal`, Stop `disabled`, `is_processing False` (`:527-530`). In R4 (Stop after client 1) the summary step showed "ETA: Unknown" (`current` stayed 0) and the box said "Successfully processed 1/3 clients".
+Then (RAN): log "🎉 ════════ PROCESSING COMPLETE ════════", "✅ Processed: 3/3 clients", "📁 Files organized: 20", "📊 Reports created: 6", "📂 Output location: <target>/Annual Statement-211026 1030", "⏱️ Total processing time: …"; box `('Processing Complete', 'Successfully processed 3/3 clients\n\nFiles organized in:\n<target>')` — it names the **target** folder, not the new Level-1 folder; then `xdg-open "<target>/Annual Statement-211026 1030"` (Linux's "open with the default program"; `:512`; on Windows `os.startfile`, `:508`) and "📂 Opened output folder" logged although the stub returned the "command not found" code 32512 (the `os.system` result is not checked); buttons: Start `normal`, Stop `disabled`, `is_processing False` (`:527-530`). In R4 (Stop after client 1) the summary step showed "ETA: Unknown" (`current` stayed 0) and the box said "Successfully processed 1/3 clients".
 
 #### Concrete trace — the real window (RAN, me, Xvfb: `scripts/t17_gui.py`, `scripts/t17_close.py`)
 
@@ -149,7 +149,7 @@ The real `GSTOrganizerApp` was built, the four paths set, the source scanned (th
 3. **Second Start click during the run** (700 ms): the click still reaches `start_processing` (the button only looks disabled, because `.bind` ignores the state), but the guard at `:75-76` returns at once — still 2 threads (RAN).
 4. **Stop click during client 1** (1000 ms): bar at 16.7 %, "Client 1/3: Creating Excel reports". The worker finished the whole of `<Client A>` (its Sales report was written after the Stop line), then left the loop at `:229-230`. Log (RAN, abridged): "[13:35:56] 🛑 Stop requested by user" (from step 1) … "🚀 ════════ PROCESSING STARTED ════════" … "🛑 Stop requested by user" … "✅ Success: Sales_Report_ClientA_Traders_MH_…xlsx" … "✅ Completed ClientA Traders" … "📊 Creating Level 1 summary report..." … "✅ Processed: 1/3 clients" … "📂 Opened output folder" … "ℹ️ Workflow is 'organise only'. …".
 5. **The completion box was raised from the worker thread**: the recorder saw thread `Thread-1 (process_files_thread)` call `showinfo('Processing Complete', …)` (RAN) — Tk is designed to be used from the window's own thread only (A-G70).
-6. **Second run in the same session:** the log was not cleared — "PROCESSING STARTED" appears twice and the start-up lines are still there (RAN). The 14 "[DEBUG]" lines (A-F15, part 1) carry the plain `normal` colour tag (RAN).
+6. **Second run in the same session:** the log was not cleared — "PROCESSING STARTED" appears twice and the start-up lines are still there (RAN). The "[DEBUG]" lines (A-F15, part 1: 8 per client in a normal run, 14 in the code) appear in the user's log; the first one, checked by the trace, carries the plain `normal` colour tag (RAN). In the code 9 of the 14 use `normal`; `:353` and `:393` use `warning`, and `:403`, `:404`, `:411` use `error` — those 5 appear only when something goes wrong (READ). [Corrected during verification — originally stated "The 14 '[DEBUG]' lines … carry the plain `normal` colour tag"; the trace checked one line and the code gives 5 of the 14 other tags.]
 7. **Closing the window during a run** (`t17_close.py`): `on_closing` asked "Processing Active / Processing is still running. Stop and exit?" (recorded answer Yes) → `stop_requested = True` and `root.after(1000, root.destroy)` (`gui/main_window.py:346-353`); the main loop returned while the worker was **still alive** (RAN: `is_alive() True`). In the real program `main.py` then ends and the daemon worker is killed wherever it is (READ; A-G27). Closing during a **Step 4** run asks nothing at all, because `on_closing` looks only at Step 3's flag (`:346`) (READ).
 
 #### What the trace shows against what the feature claims
@@ -161,7 +161,7 @@ The real `GSTOrganizerApp` was built, the four paths set, the source scanned (th
 > **BUG (for Section 7; matches A-G27): closing the window mid-run kills the worker** about 1 s later, mid-client (RAN: worker alive when the window loop ended); for Step 4 there is no question at all (READ). HIGH.
 
 - **Stop is coarse** (RAN): it is checked only before each client (`:229`), so the current client — including its slow Excel work — always finishes.
-- **ETA** (RAN): during the run the estimate covers the clients not yet finished, including the current one — correct for an even workload; at the summary step it still shows one client's time ("ETA: 2m 15s" after all three were done), because the tracker never counts the last client (`:235` adds 0 for the first client and 1 for each later one; A-G72). With one client, or after a Stop during the first client, it shows "Unknown". The registry wording "the ETA is one client behind" means this end-of-run effect.
+- **ETA** (RAN): during the run the estimate covers the clients not yet finished, including the current one — correct for an even workload; at the summary step it still shows one client's time ("ETA: 2m 15s" after all three were done), because the tracker never counts the last client (`:235` adds 0 for the first client and 1 for each later one; A-G72). With one client, or after a Stop during the first client, it shows "Unknown". The registry (the ID list of this audit, `/root/merge-scratch/audit/A_registry.md`) wording "the ETA is one client behind" means this end-of-run effect.
 - **Two clocks** (READ): the bar's "Total time" comes from the tracker (`:478`), the log's "Total processing time" from `datetime` (`:492-496`); they measure the same thing twice.
 - **Only successful copies are listed** in the log (`:282-284`); failed or skipped copies get no line (READ; A-G67).
 - **"📂 Opened output folder" is logged even when opening failed** on macOS/Linux (RAN: exit code 32512 ignored, `:510-514`); on Windows `os.startfile` errors are caught and logged as "Could not open folder" (READ). The folder path is placed inside a shell command on macOS/Linux (A-G57).
@@ -174,19 +174,19 @@ Rules involved: A-R135 (run control), A-R140 (log and completion texts), A-R141 
 #### Older documents against the code
 
 - `PROJECT_AUDIT_ANNUALSTATEMENT.md:289` (F8.3) "Start button, daemon thread, Stop button, progress & log via `root.after(0, …)`" — the thread and Stop are as described; Stop acts only between clients.
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:291` (F8.4) "All UI updates from the processing thread use `self.app.root.after(0, lambda: …)`" — **never true**: at `47a1492` only 24 calls were wrapped, and at the snapshot 45 direct `log_message` calls, the message boxes and the button changes still run on the worker (DOCS F8.4, X6).
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:811-815` (UI5): progress bar, labels, START/STOP, dark log — still true (file unchanged since `edac6a3`).
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:291` (F8.4) "All UI updates from the processing thread use `self.app.root.after(0, lambda: …)`" (a **lambda** is a small unnamed function; `root.after(0, …)` hands it to the window's own thread) — **never true**: at `47a1492` (the last commit shared - before the split on 30-10-2025) only 24 calls in the whole file were wrapped — 14 of them in the worker (10 log lines, 4 progress updates), the other 10 in the dry run (9, lines 36-52) and in `start_processing` (1, line 104) (`gui/handlers/processing_handler.py@47a1492`, RAN `grep` on `git show`) — while the worker made 45 direct `log_message` calls; at the snapshot 45 direct `log_message` calls, the message boxes and the button changes still run on the worker (DOCS F8.4, X6).
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:811-815` (UI5): progress bar, labels, START/STOP, dark log — still true (file unchanged since `edac6a3`, shared - before the split on 30-10-2025).
 - `README.md:160-162` (RM22) "Click Start Processing; monitor progress bar and log; wait for completion message" — still true. `README.md:158-159` (RM21) "Step 3: Processing Tab — 1. Click 'Dry Run'" — never true (Dry Run is on Step 2).
 
 #### History
 
-`gui/tabs/processing_tab.py`, `gui/utils/ui_helpers.py` and `ProgressTracker` (`utils/helpers.py:476-523`) are unchanged since `edac6a3` (shared - before the split on 30-10-2025) (RAN `git log`, `git blame`). In the worker, `6237597` (shared - before the split on 30-10-2025) wrapped part of the log calls in `root.after(0, lambda: …)`; A only (after the split): `0890022` (23-07-2026) replaced those lambdas with `_log_async` / `_progress_async`, which freeze the text when it is scheduled (the late-binding fix: a lambda in a loop otherwise reads the loop variable when it finally runs), `33d0baf` (23-07-2026) added the re-entrancy guard (`:71-76`), `510f7b4` (26-07-2026) added the hand-over (`:519`). `git blame` of `:182-412`: 217 lines `edac6a3`, 14 lines `0890022` (RAN).
+`gui/tabs/processing_tab.py`, `gui/utils/ui_helpers.py` and `ProgressTracker` (`utils/helpers.py:476-523`) are unchanged since `edac6a3` (shared - before the split on 30-10-2025) (RAN `git log`, `git blame`). In the worker, `6237597` (shared - before the split on 30-10-2025) wrapped part of the log calls in `root.after(0, lambda: …)`; A only (after the split): `0890022` (23-07-2026) replaced those lambdas with `_log_async` / `_progress_async`, which freeze the text when it is scheduled (the late-binding fix: a lambda in a loop otherwise reads the loop variable when it finally runs), `33d0baf` (23-07-2026) added the re-entrancy guard (a check that ignores a second Start while a run is going, `:71-76`), `510f7b4` (26-07-2026) added the hand-over (`:519`). `git blame` of `:182-412`: 217 lines `edac6a3`, 14 lines `0890022` (RAN).
 
 ### A-F18: Step 4 tab hosting the extractor (folder follows Step 1; fallback notice)
 
 #### What it does
 
-The fourth tab of the main window, "🔄 Step 4: Extract", shows a short explanation strip and, below it, the **Power Query Extractor panel** — the same screen the separate extractor program shows (A-F29), with its own two sub-tabs "Setup" and "Processing". Inside the main window the panel is built without its own blue banner and without its own status bar, and it does **not** scan when the program starts. The panel's folder box is filled with Step 1's target folder and keeps following it until the user puts a different folder into the box. If the extractor code cannot be loaded at all, the tab shows an orange notice instead of the panel.
+The fourth tab of the main window, "🔄 Step 4: Extract", shows a short explanation strip and, below it, the **Power Query Extractor panel** (Power Query = Excel's data-import tool; see A-F21) — the same screen the separate extractor program shows (A-F29), with its own two sub-tabs "Setup" and "Processing". Inside the main window the panel is built without its own blue banner and without its own status bar, and it does **not** scan when the program starts. The panel's folder box is filled with Step 1's target folder and keeps following it until the user puts a different folder into the box. If the extractor code cannot be loaded at all, the tab shows an orange notice instead of the panel.
 
 #### Where it lives
 
@@ -235,7 +235,7 @@ On this machine pywin32 is missing, yet the panel was built (`EXTRACTOR_IMPORT_E
 
 > **BUG (for Section 7; matches A-G65): the panel's status messages are invisible inside the main window** — no widget displays the status text (RAN); "No processed folders found", "Error scanning folder" etc. appear only in the log on the other sub-tab ("Processing"). HIGH.
 
-> **BUG (for Section 7; matches A-G66 and A-R129): the notice can no longer appear for the reason it names, and blames pywin32 for any other failure** (RAN: shown for a configuration typo, with the pywin32 text). Its last line, "Steps 1-3 are unaffected … works without pywin32", disagrees with `be6418c`, which makes pywin32 required on Windows (A-F1). HIGH.
+> **BUG (for Section 7; matches A-G66 and A-R129): the notice can no longer appear for the reason it names, and blames pywin32 for any other failure** (RAN: shown for a configuration typo, with the pywin32 text). Its last line, "Steps 1-3 are unaffected … works without pywin32", disagrees with `be6418c` (A only (after the split)), which makes pywin32 required on Windows (A-F1). HIGH.
 
 - **"✅ Step 4 ready" is logged even when the Step 4 scan found nothing** (RAN step 5) — the panel's scan reports into its own log and returns normally (`extractor_window.py:625-628`). The text says "press Process" although the button reads "🚀 Start Processing" (A-G66). (Not yet in Section 7 as such.)
 - The first Step 4 folder value at start-up comes from the settings file indirectly (through Step 1's variable), never from the panel's own cache reader (`load_from_cache` runs only when `auto_load=True`, `extractor_window.py:138-139`) (READ + RAN step 1).
@@ -245,11 +245,11 @@ Rules involved: A-R129 (Step 4 loading guard), A-R143 (Step 4 panel behaviour), 
 
 #### Older documents against the code
 
-- `docs/superpowers/specs/2026-07-25-merge-extractor-design.md:27-30, 39-41` (P3, P5, P9): a fourth tab hosting `ExtractorPanel` — built as planned (`bfcb24a`), plus the guarded import and notice (`c463256`).
+- `docs/superpowers/specs/2026-07-25-merge-extractor-design.md:27-30, 39-41` (P3, P5, P9): a fourth tab hosting `ExtractorPanel` — built as planned (`bfcb24a`, A only (after the split)), plus the guarded import and notice (`c463256`, A only (after the split)).
 - Design note `:85-87` (P18) "pre-filled from Setup's target folder, follows it until the user overrides it" — built, except that the 'full' hand-over breaks it (RAN above).
-- Design note `:54-56` (P12) "`logging.basicConfig` moves into the standalone entry point" — not moved; avoided by importing `extractor_window` instead (`extract_tab.py:8-10`) (A-F30).
-- `bfcb24a`'s message: "a notebook inside a notebook. Flattening is the next decision" — still nested at the snapshot (RAN tab list).
-- `power_query_extractor/core/report_processor.py:11-13` calls pywin32 "genuinely optional" — out of date since `be6418c` (DOCS X12).
+- Design note `:54-56` (P12) "`logging.basicConfig` moves into the standalone entry point" (`basicConfig` = Python's one-time set-up of where log lines go; see A-F30) — not moved; avoided by importing `extractor_window` instead (`extract_tab.py:8-10`) (A-F30).
+- `bfcb24a`'s message (A only (after the split)): "a notebook inside a notebook. Flattening is the next decision" — still nested at the snapshot (RAN tab list).
+- `power_query_extractor/core/report_processor.py:11-13` calls pywin32 "genuinely optional" — out of date since `be6418c` (A only (after the split)) (DOCS X12).
 
 #### History
 
@@ -283,7 +283,7 @@ The folder in the box → `self.level1_folder` (the run folder later used for th
 
 **Input:** a target folder holding (a) an older run `Annual Statement-181026 0900` (one client, both reports, three days old) and (b) the **real output of Step 3 run R1** from A-F16 (`Annual Statement-211026 1030` with `<Client A>`, `<Client B>`, `<Client C>`, each with an ITC and a Sales report, plus the summary workbook). The real `ExtractorPanel` is built as Step 4 builds it.
 
-1. **Scan** (`:611-668`): box not empty → status "Scanning folder..." and log "Scanning folder for clients..." (`:617-618`) → `glob("Annual Statement-*")` finds both run folders (`:623`) → newest by mtime = `Annual Statement-211026 1030` (`:631`), stored as `level1_folder` (`:632`), log "Using folder: Annual Statement-211026 1030" → `iterdir()`: `GST_Processing_Summary_211026_1030.xlsx` is not a folder → skipped (`:639`); the three client folders → each has one `Version-*` → `_classify_version_reports` (`:20-42`): both reports present → `display_clients` → log "Found 3 clients", Start enabled.
+1. **Scan** (`:611-668`): box not empty → status "Scanning folder..." and log "Scanning folder for clients..." (`:617-618`) → `glob("Annual Statement-*")` (a wildcard search for names starting with "Annual Statement-") finds both run folders (`:623`) → newest by mtime = `Annual Statement-211026 1030` (`:631`), stored as `level1_folder` (`:632`), log "Using folder: Annual Statement-211026 1030" → `iterdir()`: `GST_Processing_Summary_211026_1030.xlsx` is not a folder → skipped (`:639`); the three client folders → each has one `Version-*` → `_classify_version_reports` (`:20-42`): both reports present → `display_clients` → log "Found 3 clients", Start enabled.
 
    Result (RAN): `ClientA Traders-MH`, `ClientB Industries Pvt Ltd-GJ`, `ClientC Services LLP-KA`, each `Version-211026 1030`, ITC tick ✓, Sales tick ✓, "Never refreshed". Note that `<Client C>` — the client with **no Sales file** — is offered with its Sales report ticked: that report is the unfilled template copy described in A-F15 (part 1).
 2. A refresh of `<Client A>`'s ITC report fails before Excel saves anything (see A-F20/A-F22).
@@ -297,14 +297,14 @@ The folder in the box → `self.level1_folder` (the run folder later used for th
 | A client folder holds two Version folders; the newer one (`Version-211026 1045`) has only an ITC report, the older one (`…1030`) both | the newer is used: ITC ✓, **Sales tick disabled** (the Sales report in the older Version folder is not offered) |
 | A client folder with no `Version-*` folder; a folder `_archive` | both left out silently (`:639-642`) |
 | Box pointed at a run folder itself (`…/Annual Statement-211026 1030`) | "No Annual Statement folders found"; the **previous list, run folder and Start button stay** (`:625-628` returns early) |
-| A newer FILE named `Annual Statement-notes.txt` in the target | "Error scanning folder: [Errno 20] Not a directory: '…/Annual Statement-notes.txt'" — the file was already stored as `level1_folder` at `:632` before `iterdir()` failed at `:638` |
+| A newer FILE named `Annual Statement-notes.txt` in the target | "Error scanning folder: [Errno 20] Not a directory: '…/Annual Statement-notes.txt'" (RAN) — the file was already stored as `level1_folder` at `:632` before `iterdir()` failed at `:638` (READ: the trace printed only the log line, not `level1_folder`; HIGH from the code order) |
 | A scan while a run is in progress | Start button `normal` again (`:756-757`) |
 
 #### What the trace shows against what the feature claims
 
-> **BUG (for Section 7; matches A-G45): "newest" means "most recently changed", so ordinary actions switch Step 4 to an older batch.** Opening an older run's summary workbook in Excel was enough (RAN with a real file created in the folder, step 3-4). Nothing on the Setup sub-tab says which batch was chosen; the log line is on the other sub-tab. HIGH (code); MEDIUM that Windows updates folder dates the same way for every such action (NTFS updates a folder's date when entries are added, renamed or removed directly in it).
+> **BUG (for Section 7; matches A-G45): "newest" means "most recently changed", so ordinary actions switch Step 4 to an older batch.** Opening an older run's summary workbook in Excel was enough (RAN with a real file created in the folder, step 3-4). Nothing on the Setup sub-tab says which batch was chosen; the log line is on the other sub-tab. HIGH (code); MEDIUM that Windows updates folder dates the same way for every such action (NTFS, the disk format of Windows, updates a folder's date when entries are added, renamed or removed directly in it).
 
-> **BUG (for Section 7; matches A-G45): pointing the box at a run folder finds nothing and silently keeps the old list** (RAN). The `bfcb24a` message and the design note (`docs/…-merge-extractor-design.md:87-89`) say this "still works". HIGH.
+> **BUG (for Section 7; matches A-G45): pointing the box at a run folder finds nothing and silently keeps the old list** (RAN). The design note (`docs/superpowers/specs/2026-07-25-merge-extractor-design.md:87-88`) says "pointing at an `Annual Statement-...` folder from a previous run still works", and the `bfcb24a` message (A only (after the split)) says "an older 'Annual Statement-...' batch can still be refreshed without touching Step 1" (RAN `git show -s`). Pointing at the batch folder itself does not work; pointing at a parent folder in which the older batch is the newest-dated one does (READ `:623, :631`). HIGH.
 
 - **Only the newest Version folder of a client is looked at** (RAN): a report that exists only in an older Version folder of the same client is not offered. (Not yet in Section 7 as such.) MEDIUM.
 - **A FILE named like a run folder breaks the scan and leaves `level1_folder` pointing at the file** (RAN); a later Start would write the consolidated workbook "into" a file and fail (A-G29).
@@ -312,11 +312,11 @@ The folder in the box → `self.level1_folder` (the run folder later used for th
 - **Folder order is the file system's order** (READ `:638`): the client list is not sorted (on a Windows NTFS disk listings are normally alphabetical — MEDIUM; on Linux the PQ reader saw `CLIENTB` listed before `CLIENTA`, RAN PQ).
 - Two clients that share one Level-2 folder (A-F13 in part 1) appear as one client here (RAN TRACE T9).
 
-Rules involved: A-R42 (which run and which version), A-R59 (report names recognised), A-R43 (same "newest by date modified" rule in Re-run/Resume).
+Rules involved: A-R42 (which run and which version), A-R59 (report names recognised; the names carry the state code) [GST RULE], A-R43 (same "newest by date modified" rule in Re-run/Resume).
 
 #### Older documents against the code
 
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:413-417` (S4.7, S4.8): "scans for `Annual Statement-*` → latest; for each client latest `Version-*`" — still true; "latest" is by date modified since `c1583d6` (before: by name, which sorts day-first names wrongly across months).
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:413-417` (S4.7, S4.8): "scans for `Annual Statement-*` → latest; for each client latest `Version-*`" — still true. "Latest" run folder has always meant "newest date modified" (`power_query_extractor/gui/extractor_window.py:373@edac6a3`, shared - before the split on 30-10-2025; unchanged at `:631`, RAN `git blame`); "latest" Version folder means "newest date modified" only since `c1583d6` (A only (after the split); before: by name, `extractor_window.py:385@edac6a3`, which sorts day-first names wrongly across months). [Corrected during verification — originally said "'latest' is by date modified since `c1583d6`", which holds for the Version folder only.]
 - Design note `:87-89` (P19) "pointing at an `Annual Statement-…` folder from a previous run still works" — not as built (RAN).
 
 #### History
@@ -351,7 +351,7 @@ Click the ticks or the four buttons; press "🚀 Start Processing".
 
 #### Concrete trace (RAN, me, Xvfb: `scripts/t19_20_25_panel.py` and `scripts/t19b_scan_realistic.py`)
 
-1. **Rows** (t19 case a): `ClientA Traders-MH` (newest Version has ITC only): ITC ✓ `normal`, Sales ☐ `disabled`, "Never refreshed"; `ClientB Industries Pvt Ltd-GJ` (Sales only, plus a refreshed Sales copy dated "2026-10-20 14:17"): ITC ☐ `disabled`, Sales ✓, "ITC: Never | Sales: 2026-10-20 14:17".
+1. **Rows** (t19 case a): `ClientA Traders-MH` (newest Version has ITC only): ITC ✓ `normal`, Sales ☐ `disabled`, "Never refreshed"; `ClientB Industries Pvt Ltd-GJ` (Sales only, plus a refreshed Sales copy dated "2026-10-20 14:17"): ITC ☐ `disabled`, Sales ✓, "ITC: Never | Sales: 2026-10-20 14:17" (the script dates its made-up files relative to the moment it runs, so the times differ between runs: the verifier's re-run on 21-10-2026 showed "2026-10-20 15:25" here and "2026-10-20 14:45" in step 4).
 2. **Buttons** (RAN): "ITC Only" → A (✓, ☐), B (☐, ☐); "Sales Only" → A (☐, ☐), B (☐, ✓); "Deselect All" → all ☐; "Select All" → A (✓, ☐), B (☐, ✓) — absent reports are never ticked (`:810-836`).
 3. **Start with nothing ticked** → box "No Selection" / "Please select at least one report to process" (`:859-861`) (RAN).
 4. **Changing the suffix box** to `_R{timestamp}` and re-reading (no file changed): `<Client A>` now reads "ITC: 2026-10-20 13:37 | Sales: Never" — the date of its ORIGINAL report, because the marker `_r` occurs inside every `itc_report_…` name (RAN; A-F22).
@@ -368,7 +368,7 @@ Click the ticks or the four buttons; press "🚀 Start Processing".
 - **Ticks are offered only from the newest Version folder** (RAN step 1, A-F19).
 - **Any scan re-enables "🚀 Start Processing", also during a run** (RAN; `:756-757`), and Start has no "already running" check (`:845-883`) — a second worker can be started (A-G65).
 - **The status column uses the current suffix box text** (`:792-797`), which starts at the default after every restart (A-F22), so files made with a custom suffix in an earlier session read "Never refreshed" (READ; A-G16).
-- An unreadable folder reads "Never refreshed", not "unknown" (`:784-790` returns `(None, None)` on any error) (READ).
+- An unreadable folder reads "Never refreshed", not "unknown" (`:74-75` swallows a listing error and `:784-790` returns `(None, None)` on any other error) (READ).
 - Rows built while dark mode is on stay light (A-F28).
 
 Rules involved: A-R65 (which reports are processed), A-R145 ("Last Refresh Status" text), A-R68 (recognising a refreshed file), A-R143 (panel behaviour).
@@ -376,7 +376,7 @@ Rules involved: A-R65 (which reports are processed), A-R145 ("Last Refresh Statu
 #### Older documents against the code
 
 - `PROJECT_AUDIT_ANNUALSTATEMENT.md:831-845` (UI9): headers Client Name / ITC / Sales / Last Refresh Status, the four buttons, a scrolling list — still true.
-- The design note's testing section (`:108-109`, P26) says `_classify_version_reports` and `_latest_refresh_times` are unit-tested — never true at the note's date; today `_latest_refresh_times` has tests (`tests/test_refresh_naming.py:99-121`, added `2aaa2b1`), `_classify_version_reports` none.
+- The design note's testing section (`:108-109`, P26) says `_classify_version_reports` and `_latest_refresh_times` are unit-tested — never true at the note's date; today `_latest_refresh_times` has three tests (`tests/test_refresh_naming.py:88-121`, class `TestStatusDetectionUsesTheConfiguredSuffix`, added `2aaa2b1` (25-07-2026 23:11, A only (after the split)), 32 minutes after the note's commit `b276542` (22:39, A only (after the split)); RAN `git grep` at `b276542`: no test named either function), `_classify_version_reports` none.
 
 #### History
 
@@ -386,7 +386,7 @@ The two-column Setup sub-tab with per-report ticks and the "Last Refresh Status"
 
 #### What it does
 
-**Power Query** is Excel's data-import tool; the ITC and Sales templates carry queries that read the client's copied files through the folder and file names written into the `Links` sheet in Step 3. "Refreshing" re-runs those queries. For each ticked report, Step 4 makes a copy of the report under a "refreshed" name (A-F22), opens that copy in a **visible, maximised** Excel, brings Excel to the front, presses the keys **Alt+A, R, A** (in English Excel: Data → Refresh All), waits fixed times while looking for error dialogs (A-F26), checks one cell (`Info!BB2`), **saves the copy in every case**, closes it and quits that Excel. Then the values are read from the copy (A-F23).
+**Power Query** is Excel's data-import tool; the ITC and Sales templates carry queries that read the client's copied files through the folder and file names written into the `Links` sheet in Step 3. "Refreshing" re-runs those queries. For each ticked report, Step 4 makes a copy of the report under a "refreshed" name (A-F22), opens that copy in a **visible, maximised** Excel, brings Excel to the front, presses the keys **Alt+A, R, A** ⚠ by **SendKeys** (pressing keys by program into whatever window has the keyboard; in English Excel: Data → Refresh All; the key letters depend on Excel's version and display language), waits fixed times while looking for error dialogs (A-F26), checks one cell (`Info!BB2` ⚠ — a template cell position) [GST RULE], **saves the copy in every case**, closes it and quits that Excel. Then the values are read from the copy (A-F23).
 
 #### Where it lives
 
@@ -395,7 +395,7 @@ The two-column Setup sub-tab with per-report ticks and the "Last Refresh Status"
 | pywin32 guard (no fallback: without pywin32 every report fails) | `power_query_extractor/core/report_processor.py:20-36`, refusal `:66-77` |
 | Per client: ITC then Sales, or "Not selected for processing" | `:62-106` |
 | Per report: find the original, name the copy, Skip Refresh, copy, refresh, wait 3 s, extract | `:108-207` (find `:112-125`; name `:127-130`; skip `:132-159`; copy `:164`; refresh `:168`; dead `except` `:169-181`; wait `:183-185`; extract `:188`) |
-| The refresh session | `:209-415` (`Dispatch` `:218`; Visible/alerts/maximised with 5 tries `:221-234`; open with 3 tries `:236-249`; load wait `:251-255`; bring to front `:258-276`; keys `:278-293`; wait `:297-302`; dialog checks `:305-322`; extended wait `:325-330`; final check `:333-342`; BB2 check `:345`; save ALWAYS `:348-351`; close `:360-363`; result `:365-374`; inner error `:376-381`; unreachable `return` `:383-386`; outer error `:388-393`; clean-up `:394-415`) |
+| The refresh session | `:209-415` (`Dispatch` `:218` — "give me an Excel", which may attach to one already running; `DispatchEx` would always start a separate one; Visible/alerts/maximised with 5 tries `:221-234`; open with 3 tries `:236-249`; load wait `:251-255`; bring to front `:258-276`; keys `:278-293`; wait `:297-302`; dialog checks `:305-322`; extended wait `:325-330`; final check `:333-342`; BB2 check `:345`; save ALWAYS `:348-351`; close `:360-363`; result `:365-374`; inner error `:376-381`; unreachable `return` `:383-386`; outer error `:388-393`; clean-up `:394-415`) |
 | The only success test | `:638-685` (`_validate_refresh`) |
 | Opening with fallbacks | `:687-799` (`_safe_open_workbook`); "already open in this Excel?" `utils/excel_com.py:19-29` |
 | Wait-time box (5-60 by the arrows, default 10) and what Start hands over | `power_query_extractor/gui/extractor_window.py:259-287`; `:863-865`; worker `:885-966` |
@@ -452,11 +452,11 @@ pythoncom.CoUninitialize()                       # :412  while 'excel' and 'wb' 
 | **No pywin32** (the real module on this PC) | `process_client` returns at `:66-77` for both reports: "pywin32 is not installed for this Python, so Power Query cannot be refreshed. Install it with: pip install pywin32"; no copy is made; the run still writes a consolidated workbook full of ✗ / "Missing" (TRACE T4 Part C) |
 | **`Info!BB2` empty after the refresh** | the same calls, the copy is **saved anyway** (`:349`), then status `{'success': False, 'error': 'Refresh validation failed: Cell BB2 is empty'}`; the values are still extracted |
 | **Excel busy: every open "rejected by callee"** | 9 `Workbooks.Open` calls (3 outer tries × 3 attempts inside `_safe_open_workbook`, the last with `UpdateLinks=0, ReadOnly=False, IgnoreReadOnlyRecommended=True, Notify=False`), then — with **no workbook open** — the keys were still sent, then `wb.Save()` failed: status `{'success': False, 'error': "'NoneType' object has no attribute 'Save'"}`; 60 s of fixed waits; the unrefreshed copy stays under the "Refreshed" name and is then read by the extraction (A-G73) |
-| **Excel could not be brought to the front** (`AppActivate` failed 3 times) | logger only: "Could not activate Excel window, continuing anyway..." (`:273-274`); `SendKeys('%a')`, `'r'`, `'a'` sent anyway — on a real PC to whatever window has the keyboard; status **`success: True`**, because BB2 already held a value in the copied report |
+| **Excel could not be brought to the front** (`AppActivate` failed 3 times) | logger only (the log file, not the screen): "Could not activate Excel window, continuing anyway..." (`:273-274`); `SendKeys('%a')`, `'r'`, `'a'` sent anyway — on a real PC to whatever window has the keyboard; status **`success: True`**, because BB2 already held a value in the copied report |
 
 #### What the trace shows against what the feature claims
 
-> **BUG (for Section 7; matches A-G3): "Refreshed successfully" does not prove a refresh happened.** The only test is "`Info!BB2` is not empty, not 0, not an error text" (`:638-685`); a report whose BB2 already holds the client name before refreshing passes even when the key presses went to another window (RAN variant "not brought to the front") or Excel never got them. There is no `RefreshAll`, no wait for queries to finish, no "still refreshing" check (READ, grep). HIGH (code).
+> **BUG (for Section 7; matches A-G3): "Refreshed successfully" does not prove a refresh happened.** The only test is "`Info!BB2` ⚠ is not empty, not 0, not an error text" (`:638-685`; the test itself is A-R73 [GST RULE]; which cell proves a refresh is the author's call); a report whose BB2 already holds the client name before refreshing passes even when the key presses went to another window (RAN variant "not brought to the front") or Excel never got them. There is no `RefreshAll`, no wait for queries to finish, no "still refreshing" check (READ, grep). HIGH (code).
 
 > **BUG (for Section 7; matches A-G2): a failed refresh is saved and kept under the "Refreshed" name** (`:349` saves after an error dialog or a failed check; a copy made at `:164` stays when Excel fails), and is later shown as the last refresh (A-F20) and reused by Skip Refresh as a success (A-F22). HIGH.
 
@@ -467,7 +467,7 @@ pythoncom.CoUninitialize()                       # :412  while 'excel' and 'wb' 
 - **The `except` at `:169-181` can never run** (READ: `_refresh_power_query_simple` catches every error itself, `:376-393`), and the `return` at `:383-386` is unreachable (READ).
 - **Open fallbacks**: attempt 2 closes, without saving, every workbook in that Excel with the same file NAME (`:744-753`) — if Excel is the user's own, a different workbook with the same name could be closed (READ, MEDIUM-LOW). For paths over 218 characters a `\\?\` prefix is tried (`:720-732`); whether `Workbooks.Open` accepts it is NOT SURE (LOW; how to check: open such a path once on Windows).
 - **The key sequence assumes the English ribbon** ⚠ (Alt+A = Data tab, R, A = Refresh All; the key tips differ between Excel versions and display languages — NOT SURE which; how to check: press Alt in Excel on the office PCs and look at the letters shown) (READ `:282-292`; A-G44).
-- **The wait-time box accepts typed values outside 5-60** (0 is accepted and waits nothing; text such as "abc" makes Start silently do nothing, because `IntVar.get()` raises inside the button's callback) (RAN PQ gui_probe; READ `extractor_window.py:864`; A-G26).
+- **The wait-time box accepts typed values outside 5-60** (0 is accepted and skips the main wait — the extended wait still lasts `max(10, 0)` = 10 s, `report_processor.py:326`; text such as "abc" makes Start silently do nothing, because `IntVar.get()` (reading the box's whole-number Tk variable) raises inside the button's callback (the function the button runs)) (RAN PQ gui_probe; READ `extractor_window.py:864`; A-G26).
 - All of this needs a logged-in, unlocked desktop where nobody types for the whole run (READ; Standard 12's "never a scheduled job" applies a fortiori).
 
 Facts against the author's Standard 12, "Excel through COM" (`rebuild_pipeline_FINAL.md:844-878`; facts only, no recommendation): `Dispatch` instead of `DispatchEx` (`:218`); `Visible = True` (`:225`) where the standard asks for a hidden Excel; `DisplayAlerts = False` set (`:226`), but if all five tries fail the code continues anyway (`:234`); `Quit()` in `finally` — yes (`:404-409`); `IgnoreReadOnlyRecommended=True` only in the last-resort open (`:777-783`); `workbook.ReadOnly` never checked; no `BackgroundQuery = False`, `RefreshAll()`, `CalculateUntilAsyncQueriesDone()` or `Refreshing` check — the refresh is key presses plus fixed waits (`:278-330`); `RefreshDate` not used — yes; `CoInitialize` on the worker — yes (`:215`); `CoUninitialize` inside the same function while Excel objects are still held (`:412`); Excel needs a logged-in user — met (interactive only). The design note keeps the key-press method on purpose: "Rewriting the Power Query refresh itself (the SendKeys approach and its fixed time.sleep waits stay as they are)" is listed as out of scope (`docs/superpowers/specs/2026-07-25-merge-extractor-design.md:125-126`).
@@ -479,7 +479,7 @@ Rules involved: A-R64 (no fallback without pywin32), A-R65 (which reports), A-R6
 - `PROJECT_AUDIT_ANNUALSTATEMENT.md:321-338` (F11.1-F11.7): copy with suffix, visible Excel, Alt+A, R, A, wait 5-60 s (default 10), dialog check, BB2 check, new hidden Excel for extraction — still true; "waits configurable time" understates the real time (≈ 36 s + 3 s per report at the default).
 - `PROJECT_AUDIT_ANNUALSTATEMENT.md:340` (F11.8) unreachable `return` — still present (moved to `:383-386`).
 - `README.md:173` (RM25) "Click 'Refresh & Extract'" — never true; the button is "🚀 Start Processing" (`extractor_window.py:330`).
-- `README.md:14, 23` "Refresh Power Query connections / Refreshes data connections in Excel (Windows only)" — the mechanism is key presses, which the README does not say.
+- `README.md:14, 24` "Refresh Power Query connections / Refreshes data connections in Excel (Windows only)" — the mechanism is key presses, which the README does not say.
 - The commit message of `f363946` (A only (after the split)) says a live `Excel.Application` `Dispatch` was checked on the author's PC — the only sign in the history that this path was run against real Excel.
 
 #### History
@@ -520,7 +520,7 @@ The real `_process_report` ran on fake Version folders; only the two Excel steps
 | **1b** next run with Skip Refresh ticked | original + the failed copy | the search `glob("ITC_Report_*.xlsx")` listed the copy FIRST on this disk, so the copy itself was taken as "the original"; `glob("<its stem>*.xlsx")` + `is_refreshed_copy_of` found the copy itself; the newest by date was reused; no refresh | status `{'success': True, 'validation_message': 'Skipped - Using existing refreshed file'}`, extraction from the unrefreshed copy |
 | **2** suffix `_R{timestamp}` + Skip | the original only | markers `['_r']`; `'_r'` occurs inside `itc_report_…` → the ORIGINAL counts as its own refreshed copy | "Skipped - Using existing refreshed file", success, extraction from the **original** (never refreshed); the client list showed the original's date as "last refresh" |
 | **3** suffix `_Refreshed_{TIMESTAMP}` (capitals) | the original only | `str.replace("{timestamp}", …)` does not match capitals | copy named literally `…_Refreshed_{TIMESTAMP}.xlsx`; a second run overwrote the same file |
-| **4** empty suffix | the original only | copy name = the original's name → `shutil.SameFileError` (caught at `:198-207`) | status `{'success': False, 'error': "… are the same file"}`, no extraction |
+| **4** empty suffix | the original only | copy name = the original's name → `shutil.SameFileError` (Python refuses to copy a file onto itself; caught at `:198-207`) | status `{'success': False, 'error': "… are the same file"}`, no extraction |
 | **5** suffix `{timestamp}` only | the original only | copy `…_1030211026_1338.xlsx` | refreshed, but `refresh_markers` falls back to `_refreshed_`, so the copy is never recognised: list "(None, None)" = "Never refreshed" |
 | **6** default suffix, an earlier copy `…_Refreshed_211026_1100.xlsx` present | original + copy | this time the original was listed first (directory order is not controlled, `:113, 125`) | new copy `…_Refreshed_211026_1338.xlsx`; with the other order, a copy of the copy would be refreshed (RAN TRACE T5: `…_Refreshed_211026_1040_Refreshed_211026_0422.xlsx`) |
 
@@ -532,9 +532,9 @@ The real `_process_report` ran on fake Version folders; only the two Excel steps
 
 > **BUG (for Section 7; matches A-G15): the "original" report can be an earlier refreshed copy** — the search pattern `ITC_Report_*.xlsx` also matches refreshed copies, and the first file the file system lists is taken (RAN 1b on Linux; on a Windows NTFS share the original usually sorts first because "." sorts before "_" — MEDIUM). MEDIUM.
 
-- A client whose cleaned name contains "Refreshed" makes its original look refreshed under every suffix (RAN TRACE T5: legacy marker); with a custom suffix `_v{timestamp}`, every client whose name starts with "V" (RAN TRACE T5).
+- A client whose cleaned name contains the word "Refreshed" (so that the report name contains `_refreshed_`, e.g. the made-up `Refreshed Test Traders` → `ITC_Report_Refreshed_Test_Traders_…`) makes its original look refreshed under every suffix (RAN TRACE T5: legacy marker, `refresh_naming.py:55`); with a custom suffix `_v{timestamp}`, every client whose name starts with "V" (RAN TRACE T5).
 - Two refreshes of one report in the same minute overwrite the earlier copy (minute stamp, `:128`; READ).
-- The Skip tick changes a module-level dictionary shared by every panel in the program (`extractor_window.py:486-487`), stays usable during a run and takes effect for the next report at once (RAN PQ gui_probe; READ). It always starts unticked, whatever `cell_mappings.py:249` says (`:315`).
+- The Skip tick changes a module-level dictionary (one copy for the whole running program) shared by every panel in the program (`extractor_window.py:486-487`), stays usable during a run and takes effect for the next report at once (RAN PQ gui_probe; READ). It always starts unticked, whatever `cell_mappings.py:249` says (`:315`); so if `:249` were set to `True`, the tick would show unticked while Skip Refresh is in fact on (the processor reads the dictionary, `report_processor.py:134-135`) until the tick is clicked on and off again (READ, HIGH).
 - `EXTRACTION_OPTIONS['auto_refresh_if_missing']` ("Automatically refresh if no refreshed file found") is never read; the behaviour is hard-coded at `:156-159` (A-R70, dead).
 - The suffix, wait time and tick are not saved anywhere (A-R119; RAN t27: the settings file holds no such key), so files made with a custom suffix in an earlier session read "Never refreshed" after a restart (READ; history note H-A2 finding 2).
 
@@ -548,7 +548,7 @@ Rules involved: A-R67 (copy name), A-R68 (recognising a refreshed file), A-R69 (
 
 #### History
 
-`bd176bf` (30-10-2025, shared - before the split on 30-10-2025) added the suffix box, the wait box and Skip Refresh (with a hard-coded `_Refreshed_` search). `2aaa2b1` (25-07-2026, A only (after the split)) added `refresh_naming.py` and made the client list and Skip Refresh follow the configured suffix ("Recognise refreshed files by the CONFIGURED suffix, not a hardcoded one"), with 21 tests in `tests/test_refresh_naming.py` (the message says 20; history notes H-A2).
+Skip Refresh itself is older: at `edac6a3` (shared - before the split on 30-10-2025) it was already the option `EXTRACTION_OPTIONS['skip_refresh']` in `cell_mappings.py` with a hard-coded search `glob(f"{stem}_Refreshed_*.xlsx")` (`power_query_extractor/core/report_processor.py:76-93@edac6a3`, READ), and the copy name was a fixed `_Refreshed_{timestamp}` (`:71@edac6a3`). `bd176bf` (30-10-2025, shared - before the split on 30-10-2025) added the suffix box, the wait box and the on-screen Skip Refresh tick that writes that option (RAN `git show bd176bf`). [Corrected during verification — originally said `bd176bf` added Skip Refresh with the hard-coded search.] `2aaa2b1` (25-07-2026, A only (after the split)) added `refresh_naming.py` and made the client list and Skip Refresh follow the configured suffix ("Recognise refreshed files by the CONFIGURED suffix, not a hardcoded one"), with 19 tests in `tests/test_refresh_naming.py` (18 test functions, one of them run for two inputs; RAN `pytest --collect-only`: 19) and 2 more in `tests/test_extractor_panel.py` — 21 collected in all; the message says "20 new", which is the number of test functions it added (RAN `git show 2aaa2b1`: 18 + 2). [Corrected during verification — originally stated "21 tests in `tests/test_refresh_naming.py`"; the history note H-A2 gives 21 = 19 + 2.]
 
 ### A-F23: Extract cells from refreshed reports
 
@@ -578,7 +578,7 @@ The configured cells (READ `cell_mappings.py:33-242`) [GST RULE] — which repor
 | Extra In Purchase | ITC | `ExtraInPurchase` | O1 → IGST, P1 → CGST, Q1 → SGST |
 | Extra In GSTR2B | ITC | `ExtraInGSTR2B` | S1 → IGST, T1 → CGST, U1 → SGST |
 
-(The names "Table 6J" / "Table 8D" and the sheets "T6 of R9" / "T8 of R9" refer, by their wording, to tables of GSTR-9; only the names are described here.)
+(The names "Table 6J" / "Table 8D" ⚠ and the sheets "T6 of R9" / "T8 of R9" ⚠ refer, by their wording, to tables of GSTR-9; only the names are described here — table numbers can change with the return format.)
 
 #### Input → Output
 
@@ -612,14 +612,14 @@ Other values seen through the fake layer (RAN TRACE T4 Part B2): a number stored
 - **Values are extracted even when the refresh failed** (`report_processor.py:187-188`), and the consolidated workbook then throws them away (A-F24; A-G17).
 - **Excel error cells** (`#N/A`, `#REF!` …) probably arrive through COM as large negative whole numbers, which the consolidated workbook would show as figures (MEDIUM — general pywin32 behaviour, not testable here; how to check: put `=NA()` in a mapped cell and run Step 4 once) (A-G18).
 - **A second, hidden Excel per report** (`Dispatch` again, not `DispatchEx`): if it attaches to the user's Excel, that Excel is hidden and then quit (READ; A-G54). Facts against Standard 12: COM is used here only to READ values, which the standard (`rebuild_pipeline_FINAL.md:827`) says openpyxl can do safely; `CoUninitialize` runs inside the same function (`:633`) (facts only).
-- Extracted figures and paths are written to the log file at INFO level (`:56, :590, :603-611`; A-F30; A-G56).
+- Extracted figures and paths are written to the log file at INFO level (the normal level of detail, which the program writes by default; `:56, :590, :603-611`; A-F30; A-G56).
 
 Rules involved: A-R74 to A-R82 (the nine output sheets and their cells ⚠) [GST RULE], A-R83 (how the mappings are read) [GST RULE], A-R103 (two Excel sessions per report), A-R122 (what is logged).
 
 #### Older documents against the code
 
 - `PROJECT_AUDIT_ANNUALSTATEMENT.md:337-338` (F11.7): "a NEW hidden Excel instance for extraction; reads cells per CELL_MAPPINGS" — still true; the "read-only" wording of the log is misleading (DOCS F11.7).
-- `README.md:228-245` (RM33): the example mapping (`'GSTR-3B Difference'`, ITC, `'Diff GSTR-3B'`, `J15`, `'Diff IGST'`) matches `cell_mappings.py:35-58` exactly.
+- `README.md:229-245` (RM33): the example mapping (`'GSTR-3B Difference'`, ITC, `'Diff GSTR-3B'`, `J15`, `'Diff IGST'`) matches the first entry of `cell_mappings.py:35-58` (`:35-43`) exactly; the README shows one mapping, the code has three in that output sheet (J15, K15, L15) and eight more output sheets (READ). [Corrected during verification — originally said the example "matches `cell_mappings.py:35-58` exactly".]
 - The comment "Backward compatibility" / "Build old format for compatibility" (`cell_mappings.py:259, 263`) is misleading: the table built there is the one the extraction actually uses (`report_processor.py:546`) (READ).
 
 #### History
@@ -630,7 +630,7 @@ Rules involved: A-R74 to A-R82 (the nine output sheets and their cells ⚠) [GST
 
 #### What it does
 
-When every selected client has been through A-F21 and A-F23, Step 4 writes one new Excel workbook, `PQ_Extraction_Report_<YYYYMMDD_HHMM>.xlsx`, into the `Annual Statement-…` run folder it is working on. The workbook has a "Summary" sheet and one sheet per output group of the configuration (A-F23 table: "GSTR-3B Difference", "GSTR-1 Difference", "Turnover GSTR-1", "Reco Diff", "Table 6J Match", "Table 8D Limits", "IMS Reco", "Extra In Purchase", "Extra In GSTR2B"). Each data sheet has one row per processed client: client name, "Successfully Run" (✓ / ✗) and the configured figures. At the end a box asks "Open the consolidated report?".
+When every selected client has been through A-F21 and A-F23, Step 4 writes one new Excel workbook, `PQ_Extraction_Report_<YYYYMMDD_HHMM>.xlsx`, into the `Annual Statement-…` run folder it is working on. The workbook has a "Summary" sheet and one sheet per output group of the configuration (A-F23 table: "GSTR-3B Difference", "GSTR-1 Difference", "Turnover GSTR-1", "Reco Diff", "Table 6J Match" ⚠, "Table 8D Limits" ⚠, "IMS Reco", "Extra In Purchase", "Extra In GSTR2B"). Each data sheet has one row per processed client: client name, "Successfully Run" (✓ / ✗) and the configured figures. At the end a box asks "Open the consolidated report?".
 
 #### Where it lives
 
@@ -645,7 +645,7 @@ When every selected client has been through A-F21 and A-F23, Step 4 writes one n
 | Column widths | `:416-432` |
 | Summary sheet | `:220-248` |
 | File name (year first, minute resolution) and save straight to the share | `:174-180` ⚠ |
-| Any error: logged and raised again (the run's figures are lost) | `:182-186` |
+| Any error: logged and raised again (the run's figures are lost) | `:184-186` |
 | Never called: an older one-sheet layout and an "Extraction Details" sheet | `:250-352` (`_write_section`), `:354-414` (`_create_details_sheet`) |
 | Caller: which folder, the closing messages, "Open the consolidated report?" | `power_query_extractor/gui/extractor_window.py:940-955`, `:968-975` (`os.startfile`, Windows only) |
 
@@ -677,7 +677,7 @@ The real `DataConsolidator.create_report` ran on result records built exactly as
 4. <Client B>: success False → `:128-129` "Missing" in all three columns, although 1101/1102/1103 were read.
 5. <Client C>: success True → "✓", but the three fields are `None` → "Missing" ×3 (`:153-154`).
 6. … same for every group. For **"IMS Reco" column "IGST"** (<Client A>): `:141-145` takes the FIRST key that contains the text "IGST": in configuration order that is `GSTR-3B_Difference_Diff_IGST` → **101** (from `Diff GSTR-3B!J15`), and `break` — the configured `IMS_Reco!AA1` value 201 is never used. Same for CGST/SGST, and for "Extra In Purchase" and "Extra In GSTR2B".
-7. <Client C>, "IMS Reco" "IGST": the first matching key is again `GSTR-3B_Difference_Diff_IGST`, but its value is `None` → `:147-150` exact key `IMS_Reco_IGST` → 201 — correct only because Client C's `Diff GSTR-3B` sheet was missing.
+7. <Client C>, "IMS Reco" "IGST": the first matching key is again `GSTR-3B_Difference_Diff_IGST`, but its value is `None` → `:147-150` exact key `IMS_Reco_IGST` → 201 — the value of the cell the configuration names (`IMS_Reco!AA1`), but only because Client C's `Diff GSTR-3B` sheet was missing (which cell is meant is the author's call).
 8. `:172` Summary sheet; `:175-180` name from the clock → `PQ_Extraction_Report_20261021_1338.xlsx`, saved.
 
 **Output (RAN, abridged):**
@@ -690,7 +690,7 @@ Reco Diff           ClientA ✓ 109 110 0 | ClientB ✗ Missing x3 | ClientC ✓
 IMS Reco            ClientA ✓ 101 102 103   <- configured cells hold 201 202 203
 Extra In Purchase   ClientA ✓ 101 102 103   <- configured cells hold 301 302 303
 Extra In GSTR2B     ClientA ✓ 101 102 103   <- configured cells hold 401 402 403
-                    ClientC ✓ 201.. / 301.. / 401..  (right, by accident: its Diff GSTR-3B values were None)
+                    ClientC ✓ 201.. / 301.. / 401..  (= the configured cells, by accident: its Diff GSTR-3B values were None)
 configured cell vs value written, row ClientA: mismatches 9 of 22
 ```
 
@@ -706,19 +706,19 @@ Further cases (RAN, same script):
 
 > **BUG (for Section 7; matches A-G1): 9 of the 22 configured columns are filled from another cell** [GST RULE] ⚠. The IGST / CGST / SGST columns of "IMS Reco", "Extra In Purchase" and "Extra In GSTR2B" show the `Diff GSTR-3B!J15/K15/L15` values instead of `IMS_Reco!AA1/AD1/AG1`, `ExtraInPurchase!O1/P1/Q1` and `ExtraInGSTR2B!S1/T1/U1` (RAN, 9 MISMATCH lines). This audit only states that the code does not do what its own configuration (`cell_mappings.py`) names; which cell is meant is the author's decision. HIGH.
 
-> **BUG (for Section 7; matches A-G17): figures that were read are shown as "Missing", and a ✓ row can hold only "Missing"** [GST RULE]. ✓/✗ follows the REFRESH status only (`:108-120`), and a non-success status blanks every column (`:128-129`) — RAN <Client B> ITC (values read, all "Missing") and <Client C> ITC (✓ with three "Missing"). A dialog from another program during the wait also makes a good refresh "not success" (A-F26 Part 4) and so blanks the client's figures. HIGH.
+> **BUG (for Section 7; matches A-G17): figures that were read are shown as "Missing", and a ✓ row can hold only "Missing"** [GST RULE]. ✓/✗ follows the REFRESH status only (`:108-120`), and a non-success status blanks every column (`:128-129`) — RAN <Client B> ITC (values read, all "Missing") and <Client C> ITC (✓ with three "Missing"). A dialog from another program during the wait also makes a good refresh "not success" (A-F26 Part 4) and so blanks the client's figures. Stated as a technical point only: the data was read but is not shown, and the ✓ mark does not say whether figures were found; whether figures from a report whose refresh check failed may be used is the author's call. HIGH.
 
 > **BUG (for Section 7; matches A-G29 and A-G9): one error loses the whole run's figures; a second run in the same minute replaces the first workbook** (RAN). MEDIUM.
 
 > **BUG (for Section 7; matches A-G65 / A-G71; RAN): a re-scan during a run sends the workbook to whatever folder was scanned last**, because the folder is read at the end of the run (`extractor_window.py:945`), not at Start. MEDIUM.
 
-- **Values change type or look on the way in** [GST RULE] (RAN; A-G18): a number stored as text stays text (`'1,234.00'`, no number format, Excel will not add it up); zero is written without the number format (`value != 0`, `:161`), so it shows "0" while its neighbours show "0.00"-style figures; `True`/`False` get the number format (a `bool` counts as a number in Python) and Excel shows TRUE/FALSE; an empty string becomes "Missing"; a real zero stays 0 — so "Missing" and 0 mean different things. Excel error values: see A-F23 (MEDIUM).
+- **Values change type or look on the way in** [GST RULE] (RAN; A-G18): a number stored as text stays text (`'1,234.00'`, no number format, Excel will not add it up); zero is written without the number format (`value != 0`, `:161`), so it shows "0" while its neighbours show "0.00"-style figures; `True` gets the number format (a `bool` counts as a whole number in Python, RAN: `True [fmt #,##0.00]`) and Excel shows TRUE; `False` equals 0, so by the same test at `:161` it is written without the format (READ); an empty string becomes "Missing"; a real zero stays 0 — so "Missing" and 0 mean different things. Excel error values: see A-F23 (MEDIUM).
 - **Summary counts are refresh successes over ALL clients** (RAN): "ITC Reports Processed: 2/3" counts <Client C>'s ITC as processed (✓ with "Missing" values) and does not say that <Client C>'s Sales report was simply not ticked (counted as not processed). A-R91; A-G19.
 - **"Open the consolidated report?" uses `os.startfile`** (Windows only; elsewhere the failure is only logged, `extractor_window.py:972-975`) (READ; A-G31).
 - Dormant code that a reader may take as live: `_calculate_value` (no mapping has a calculation), `_write_section` and `_create_details_sheet` (never called; READ grep), `EXTRACTION_OPTIONS['show_timestamp']` (never read). A-R92 to A-R95.
 - The client name in column A is written as given; a name beginning with "=" would become a formula (A-G58; READ).
 
-Rules involved: A-R86 (file name ⚠), A-R87 (layout), A-R88 (which value goes into a column) [GST RULE], A-R89 ("Missing") [GST RULE], A-R90 (number display), A-R91 (Summary), A-R92 to A-R95 (dormant), A-R74 to A-R82 (the nine output groups) [GST RULE].
+Rules involved: A-R86 (file name ⚠), A-R87 (layout), A-R88 (which value goes into a column) [GST RULE], A-R89 ("Missing") [GST RULE], A-R90 (number display) [GST RULE], A-R91 (Summary), A-R92 to A-R95 (dormant), A-R74 to A-R82 (the nine output groups) [GST RULE].
 
 #### Older documents against the code
 
@@ -746,7 +746,7 @@ While Step 4 runs, its "Processing" sub-tab shows a progress bar, a progress lin
 | Log is emptied at every Start | `:875` |
 | Writing a line from the worker: time stamp taken now, drawn later on the window thread | `:989-1029` (`_ui` `:989-1010`; `log_message` `:1021-1025`; `_append_log` `:1027-1029`) |
 | Every processor line goes to the log FILE and to the screen in "info" colour | `power_query_extractor/core/report_processor.py:53-60` |
-| Lines that go to the log FILE only (`logger.warning/error`) | e.g. `:316, 339` (dialog found), `:571` (sheet not found), `:615` (extraction error), `:273-274` (Excel not in front) |
+| Lines that go to the log FILE only (`logger.warning/error`) | e.g. `:316, 339` (dialog found), `:571` (sheet not found), `:616` (extraction error), `:377` ("❌ Error during refresh"), `:246` (Excel busy), `:273-274` (Excel not in front) |
 | No run history | (nothing to point at: no history file, table or list exists — READ, grep for "history") |
 
 #### Input → Output
@@ -790,7 +790,7 @@ file-log-only:  "  ⚠️ Error detected: [simulated dialog text] (file log only
 log box state: normal (editable) | Start button during the run after the re-scan: normal
 ```
 
-With the real processor and fake COM layer (RAN `t21_23_26_com.py`): one ITC report produces 163-169 screen lines, **all** tagged "info" (Parts 1-6), including "❌ Error during refresh" paths, while "⚠️ Sheet 'Reco' not found", "Excel busy, retrying…", "⚠️ Error detected: …" and "Could not activate Excel window, continuing anyway…" went to the log file only.
+With the real processor and fake COM layer (RAN `t21_23_26_com.py`): one ITC report produces 163-187 screen lines from the processor (169, 170, 187, 163, 163, 169 in Parts 1-6; 187 in Part 3, where every open was rejected), **all** tagged "info", also in the parts where the refresh failed, while "❌ Error during refresh: …", "⚠️ Sheet 'Reco' not found", "Excel busy, retrying…", "⚠️ Error detected: …" and "Could not activate Excel window, continuing anyway…" went to the log file only (RAN, verifier's re-run on 21-10-2026 gave the same counts). [Corrected during verification — originally "163-169 screen lines … including '❌ Error during refresh' paths"; Parts 2 and 3 give 170 and 187, and "❌ Error during refresh" is a log-file-only line.]
 
 **Wheel (RAN):** log at view 0.5001 → one small touch-pad step (`delta -60`) → 0.5001 (no movement, `int(-60/120) = 0`); one wheel notch (`delta -120`) → 0.5032.
 
@@ -798,7 +798,7 @@ With the real processor and fake COM layer (RAN `t21_23_26_com.py`): one ITC rep
 
 #### What the trace shows against what the feature claims
 
-> **BUG (for Section 7; matches A-G67 and A-G65): errors are not shown as errors, and some are not shown at all.** Every line from the processor is "info" black (`report_processor.py:56-60`), so "❌ Cannot access file" looks like progress; the red "error" tag is used only when the whole run fails (`extractor_window.py:958`); warnings written with `logger.warning/error` (sheet not found, Excel busy, dialog text, Excel not in front) reach only the log file (RAN). MEDIUM.
+> **BUG (for Section 7; matches A-G67 and A-G65): errors are not shown as errors, and some are not shown at all.** Every line from the processor is "info" black (`report_processor.py:56-60`), so "❌ Cannot access file" looks like progress; the red "error" tag is used only when the whole run fails (`extractor_window.py:958`) or a scan fails (`:666`); warnings written with `logger.warning/error` (sheet not found, Excel busy, dialog text, Excel not in front) reach only the log file (RAN). MEDIUM.
 
 - **A re-scan during a run writes into the same log and re-enables Start** (RAN; A-G65): "Start" became usable again while the worker was still running; pressing it would start a second worker (no "already running" check, `:845-883`).
 - **The log box can be typed into** (RAN: state "normal"); typed text is mixed with the worker's lines (A-G65).
@@ -813,7 +813,7 @@ Rules involved: A-R91 (Summary counts), A-R122 (what is logged and at which leve
 
 #### Older documents against the code
 
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:846-849`: "Log text widget (Consolas 9pt, light background); Color tags: info=black, success=green, warning=yellow, error=red" — true; it does not say that processor errors use the info colour.
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:847-850`: "Log text widget (Consolas 9pt, light background); Color tags: info=black, success=green, warning=yellow, error=red" — true; it does not say that processor errors use the info colour.
 - `README.md:161` "Monitor progress bar and detailed log" (Step 3 section) and `README.md:279` "Processing seems frozen … check log for activity": during Step 4's fixed waits the log does show "Waiting… n/10 seconds" lines every second (READ `report_processor.py:301`), so the hint works for Step 4.
 - The registry wording "the log box … is never trimmed" (A-F25 row) is right for a run, but the box IS emptied at every Start (`:875`) — correction listed for the notes.
 
@@ -835,7 +835,7 @@ While a refresh waits (A-F21), the program looks over **every window on the desk
 | Which windows count: visible + enabled; title (lower case) contains `'microsoft excel'`, `'error'`, `'problem'`, `'cannot'`, `'failed'`, `'unable'`, `'could not'`, `'exception'`, `'invalid'`, `'missing'`; class `'#32770'`, `'NUIDialog'` or `'bosa_sdm_msword'`; FIRST match in desktop order | `:417-453` (`_find_error_window`; `EnumWindows` over all top-level windows `:450`) |
 | Dialog text: title + child "static"/"text" controls longer than 5 characters, spaces squeezed, cut at 200 characters; otherwise "Power Query error occurred" | `:455-490` (`_get_window_text`) |
 | Dismissal: first child button whose label CONTAINS ok / close / yes / continue gets a click (`BM_CLICK`); otherwise `WM_CLOSE`; then 0.5 s | `:492-525` (`_close_error_window`) |
-| Effect on the result: `success = not error_detected` (`:369-373`); a found dialog sets `error_detected` with its text as the error; a failed BB2 check also sets it and REPLACES the dialog text with "Refresh validation failed: …" (`:353-356`) | `:353-374` |
+| Effect on the result: `success = not error_detected` (`:370-374`); a found dialog sets `error_detected` with its text as the error; a failed BB2 ⚠ check also sets it and REPLACES the dialog text with "Refresh validation failed: …" (`:353-356`) | `:353-374` |
 
 #### Input → Output
 
@@ -856,7 +856,7 @@ None; it happens by itself. A user working on the same PC during the run may hav
 5. `:316` `logger.warning("⚠️ Error detected: …")` → **file log only**.
 6. `:317` `_close_error_window` → `EnumChildWindows` → "&Yes" contains "yes" → `SendMessage(BM_CLICK)` (RAN call recorded: `('win32gui.SendMessage', 22, '&Yes', '0xf5')`) → stop → 0.5 s.
 7. Remaining waits, BB2 check passes (`'<Client A>'`), `wb.Save()`, close, quit (RAN).
-8. Result (RAN): `{'success': False, 'error': 'Confirm File Delete - could not move to Recycle Bin Permanently delete this file?', 'validation_message': 'Validated - Client Name: <Client A>'}`; the values are still extracted; the screen log shows "⚠️ ITC Report - Confirm File Delete…" and "(Data extracted despite error)"; in the consolidated workbook <Client A>'s ITC columns would all read "Missing" (A-F24 rule `:128-129`). Fixed waits for this report: 34.5 s.
+8. Result (RAN): `{'success': False, 'error': 'Confirm File Delete - could not move to Recycle Bin Permanently delete this file?', 'validation_message': 'Validated - Client Name: <Client A>'}`; the values are still extracted (RAN); the screen log would show "⚠️ ITC Report - Confirm File Delete…" and "(Data extracted despite error)" (READ `extractor_window.py:923-925`: this trace called the processor directly, without the panel's worker); in the consolidated workbook <Client A>'s ITC columns would all read "Missing" (A-F24 rule `:128-129`). Fixed waits for this report: 34.5 s.
 
 **Input, Part 5:** an Excel prompt titled "Microsoft Excel" (class `NUIDialog`) with buttons "Save", "Don't Save", "Cancel" and no static text.
 
@@ -873,7 +873,7 @@ None; it happens by itself. A user working on the same PC during the run may hav
 - With `DisplayAlerts = False` (`:226`) Excel itself suppresses most of its own prompts, so the dialogs most likely to be found are the ones Excel cannot suppress — and those of other programs (MEDIUM, general Excel behaviour).
 - The dialog text is kept only in the status (screen: one "⚠️" line in amber; file log: the full line) and cut at 200 characters (`:484`).
 
-Rules involved: A-R105 (error-dialog handling), A-R72 (when the checks happen), A-R73 (success = check passed and no dialog).
+Rules involved: A-R105 (error-dialog handling), A-R72 (when the checks happen), A-R73 (success = check passed and no dialog; `Info!BB2` ⚠ template cell position) [GST RULE].
 
 #### Older documents against the code
 
@@ -919,7 +919,7 @@ None directly: saves happen as a side effect of the clicks listed above.
 | 4 | clicks the "Full pipeline" radio | now saves everything: `workflow_mode: full`, `processing_mode: rerun`, `source_folder: …/typed_src` |
 | 5 | closes the window (no run) | unchanged — closing does not save (`gui/main_window.py:344-355`) |
 | 6 | starts again | source `…/typed_src`, mode `rerun`, workflow `full` restored |
-| 7 | types `abc` into the length box, then Browse | `TclError: expected floating-point number but got "abc"` from the save; Browse itself then raises the same error; file not updated |
+| 7 | types `abc` into the length box, then Browse | `TclError` (Tk's own error type): `expected floating-point number but got "abc"` from the save; Browse itself then raises the same error; file not updated |
 | 8a | file holds broken JSON `{"source_folder": "x",` | starts with defaults; only a log-file line "Error loading cache: …" |
 | 8b | file holds a JSON list `[1, 2]` | start-up fails: `AttributeError: 'list' object has no attribute 'get'` |
 | 8c | file holds `{"client_name_max_length": "35"}` (text) | start-up fails: `TypeError: '>' not supported between instances of 'str' and 'int'` (`gui/main_window.py:387`) |
@@ -954,7 +954,7 @@ Rules involved: A-R114 (location and format), A-R115 (keys and defaults), A-R116
 
 #### History
 
-`cache_manager.py` is unchanged since `edac6a3` (31-08-2025, shared - before the split on 30-10-2025) (RAN `git blame`). A only (after the split): `c1583d6` (23-07-2026) made the extractor read the home file first; `workflow_mode` was added to the saved keys when the workflow radios were added (see A-F3 in part 1).
+`cache_manager.py` is unchanged since `edac6a3` (31-08-2025, shared - before the split on 30-10-2025) (RAN `git blame`). A only (after the split): `c1583d6` (23-07-2026) made the extractor read the home file first; `workflow_mode` was added to the saved keys when the workflow radios were added, in `510f7b4` (26-07-2026, A only (after the split); RAN `git log -S`; see A-F5 in part 1). [Corrected during verification — originally pointed to A-F3; the workflow radios are A-F5 in the registry.]
 
 ### A-F28: Dark mode / theme
 
@@ -989,7 +989,7 @@ Click "🌙 Dark Mode" in the title strip.
 | Moment | What the window showed (RAN) |
 |---|---|
 | 0 start, light | root `#F8F9FA`; Step 3 progress label white/`#323130`; Step 3 log `#1E1E1E` (dark by design); selected Step 2 row: default `#4a6984` with white text; selected tab: `#dcdad5` |
-| 1 ticked | root `#2b2b2b`; label `#2b2b2b`/white; Step 3 log `#3b3b3b`; row tags complete `#1a3d1a`, incomplete `#3d2f1a`, white text; Treeview `#3b3b3b`; selected tab `#404040`/white; Step 4 log `#3b3b3b`; settings file `dark_mode: true` |
+| 1 ticked | root `#2b2b2b`; label `#2b2b2b`/white; Step 3 log `#3b3b3b`; row tags complete `#1a3d1a`, incomplete `#3d2f1a`, white text; Treeview (Tk's table widget, the Step 2 client list) `#3b3b3b`; selected tab `#404040`/white; Step 4 log `#3b3b3b`; settings file `dark_mode: true` |
 | 2 after both scans, still dark | **Step 2 row tags `#E8F5E8` (pale green) and `#FFF4E5` (pale orange) with WHITE text**; **Step 4 client rows `white`** (built after the switch, never darkened) |
 | 3 unticked | root, label, Step 3 log back to their start values; row tags pale with black text; but **selected Step 2 row now `#0078D4` with BLACK text** (was `#4a6984`/white) and **selected tab `#f0f0f0`** (was `#dcdad5`) |
 | 4 stand-in label changed in light mode, then dark → light | label colour `#323130` — the first recorded value came back, the program's later `#107C10` was lost |
@@ -1001,7 +1001,7 @@ Click "🌙 Dark Mode" in the title strip.
 - **The first switch changes two "selected" looks for good** (RAN 3): the restore applies fixed values (`dark_mode_manager.py:164-172`) instead of the ones recorded, so after one dark/light round the selected Step 2 row is blue `#0078D4` with black text and the selected tab is `#f0f0f0`.
 - **Colours changed by the program in light mode after the first switch are lost on the next restore** (RAN 4 with a stand-in label). Correction to the registry's wording: in A today the only colours the program changes at run time are the Setup checklist's (`gui/tabs/setup_tab.py:553-566, 606-608`, READ grep), and those are recomputed after every switch (`main_window.py:180-194`), so no visible effect was found (MEDIUM — based on a search for colour changes).
 - The Step 4 panel's own client rows, tooltips (always pale yellow, `gui/widgets/tooltip.py:54`) and message boxes are not themed (RAN/READ).
-- The standalone extractor ignores the saved `dark_mode` (RAN t29 case A: settings file `dark_mode: true`, window light, theme `clam`).
+- The standalone extractor ignores the saved `dark_mode` (RAN t29 case A: settings file `dark_mode: true`, theme `clam`; READ grep: nothing in `power_query_extractor/` or `launch_extractor.py` reads `dark_mode`, so its window stays light — the trace itself did not print colours).
 
 Rules involved: A-R148 (dark-mode colours and capture).
 
@@ -1013,7 +1013,7 @@ Rules involved: A-R148 (dark-mode colours and capture).
 
 #### History
 
-The manager was rebuilt in A only (after the split): `aeb83cf` (26-07-2026, "Rebuild dark mode so it restores the exact original colours": 255 of 294 lines), `c89c1d4` (26-07-2026, "Fix stale state colours after a dark-mode toggle": the Setup checklist recompute in `main_window.py`), `725fbaf` (26-07-2026, tree background and tab padding), `169c7b5` (26-07-2026, Setup checklist dark colours); 29 lines remain from `edac6a3` (shared - before the split on 30-10-2025) (RAN `git blame`).
+The manager was rebuilt in A only (after the split): `aeb83cf` (26-07-2026, "Rebuild dark mode so it restores the exact original colours": 255 of its 294 lines) and `725fbaf` (26-07-2026, tree background and tab padding: 10 lines of the manager, plus `main_window.py`); 29 lines remain from `edac6a3` (shared - before the split on 30-10-2025) (RAN `git blame`: 255 + 10 + 29 = 294). Two more A-only commits on the same day changed the dark mode around the manager, not the manager file itself (RAN `git show --stat`): `c89c1d4` ("Fix stale state colours after a dark-mode toggle": the Setup checklist recompute in `gui/main_window.py`, plus `tests/test_dark_mode.py`) and `169c7b5` (Setup checklist dark colours, `gui/tabs/setup_tab.py` only). [Corrected during verification — originally listed all four commits as rebuilding the manager and left out 725fbaf's 10 lines.]
 
 ### A-F29: Standalone extractor launcher
 
@@ -1038,11 +1038,11 @@ The manager was rebuilt in A only (after the split): `aeb83cf` (26-07-2026, "Reb
 
 Run `python launch_extractor.py` (README `:166-169`); then the same controls as Step 4 (A-F19 to A-F25), plus a status bar at the bottom.
 
-#### Concrete trace (RAN, me: `scripts/t29_launcher.py` → `out/t29_launcher.txt`; each case is a fresh Python started in its own scratch "current folder", the real launcher run as a script; the only change: the window is read and closed 1.5 s after it opens)
+#### Concrete trace (RAN, me: `scripts/t29_launcher.py` → `out/t29_launcher.txt`; each case is a fresh Python started in its own scratch "current folder"; a small wrapper puts the program folder first on Python's search path — as Python itself does when a script is started — and runs the real `launch_extractor.py` with `runpy.run_path(…, run_name='__main__')`; the only change: the window is read and closed 1.5 s after it opens)
 
 | Case | Input | What happened (RAN) |
 |---|---|---|
-| A | home settings file with `target_folder` = a folder holding one run `Annual Statement-211026 1055` with `ClientA Traders-MH`, and `dark_mode: true` | log: "Found cache file: …/.gst_organizer_cache.json" → "Found target folder in cache: …" → window "Power Query Extractor" 1000x700, minimum (900, 600), theme `clam`, **light** (the saved dark mode is ignored); folder filled; status "Found 1 clients"; row ticked ITC + Sales; Start enabled; `pq_extractor.log` created in the CURRENT folder, none in the program folder |
+| A | home settings file with `target_folder` = a folder holding one run `Annual Statement-211026 1055` with `ClientA Traders-MH`, and `dark_mode: true` | log: "Found cache file: …/.gst_organizer_cache.json" → "Found target folder in cache: …" → window "Power Query Extractor" 1000x700, minimum (900, 600), theme `clam`; the saved `dark_mode: true` has no effect — the trace did not print colours, but nothing in `power_query_extractor/` or `launch_extractor.py` reads `dark_mode` (READ grep), so the window is light (HIGH); folder filled; status "Found 1 clients"; row ticked ITC + Sales; Start enabled; `pq_extractor.log` created in the CURRENT folder, none in the program folder |
 | B | no settings file anywhere | "No cached folder found"; empty folder box; status "Ready"; Start disabled |
 | C | no home file, but `gst_organizer_cache.json` with key `output_folder` in the current folder | that file is used ("Found cache file: gst_organizer_cache.json") and the folder scanned |
 | D | `python power_query_extractor/extractor_main.py` | exit 1: `ImportError: attempted relative import with no known parent package` (the module starts with `from .gui…`, `:9`) |
@@ -1054,10 +1054,10 @@ Close handler (RAN, cases A-C): only Tk's default (`destroy`). Closing the windo
 
 > **BUG (for Section 7; matches A-G27): closing the standalone window during a run kills the run without asking** (READ; Tk default close, daemon worker). The same holds for Step 4 inside the main window: the main window's close question looks only at Step 3's flag (`gui/main_window.py:344-355`), not at the panel's `is_processing` (READ). HIGH (code).
 
-- **Alternative ways of starting fail** (RAN D; A-G32): running `extractor_main.py` directly fails; `python -m power_query_extractor.extractor_main` from the program folder would work (READ, MEDIUM — not run).
+- **Alternative ways of starting fail** (RAN D; A-G32): running `extractor_main.py` directly fails; `python -m power_query_extractor.extractor_main` from the program folder works (RAN by the verifier: started from a scratch folder with the program folder on `PYTHONPATH`, the window opened with "No cached folder found" and stayed open until it was stopped after 8 s; no import error; `pq_extractor.log` appeared in the folder it was started from). [Corrected during verification — originally "would work (READ, MEDIUM — not run)".]
 - **The program folder is added at the END of the search path** (`launch_extractor.py:10`); Python already puts the script's own folder first when the file is run as a script, so the line changes nothing in that case; when the launcher is imported from elsewhere, a different installed package called `utils` (imported by `report_processor.py:39`) would win (READ; LOW).
 - **The window's `__getattr__` replaces Tk's own forwarding** (RAN E; nothing in A uses it — READ grep; LOW).
-- **The standalone window keeps its own log file** `pq_extractor.log` in the current folder (RAN; A-F30) and ignores the dark-mode setting (RAN A).
+- **The standalone window keeps its own log file** `pq_extractor.log` in the current folder (RAN; A-F30) and ignores the dark-mode setting (RAN A with `dark_mode: true`; READ grep: never read).
 - **Nothing stops a second copy** (standalone and the main program's Step 4 at the same time) from driving Excel together (READ; A-G71).
 - Case C shows that a stray `gst_organizer_cache.json` in whatever folder the launcher is started from can decide which folder is scanned (RAN; A-R118).
 
@@ -1067,7 +1067,7 @@ Rules involved: A-R118 (how the folder is found), A-R121 (extractor log file), A
 
 #### Older documents against the code
 
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:409-411`: "User launches launch_extractor.py → Loads target_folder from cache (BUG: wrong path - see F10)" — **no longer true** since `c1583d6` (RAN case A).
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:409-411`: "User launches launch_extractor.py → Loads target_folder from cache (BUG: wrong path - see F10)" — **no longer true** since `c1583d6` (A only (after the split)) (RAN case A).
 - `PROJECT_AUDIT_ANNUALSTATEMENT.md:824-825`: "Window size: 1000×700, minimum 900×600; Theme: Clam ttk theme" — true (RAN).
 - `README.md:166-176` (RM23-RM25): "python launch_extractor.py … auto-loads target folder from cache … Select clients … Click 'Refresh & Extract'" — the first two are true (RAN); the button is "🚀 Start Processing" (`extractor_window.py:330`).
 - The design note `docs/superpowers/specs/2026-07-25-merge-extractor-design.md` keeps the standalone window as a supported way in (the panel "serves both this tab and the standalone launch_extractor.py window", `gui/tabs/extract_tab.py:4-6`).
@@ -1115,24 +1115,24 @@ None. The user can open the file in a text editor (README `:289-291, 333`).
 ```
 3. No log file in the program folder (RAN).
 
-**Case 2 (RAN, SIMULATED Windows code page):** the same format through a file handler opened with `encoding='cp1252'` — what Python uses on a Windows PC with that code page when, as here, no encoding is given (`main.py:24`, `extractor_main.py:16`) (MEDIUM: depends on the PC's language settings and Python's UTF-8 mode). Of three lines, only the one without symbols was written; the lines with "✓" and "❌" were lost, each with "--- Logging error ---" on the console (RAN). Applied to case 1's real log, **51 of its 154 lines** contain characters that cp1252 cannot write (RAN count).
+**Case 2 (RAN, SIMULATED Windows code page — the older character set Windows uses for plain-text files; cp1252 is the Western European one and has no ✓, ❌ or emoji):** the same format through a file handler opened with `encoding='cp1252'` — what Python uses on a Windows PC with that code page when, as here, no encoding is given (`main.py:24`, `extractor_main.py:16`) (MEDIUM: depends on the PC's language settings and Python's UTF-8 mode). Of three lines, only the one without symbols was written; the lines with "✓" and "❌" were lost, each with "--- Logging error ---" on the console (RAN). Applied to case 1's real log, **51 of its 154 lines** contain characters that cp1252 cannot write (RAN count).
 
 **Case 3 (RAN `t30b_basicconfig.py`): README's "Debug Mode" advice** (`README.md:281-287`, "Enable detailed logging: `logging.basicConfig(level=logging.DEBUG)` in main.py or launch_extractor.py"):
 - placed after `main.py:20-27`: root level stays 20 (INFO), the debug line does not reach the file — a second `basicConfig` does nothing once logging is set up;
-- placed before the extractor's set-up: DEBUG goes to the console only, and `pq_extractor.log` is created but stays **empty** (size 0).
+- placed before the extractor's set-up: the extractor's own `basicConfig` then does nothing, so every line — INFO as well as DEBUG — goes to the console only (RAN: the console's last line was `INFO:x:info line`), and `pq_extractor.log` is created (its handler is built before `basicConfig` ignores it) but stays **empty** (size 0).
 
 #### What the trace shows against what the feature claims
 
 > **BUG (for Section 7; matches A-G56): client data is logged at INFO into a file in whatever folder the program was started from** (RAN: placeholder client name from BB2, file names, extracted figures). Started from a shared program folder, every user appends to one file there. MEDIUM.
 
-> **BUG (for Section 7; matches A-G56, which already describes the loss — this trace adds the size of it): on a Windows PC whose code page is cp1252, about a third of the log lines are silently lost** (RAN, simulated: 51 of 154), including most Step 4 lines, because the file is opened without an encoding and the messages contain symbols (✓ ❌ ⚠️ 📋). MEDIUM (depends on the PC's settings).
+> **BUG (for Section 7; matches A-G56, which already describes the loss — this trace adds the size of it): on a Windows PC whose code page is cp1252, about a third of the log lines are silently lost** (RAN, simulated: 51 of 154 — all 154 lines of that log came from one Step 4 report, so about a third of the Step 4 lines; recounted by the verifier: 51 of 154), because the file is opened without an encoding and the messages contain symbols (✓ ❌ ⚠️ 📋). MEDIUM (depends on the PC's settings).
 
 > **BUG (for Section 7; new — the README instruction does not work): README's "Debug Mode" line changes nothing where the README says to put it** (RAN case 3). LOW.
 
 - **Start-up depends on the current folder being writable** (READ `main.py:20-27`: the file handler is created at import, before any window; a read-only start folder raises `PermissionError` and the program never opens) (A-G23; not runnable here as the root user).
 - **Without a console** (`pythonw.exe`), `sys.stdout` is `None` and `main.py:17` fails before logging is even set up (READ; A-G22).
 - **Never rotated** (READ: plain `FileHandler`, append mode): grows by about 150 lines per Step 4 report (RAN) plus the Step 3 lines (A-G52).
-- **The history keeps an earlier log**: a 5,689-line `gst_organizer.log` with records of real processing runs was part of `edac6a3` (31-08-2025, shared - before the split on 30-10-2025) and was deleted in `cbfa4a5` the same day (RAN `git show --stat`); its contents are not repeated here (described by kind only).
+- **The history keeps an earlier log**: a 5,689-line `gst_organizer.log` with records of real processing runs was part of `edac6a3` (31-08-2025, shared - before the split on 30-10-2025) and was deleted in `cbfa4a5` the same day (RAN `git show --stat`); because `6237597` (29-10-2025, shared) was built on `edac6a3`, not on `cbfa4a5`, the file is still in `6237597`'s snapshot and left the main line only with the merge `9c56a1c` (29-10-2025, shared) (RAN `git ls-tree`); its contents are not repeated here (described by kind only).
 
 Facts against Standard 13 (`rebuild_pipeline_FINAL.md:1034-1040`; facts only): logs go to the current folder, not `%LOCALAPPDATA%\<App Name>\`; the app's files are not located from an `APP_DIR`; `print()` and console handlers are used for messages that, without a console, nobody sees.
 
@@ -1144,11 +1144,11 @@ Rules involved: A-R120 (main log file), A-R121 (extractor log file), A-R122 (wha
 - `README.md:281-287` "Debug Mode" — does not work as written (RAN case 3).
 - `README.md:333` "Check the log file: `gst_organizer.log`" — the file may be in a different folder each time, depending on how the program was started (RAN).
 - `PROJECT_AUDIT_ANNUALSTATEMENT.md:655` (item 9) "`main.py:36` creates `logs/` and `temp/` directories relative to `__file__`, which is correct" — those folders are created inside the program folder (`main.py:35-37`, READ), but nothing writes the log into `logs/`: the log goes to the current folder (READ `main.py:20-27`; RAN case 1).
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:972-981` describes the committed log and its deletion — consistent with the history (RAN).
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:972-981` describes the committed log and its deletion — consistent with the history (RAN), except the date: it puts `cbfa4a5` (shared - before the split on 30-10-2025) under "Phase 2: Cleanup (cbfa4a5, 6237597, 9c56a1c — 2025-10-29)" (`:976`), while `cbfa4a5` is dated 31-08-2025 22:14, the same day as `edac6a3` (RAN `git log --format=%ad/%cd`: author and committer date agree); only the merge `9c56a1c` (shared - before the split on 30-10-2025) that brought the deletion into the main line is from 29-10-2025.
 
 #### History
 
-`main.py:1-30` and the extractor's logging set-up are from `edac6a3` (31-08-2025, shared - before the split on 30-10-2025) (RAN `git blame`). The comment in `gui/tabs/extract_tab.py:8-10` came with the Step 4 tab (A only (after the split), `a677670` and the tab's own commit — see A-F18).
+`main.py:1-30` and the extractor's logging set-up are from `edac6a3` (31-08-2025, shared - before the split on 30-10-2025) (RAN `git blame`). The comment in `gui/tabs/extract_tab.py:8-10` came with the Step 4 tab's own commit `bfcb24a` (26-07-2026, A only (after the split); RAN `git blame`: all three lines `bfcb24a`; see A-F18). [Corrected during verification — originally named `a677670` as well, which did not touch this file.]
 
 ### A-F31: Help texts, tooltips, scrolling and collapsible sections
 
@@ -1182,11 +1182,11 @@ Hovering, the mouse wheel or touch-pad, clicking ▼/▶.
 
 | Action | What happened (RAN) |
 |---|---|
-| Start-up | 33 tooltips attached on Step 1 (18 different texts; one path tooltip empty until a path is chosen) |
+| Start-up | 33 tooltips attached on Step 1 (READ count: 4 checklist rows × 4 widgets, 2 workflow, 4 path boxes, 4 Browse, 3 processing modes, include-name, length, Scan, Re-scan); 18 different texts, one of which is the empty text shared by the four path tooltips, which stay empty — and show nothing — until a path is chosen (`tooltip.py:32`) |
 | 0.3 s after the pointer enters "Scan Files" | no popup |
 | 0.7 s after | popup "Read the source folder and work out which client each file belongs to.\n\nRead-only - nothing is copied or changed. Results appear on Step 2.", `#FFFFE0`/`#333333`, at (76, 1341) for a button at (64, 1303) 32 px high — i.e. +12, +32+6 |
 | Pointer leaves | popup gone |
-| Tooltip for a control 60 px from the right screen edge (screen 1920×1080) | popup from x 1872 to **2402** and y 1076 to **1112** — runs off the screen |
+| Tooltip for a control 60 px from the right screen edge (screen 1920×1080) | popup from x 1872 to **2402** and y 1076 to **1112** — runs off the screen (the verifier's re-run had a 1280×1024 virtual screen: popup from x 1232 to **1762**, y 1020 to **1056** — the same result) |
 | Step 1 page, one wheel notch (`delta -120`) | view 0.000 → 0.043 |
 | three touch-pad steps (`delta -40` each) | 0.043 → 0.058 → 0.072 → 0.087 (each step = one unit, thanks to the adding-up) |
 | Linux wheel click (`<Button-5>`) | no movement |
@@ -1220,13 +1220,13 @@ Rules involved: A-R146 (mouse-wheel scrolling), A-R147 (tooltips), A-R1 to A-R7 
 
 #### Older documents against the code
 
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:796-801`: "File patterns card (purple): 6 expected file name formats … Collapsible instructions (orange)" — true (RAN).
-- `PROJECT_AUDIT_ANNUALSTATEMENT.md:1032-1035` (history of `4c42758`): "Focus-based binding prevents scroll conflicts" — that Enter/Leave method was replaced (it switched off other tabs' scrolling; comment `extractor_window.py:433-446`) by the add-up method in `bf2f1dd` (A only (after the split)).
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:794-800`: "File patterns card (purple): 6 expected file name formats … Collapsible instructions (orange)" — true (RAN).
+- `PROJECT_AUDIT_ANNUALSTATEMENT.md:1032-1035` (history of `4c42758`, shared - before the split on 30-10-2025): "Focus-based binding prevents scroll conflicts" — that Enter/Leave method was replaced (it switched off other tabs' scrolling; comment `extractor_window.py:433-446`) by the add-up method in `bf2f1dd` (A only (after the split)).
 - `tests/README.md` and the design note do not describe the tooltips.
 
 #### History
 
-The collapsible box and the Step 2 instructions are from `edac6a3` (31-08-2025, shared - before the split on 30-10-2025); the first wheel handlers for Step 4 came with `4c42758` (29-10-2025, shared - before the split on 30-10-2025). A only (after the split): `322717f` (25-07-2026: tooltip widget, Setup restructure, "EXPECTED FILE NAMES" card), `d64d3a9` (25-07-2026: Step 1 scrolling), `169c7b5` (26-07-2026), `bf2f1dd` (27-07-2026, "Fix scrolling dying after visiting other tabs; add hover help": 64 lines of the help texts and 42 lines of the Step 4 list wheel) (RAN `git blame`).
+The collapsible box and the Step 2 instructions are from `edac6a3` (31-08-2025, shared - before the split on 30-10-2025); the first wheel handlers for Step 4 came with `4c42758` (29-10-2025, shared - before the split on 30-10-2025). A only (after the split): `322717f` (25-07-2026: tooltip widget, Setup restructure, "EXPECTED FILE NAMES" card), `d64d3a9` (25-07-2026: Step 1 scrolling), `169c7b5` (26-07-2026: the 7-line `_is_dark` helper at `gui/tabs/setup_tab.py:204-210`, inside the scrolling code), `bf2f1dd` (27-07-2026, "Fix scrolling dying after visiting other tabs; add hover help": 64 lines of the help texts and 42 lines of the Step 4 list wheel) (RAN `git blame`).
 
 ### Findings from the traces in this part, for Section 7
 
@@ -1236,7 +1236,7 @@ Every difference between what a feature claims (its labels, help texts, messages
 |---|---|---|---|---|
 | 1 | A-F16 | The per-client organisation report shows run-wide "Successfully Copied" / "Folders Created" counts (Client C: 20 / 16 for 6 files) | RAN t16 R1 | A-G19 |
 | 2 | A-F16 | After Stop, the summary workbook says "Total Clients 3, Successful 1, Failed 0"; the unprocessed clients appear nowhere and nothing says "stopped" | RAN t16 R4 | **new** |
-| 3 | A-F16 | When every client fails there is no workbook, but the run "completes" and the box says "Successfully processed 0/3 clients" | RAN t16 R3 | A-G19, A-G69 |
+| 3 | A-F16 | When every client fails there is no workbook, but the run "completes" and the box says "Successfully processed 0/3 clients" | RAN t16 R3 | A-G69 (the box wording); the missing workbook is **new** |
 | 4 | A-F16 | Client Status lists successful clients only; "Success" means "no exception", not "both reports made" | RAN t16 R2; READ | A-G19 |
 | 5 | A-F16 | "Complete %" is written as text (`'83.3%'`) and "Processing Date" as the run-stamp text | RAN t16 | **new** (LOW) |
 | 6 | A-F16 | The organisation report's file list is every file of the client, including files whose copy failed | READ | **new** (LOW) |
@@ -1275,7 +1275,7 @@ Every difference between what a feature claims (its labels, help texts, messages
 | 39 | A-F24 | ✓ follows the refresh status only; any non-success status shows "Missing" in every column, even for values read; a ✓ row can hold only "Missing" [GST RULE] | RAN t24 | A-G17 |
 | 40 | A-F24 | One save error loses the whole run's figures; a second run in the same minute replaces the workbook | RAN t24 | A-G29, A-G9 |
 | 41 | A-F24 | A re-scan during a run sends the workbook to the folder scanned last | RAN t19 | A-G65, A-G71 |
-| 42 | A-F24 | Text numbers stay text, zero is not formatted, `True`/`False` get the number format [GST RULE] | RAN t24 | A-G18 |
+| 42 | A-F24 | Text numbers stay text, zero is not formatted, `True` gets the number format (`False`, equal to 0, does not — READ) [GST RULE] | RAN t24 | A-G18 |
 | 43 | A-F24 | Summary counts are refresh successes over ALL clients; "not ticked" counts as "not processed" | RAN t24, t19 | A-G19 |
 | 44 | A-F25 | Every processor line is "info" black, errors included; warnings written with `logger.warning/error` never reach the screen | RAN t19, t21 | A-G67, A-G65 |
 | 45 | A-F25 | The log box can be typed into; it is emptied at every Start | RAN t19; READ | A-G65 |
@@ -1306,7 +1306,7 @@ Every difference between what a feature claims (its labels, help texts, messages
 
 ### Trace scripts and outputs used in this part
 
-All under `/root/merge-scratch/run/A-S3b/` (scripts in `scripts/`, outputs in `out/` with the same name and `.txt`); "fake COM" = `scripts/fakecom.py`, which records calls and reads workbooks with openpyxl and is **not** Excel.
+All under `/root/merge-scratch/run/A-S3b/` (scripts in `scripts/`, outputs in `out/` with the same name and `.txt`); "fake COM" = `scripts/fakecom.py`, which records calls and reads workbooks with openpyxl and is **not** Excel. Verification: every script was copied to `/root/merge-scratch/run/VERIFY-A-S3b/scripts/` (only the scratch paths changed) and re-run there on 21-10-2026, 14:43-14:51, against a fresh copy of the snapshot (`diff -rq` against `/root/merge-scratch/A-copy` empty; checksums of the copy identical before and after the runs). After masking clock times, run stamps and scratch paths, the outputs agree with the ones quoted here except for the byte sizes of made-up files and the virtual screen size in `t31_help.py` (see A-F16, A-F31).
 
 | Script | Features | What it drives |
 |---|---|---|
