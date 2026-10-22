@@ -86,7 +86,7 @@ when the author says "continue".**
 | 4 | Check of shared 12A (12 shared commits) | **done** — 13 corrections in place, 21-10-2026 | wf_ba37bbb8-fd1 |
 | 5 | A final → commit audit A | S1 (title + executive summary) written; a usage limit (about 19:40 UTC, 21-10) stopped S11 and everything after; finishing with mode finalRest (S11 finish → check S11 and S1 → assemble + self-consistency → completeness) from 22-10-2026 01:30 UTC | wf_3971ed50-2f7 (S1); see next line |
 | 5b | A final, finishing run | S11 written + checked; S1 checked; assembled; self-consistency review done (58 edits) — the computer restarted (about 02:45 UTC, 22-10) before the reviewer wrote its record, so the record was compiled from its log; completeness check next | wf_b46ac854-45c |
-| 5c | A completeness check → copy audit A into merge-analysis/, commit, report 3 findings | running | see run list |
+| 5c | A completeness check → copy audit A into merge-analysis/, commit, report 3 findings | running | wf_5ac603f8-42c |
 | 6 | B sections S3a, S67, S12BF, X345 | stopped early (partial S3a) — resume | wf_6d3d2949-6f1 |
 | 7 | B sections S3b, S45, S89 | stopped early (partial S3b, S45) — resume | wf_a3e4fe43-d98 |
 | 8 | B sections S2, S10, S12own, X12 | stopped early (partial S10) — resume | wf_33f178ac-b1e |
