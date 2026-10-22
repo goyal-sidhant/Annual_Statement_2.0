@@ -39,6 +39,8 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
+**PAUSE REQUESTED by the author (22-10-2026):** when A's completeness check (queue item 5c) finishes, only file audit A (copy it into this folder, commit, push, report its three most important findings) and then STOP. Start nothing for B until the author says "continue".
+
 **Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
 Phase 1 — audit A, then B, with `.build-docs/toolkit/Project_Audit_FINAL.md` (all 12
