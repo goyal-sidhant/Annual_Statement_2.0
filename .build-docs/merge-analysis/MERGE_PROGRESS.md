@@ -94,8 +94,8 @@ when the author says "continue".**
 | 8 | B sections S2, S10, S12own, X12 | **done** — written and checked, 23-10-2026 16:03 UTC; paused here as asked | wf_2ce78fc9-5d2 |
 | 9 | B final → file audit B | **done** — S11 and S1 written and checked; assembled; self-consistency review (58 corrections); completeness check (B's openpyxl path also drops drawn shapes, RAN); filed as `PROJECT_AUDIT_AnnualStatement_oldv2.md` (13,517 lines), 23-10-2026 | wf_05224ce4-4c2 |
 | 10a | Phase 2 part 1: MAP + sections C3, C4, C5a, C5b, C6, C78, C910 | **done** — all written and checked, 23-10-2026 | wf_d430da19-c9c, wf_729e1365-a4a, wf_b77e6251-920, wf_1cc2bea7-bdb, wf_9632ef73-e0b |
-| 10b | Phase 2 final: C12 (summary, family tree), assembly, review against both final audits | running | wf_76948df9-a0c |
-| 11a | Phase 3 drafting (script merge-decisions-wf_40ef9b99-b2c.js): D1 Part 1 + D5 Part 11 | running in parallel with 10b | wf_40ef9b99-b2c |
+| 10b | Phase 2 final: summary, family tree, assembly, review | **done** — `MERGE_COMPARISON.md` filed (3,844 lines), 23-10-2026; its review also corrected 4 small facts in the two audits (marked "[Corrected after the comparison review ...]") | wf_76948df9-a0c |
+| 11a | Phase 3 drafting: D1 Part 1 (22 items) + D5 Part 11 | **done** — drafted and checked | wf_40ef9b99-b2c |
 | 11b | Phase 3 drafting: D2 Parts 2+6 + D3 Parts 3+4+5 | running | wf_3b4e8d5a-cd5 |
 | 11c | Phase 3 drafting: D4 Parts 7-10 | running | wf_478487dd-829 |
 | 11d | Phase 3 assembly (renumber, closing list, coverage, checks) + final check → file MERGE_DECISIONS.md and MERGE_COMPARISON.md → post list + answer sheet → STOP | waits for 10b and 11a-c | |
@@ -112,8 +112,8 @@ Feature split for Section 3: A-F1..A-F15 / A-F16..A-F31; B-F1..B-F17 / B-F18..B-
 |---|---|---|---|
 | 0 — Set up and check access | Done | 21-10-2026 | Blockers cleared the same day |
 | 1 — Audit A and B | **Done** — both audits filed: A on 22-10-2026, B on 23-10-2026 | 21-23/10/2026 | `PROJECT_AUDIT_AnnualStatement_oldv1.md`, `PROJECT_AUDIT_AnnualStatement_oldv2.md` in this folder |
-| 2 — Compare A and B | In progress (map and sections 3-10 running) | 23-10-2026 | |
-| 3 — Numbered decision list | Not started | | |
+| 2 — Compare A and B | **Done** | 23-10-2026 | `MERGE_COMPARISON.md` in this folder |
+| 3 — Numbered decision list | In progress (parts drafted in parallel; assembly next) | 23-10-2026 | |
 | 4 — Taking the author's answers | Not started | | |
 | 5 — Starting files | Not started | | |
 | 6 — Final checks and hand-over | Not started | | |
