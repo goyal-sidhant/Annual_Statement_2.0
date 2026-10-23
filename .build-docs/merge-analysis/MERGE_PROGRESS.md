@@ -91,7 +91,7 @@ when the author says "continue".**
 | 5c | A completeness check | **done** — 7 Excel touchpoints, 6 GST-neutrality rewordings, ~40 term explanations and 20 ⚠ marks added; audit A filed as `PROJECT_AUDIT_AnnualStatement_oldv1.md` (15,699 lines), 22-10-2026 | wf_5ac603f8-42c |
 | 6 | B sections S3a, S67, S12BF, X345 | **done** — written and checked, 23-10-2026 | wf_c6d2eb54-2d9 |
 | 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
-| 8 | B sections S2, S10, S12own, X12 | running (fresh run; the partial S10 draft is finished, not redone) | see run list |
+| 8 | B sections S2, S10, S12own, X12 | running (fresh run; the partial S10 draft is finished, not redone) | wf_2ce78fc9-5d2 |
 | 9 | B final → commit audit B | not started | |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
