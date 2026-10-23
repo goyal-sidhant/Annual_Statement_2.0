@@ -39,7 +39,7 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**PAUSED by the author (22-10-2026) after audit A was filed.** Nothing is running. When the author says "continue": queue item 6 (B sections S3a, S67, S12BF, X345 — fresh `sections` run; the old run had no finished agents), then items 7, 8, 9 one at a time; then Phase 2 and Phase 3.
+**Resumed on the author's "continue" (23-10-2026 11:30 UTC).** Queue item 6 is running; then items 7, 8, 9 one at a time; then Phase 2 and Phase 3. One workflow at a time.
 
 **Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
@@ -89,7 +89,7 @@ when the author says "continue".**
 | 5 | A final → commit audit A | S1 (title + executive summary) written; a usage limit (about 19:40 UTC, 21-10) stopped S11 and everything after; finishing with mode finalRest (S11 finish → check S11 and S1 → assemble + self-consistency → completeness) from 22-10-2026 01:30 UTC | wf_3971ed50-2f7 (S1); see next line |
 | 5b | A final, finishing run | S11 written + checked; S1 checked; assembled; self-consistency review done (58 edits) — the computer restarted (about 02:45 UTC, 22-10) before the reviewer wrote its record, so the record was compiled from its log; completeness check next | wf_b46ac854-45c |
 | 5c | A completeness check | **done** — 7 Excel touchpoints, 6 GST-neutrality rewordings, ~40 term explanations and 20 ⚠ marks added; audit A filed as `PROJECT_AUDIT_AnnualStatement_oldv1.md` (15,699 lines), 22-10-2026 | wf_5ac603f8-42c |
-| 6 | B sections S3a, S67, S12BF, X345 | stopped early (partial S3a) — resume | wf_6d3d2949-6f1 |
+| 6 | B sections S3a, S67, S12BF, X345 | running (fresh run, started 23-10-2026 11:30 UTC on the author's "continue") | wf_c6d2eb54-2d9 |
 | 7 | B sections S3b, S45, S89 | stopped early (partial S3b, S45) — resume | wf_a3e4fe43-d98 |
 | 8 | B sections S2, S10, S12own, X12 | stopped early (partial S10) — resume | wf_33f178ac-b1e |
 | 9 | B final → commit audit B | not started | |
