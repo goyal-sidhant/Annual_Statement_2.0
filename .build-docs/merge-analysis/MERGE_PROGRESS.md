@@ -93,9 +93,12 @@ when the author says "continue".**
 | 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
 | 8 | B sections S2, S10, S12own, X12 | **done** — written and checked, 23-10-2026 16:03 UTC; paused here as asked | wf_2ce78fc9-5d2 |
 | 9 | B final → file audit B | **done** — S11 and S1 written and checked; assembled; self-consistency review (58 corrections); completeness check (B's openpyxl path also drops drawn shapes, RAN); filed as `PROJECT_AUDIT_AnnualStatement_oldv2.md` (13,517 lines), 23-10-2026 | wf_05224ce4-4c2 |
-| 10a | Phase 2 part 1: MAP.md + sections C3, C4, C5a, C5b, C6, C78, C910 | MAP, C5a and C5b written (wf_d430da19-c9c, stopped at 17:30 UTC so that all writers could run at once, as the author asked). Now running together: C3+C4 (wf_729e1365-a4a), C910+C78 (wf_b77e6251-920), C6 (wf_1cc2bea7-bdb), checks of C5a+C5b (wf_9632ef73-e0b) | see left |
-| 10b | Phase 2 final: C12 (summary, family tree), assembly, review against audit B final → file MERGE_COMPARISON.md | waits for 9 and 10a | |
-| 11 | Phase 3: MERGE_DECISIONS.md → post list and answer sheet → STOP | waits for 10b | |
+| 10a | Phase 2 part 1: MAP + sections C3, C4, C5a, C5b, C6, C78, C910 | **done** — all written and checked, 23-10-2026 | wf_d430da19-c9c, wf_729e1365-a4a, wf_b77e6251-920, wf_1cc2bea7-bdb, wf_9632ef73-e0b |
+| 10b | Phase 2 final: C12 (summary, family tree), assembly, review against both final audits | running | wf_76948df9-a0c |
+| 11a | Phase 3 drafting (script merge-decisions-wf_40ef9b99-b2c.js): D1 Part 1 + D5 Part 11 | running in parallel with 10b | wf_40ef9b99-b2c |
+| 11b | Phase 3 drafting: D2 Parts 2+6 + D3 Parts 3+4+5 | running | wf_3b4e8d5a-cd5 |
+| 11c | Phase 3 drafting: D4 Parts 7-10 | running | wf_478487dd-829 |
+| 11d | Phase 3 assembly (renumber, closing list, coverage, checks) + final check → file MERGE_DECISIONS.md and MERGE_COMPARISON.md → post list + answer sheet → STOP | waits for 10b and 11a-c | |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
 S67.md (Sections 6–7, gaps A-G1.., 208 KB), S10.md (partial); B — S3a.md, S3b.md, S45.md, S10.md
