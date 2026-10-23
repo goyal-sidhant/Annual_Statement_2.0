@@ -39,7 +39,7 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**Running all remaining items without pauses, as the author asked (23-10-2026 21:44 IST: "continue for all the items"), still ONE workflow at a time:** item 9 (B final) is running; then Phase 2 (MERGE_COMPARISON.md) and Phase 3 (MERGE_DECISIONS.md), after which the prompt's own stop point applies (wait for the author's answers). The 21:40 IST scheduled resume fired at 16:13 UTC and started item 9.
+**Running all remaining items without pauses, as the author asked (23-10-2026 21:44 IST: "continue for all the items"). The author then allowed running workflows simultaneously "if required" (23-10-2026).** Now running in parallel: item 9 (B final) and Phase 2 part 1 (map + comparison sections 3-10). When both finish: Phase 2 final (summary, family tree, assembly, review against audit B's final text), then Phase 3, then the prompt's stop point (wait for the author's answers).
 
 **Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
@@ -93,6 +93,9 @@ when the author says "continue".**
 | 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
 | 8 | B sections S2, S10, S12own, X12 | **done** — written and checked, 23-10-2026 16:03 UTC; paused here as asked | wf_2ce78fc9-5d2 |
 | 9 | B final (S11, S1, checks, assembly + self-consistency, completeness) → file audit B | running (started 23-10-2026 16:14 UTC) | wf_05224ce4-4c2 |
+| 10a | Phase 2 part 1: MAP.md, then sections C3, C4, C5a, C5b, C6, C78, C910 (writer + checker each) in `~/merge-scratch/compare/` | running (started 23-10-2026 16:25 UTC, in parallel with item 9) | wf_d430da19-c9c (script merge-compare-wf_d430da19-c9c.js) |
+| 10b | Phase 2 final: C12 (summary, family tree), assembly, review against audit B final → file MERGE_COMPARISON.md | waits for 9 and 10a | |
+| 11 | Phase 3: MERGE_DECISIONS.md → post list and answer sheet → STOP | waits for 10b | |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
 S67.md (Sections 6–7, gaps A-G1.., 208 KB), S10.md (partial); B — S3a.md, S3b.md, S45.md, S10.md
