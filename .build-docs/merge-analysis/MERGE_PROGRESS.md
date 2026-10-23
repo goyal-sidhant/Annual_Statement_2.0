@@ -93,7 +93,7 @@ when the author says "continue".**
 | 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
 | 8 | B sections S2, S10, S12own, X12 | **done** — written and checked, 23-10-2026 16:03 UTC; paused here as asked | wf_2ce78fc9-5d2 |
 | 9 | B final (S11, S1, checks, assembly + self-consistency, completeness) → file audit B | running (started 23-10-2026 16:14 UTC) | wf_05224ce4-4c2 |
-| 10a | Phase 2 part 1: MAP.md, then sections C3, C4, C5a, C5b, C6, C78, C910 (writer + checker each) in `~/merge-scratch/compare/` | running (started 23-10-2026 16:25 UTC, in parallel with item 9) | wf_d430da19-c9c (script merge-compare-wf_d430da19-c9c.js) |
+| 10a | Phase 2 part 1: MAP.md + sections C3, C4, C5a, C5b, C6, C78, C910 | MAP, C5a and C5b written (wf_d430da19-c9c, stopped at 17:30 UTC so that all writers could run at once, as the author asked). Now running together: C3+C4 (wf_729e1365-a4a), C910+C78 (wf_b77e6251-920), C6 (wf_1cc2bea7-bdb), checks of C5a+C5b (wf_9632ef73-e0b) | see left |
 | 10b | Phase 2 final: C12 (summary, family tree), assembly, review against audit B final → file MERGE_COMPARISON.md | waits for 9 and 10a | |
 | 11 | Phase 3: MERGE_DECISIONS.md → post list and answer sheet → STOP | waits for 10b | |
 
