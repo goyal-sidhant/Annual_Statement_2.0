@@ -39,7 +39,7 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**Resumed on the author's "continue" (23-10-2026 11:30 UTC).** Queue items 6 and 7 are done; item 8 is running; then item 9 one at a time; then Phase 2 and Phase 3. One workflow at a time.
+**PAUSE after queue item 8, as the author asked (23-10-2026 20:10 IST): "pause after item 8. resume at 9:40 PM IST".** A scheduled message (scheduled task `trig_01LoAdHYFSvKXQcKe9kHdEmZ`) will wake this session at 16:10 UTC (21:40 IST) on 23-10-2026 to start queue item 9 (B final). Until then, when item 8 finishes: save it, commit, push, and start nothing.
 
 **Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
