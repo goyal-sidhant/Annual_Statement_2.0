@@ -96,9 +96,9 @@ when the author says "continue".**
 | 10a | Phase 2 part 1: MAP + sections C3, C4, C5a, C5b, C6, C78, C910 | **done** — all written and checked, 23-10-2026 | wf_d430da19-c9c, wf_729e1365-a4a, wf_b77e6251-920, wf_1cc2bea7-bdb, wf_9632ef73-e0b |
 | 10b | Phase 2 final: summary, family tree, assembly, review | **done** — `MERGE_COMPARISON.md` filed (3,844 lines), 23-10-2026; its review also corrected 4 small facts in the two audits (marked "[Corrected after the comparison review ...]") | wf_76948df9-a0c |
 | 11a | Phase 3 drafting: D1 Part 1 (22 items) + D5 Part 11 | **done** — drafted and checked | wf_40ef9b99-b2c |
-| 11b | Phase 3 drafting: D2 Parts 2+6 + D3 Parts 3+4+5 | running | wf_3b4e8d5a-cd5 |
-| 11c | Phase 3 drafting: D4 Parts 7-10 | running | wf_478487dd-829 |
-| 11d | Phase 3 assembly (renumber, closing list, coverage, checks) + final check → file MERGE_DECISIONS.md and MERGE_COMPARISON.md → post list + answer sheet → STOP | waits for 10b and 11a-c | |
+| 11b | Phase 3 drafting: D2 Parts 2+6 (22 items) + D3 Parts 3+4+5 (39 items) | **done** — drafted and checked | wf_3b4e8d5a-cd5 |
+| 11c | Phase 3 drafting: D4 Parts 7-10 (43 items) | **done** — drafted and checked | wf_478487dd-829 |
+| 11d | Phase 3 assembly (renumber, closing list, coverage, checks; resolves COORDINATOR_NOTES.md) + final check → file MERGE_DECISIONS.md → post list + answer sheet → STOP | running | wf_40967c48-9b5 |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
 S67.md (Sections 6–7, gaps A-G1.., 208 KB), S10.md (partial); B — S3a.md, S3b.md, S45.md, S10.md
