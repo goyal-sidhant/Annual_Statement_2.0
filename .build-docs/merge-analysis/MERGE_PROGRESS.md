@@ -39,17 +39,15 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**Running all remaining items without pauses, as the author asked (23-10-2026 21:44 IST: "continue for all the items"). The author then allowed running workflows simultaneously "if required" (23-10-2026).** Now running in parallel: item 9 (B final) and Phase 2 part 1 (map + comparison sections 3-10). When both finish: Phase 2 final (summary, family tree, assembly, review against audit B's final text), then Phase 3, then the prompt's stop point (wait for the author's answers).
+**Phase 3 is done and STOPPED (the prompt's stop point "End of Phase 3 — wait for my answers").** Nothing is running.
+When the author answers (Phase 4, prompt section 10):
+1. Write each answer under its item in `MERGE_DECISIONS.md` ("Your answer: <answer> (DD-MM-YYYY)") and in the "Answers so far" table (answer + date); update the line "Answered N of 153".
+2. Commit (`[DOCS]`, Standard 10) and push after each batch; report "Answered N of 153. Still open: …".
+3. Follow-up questions one at a time, only when an answer is unclear, contradicts another, or picks a GST-rule version without a reason (ask "why?" once; the reason goes into the Brief). If the author says "you decide" on a GST-rule item, remind them it is theirs and offer "Not sure yet".
+4. Audit corrections from the author: record as `[AUDIT CORRECTION: Audit stated X, but per builder's knowledge, the actual behaviour is Y]` for the Brief (never edit the audits for them). New ideas go into the Parking Lot table at the end of `MERGE_DECISIONS.md`. "Not sure yet" answers become Open items in Session 0.
+5. When every item is answered: the adapted consistency check (prompt section 10, points 1-5), resolve conflicts one at a time, then ask "All 153 items are answered and nothing conflicts. Shall I create the starting files now?" and STOP until "yes".
 
-**Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
-
-Phase 1 — audit A, then B, with `.build-docs/toolkit/Project_Audit_FINAL.md` (all 12
-sections, every file line by line, `git show` for every commit, self-consistency review),
-with the merge adjustments in the prompt's section 7. Outputs:
-`.build-docs/merge-analysis/PROJECT_AUDIT_AnnualStatement_oldv1.md` and
-`.build-docs/merge-analysis/PROJECT_AUDIT_AnnualStatement_oldv2.md`.
-
-### Phase 1 working set (scratch, not committed)
+## Phase 1 working set (scratch, not committed)
 
 - Scratch copies of each HEAD for reading and running: `~/merge-scratch/A-copy`, `~/merge-scratch/B-copy`
   (made with `git archive` from the combined repository, so line numbers match the repositories).
@@ -98,7 +96,7 @@ when the author says "continue".**
 | 11a | Phase 3 drafting: D1 Part 1 (22 items) + D5 Part 11 | **done** — drafted and checked | wf_40ef9b99-b2c |
 | 11b | Phase 3 drafting: D2 Parts 2+6 (22 items) + D3 Parts 3+4+5 (39 items) | **done** — drafted and checked | wf_3b4e8d5a-cd5 |
 | 11c | Phase 3 drafting: D4 Parts 7-10 (43 items) | **done** — drafted and checked | wf_478487dd-829 |
-| 11d | Phase 3 assembly (renumber, closing list, coverage, checks; resolves COORDINATOR_NOTES.md) + final check → file MERGE_DECISIONS.md → post list + answer sheet → STOP | running | wf_40967c48-9b5 |
+| 11d | Phase 3 assembly + final check | **done** — `MERGE_DECISIONS.md` filed: 153 items (Part 1: 1-21; 2: 22-36; 3: 37-46; 4: 47-53; 5: 54-62; 6: 63-70; 7: 71-88; 8: 89-99; 9: 100-107; 10: 108-113; 11: 114-153), closing list CL1-CL11, coverage of every A-F/B-F/A-R/B-R; 87 items with a recommendation, 66 without (GST rules, Part 6, Part 11, contracts C3 and C8) | wf_40967c48-9b5 |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
 S67.md (Sections 6–7, gaps A-G1.., 208 KB), S10.md (partial); B — S3a.md, S3b.md, S45.md, S10.md
@@ -113,8 +111,8 @@ Feature split for Section 3: A-F1..A-F15 / A-F16..A-F31; B-F1..B-F17 / B-F18..B-
 | 0 — Set up and check access | Done | 21-10-2026 | Blockers cleared the same day |
 | 1 — Audit A and B | **Done** — both audits filed: A on 22-10-2026, B on 23-10-2026 | 21-23/10/2026 | `PROJECT_AUDIT_AnnualStatement_oldv1.md`, `PROJECT_AUDIT_AnnualStatement_oldv2.md` in this folder |
 | 2 — Compare A and B | **Done** | 23-10-2026 | `MERGE_COMPARISON.md` in this folder |
-| 3 — Numbered decision list | In progress (parts drafted in parallel; assembly next) | 23-10-2026 | |
-| 4 — Taking the author's answers | Not started | | |
+| 3 — Numbered decision list | **Done** — posted in the chat; waiting for the author's answers | 23-10-2026 | `MERGE_DECISIONS.md` in this folder |
+| 4 — Taking the author's answers | Waiting for the author | | Answered 0 of 153 |
 | 5 — Starting files | Not started | | |
 | 6 — Final checks and hand-over | Not started | | |
 
