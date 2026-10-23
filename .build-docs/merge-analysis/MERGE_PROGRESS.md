@@ -39,7 +39,7 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**PAUSE after queue item 8, as the author asked (23-10-2026 20:10 IST): "pause after item 8. resume at 9:40 PM IST".** A scheduled message (scheduled task `trig_01LoAdHYFSvKXQcKe9kHdEmZ`) will wake this session at 16:10 UTC (21:40 IST) on 23-10-2026 to start queue item 9 (B final). Until then, when item 8 finishes: save it, commit, push, and start nothing.
+**PAUSE after queue item 8, as the author asked (23-10-2026 20:10 IST): "pause after item 8. resume at 9:40 PM IST".** A scheduled message (scheduled task `trig_01LoAdHYFSvKXQcKe9kHdEmZ`) will wake this session at 16:10 UTC (21:40 IST) on 23-10-2026 to start queue item 9 (B final). Item 8 finished and was saved; nothing is running until then. B_cross_flags.md (all writers' flags for B) is ready for item 9.
 
 **Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
@@ -91,7 +91,7 @@ when the author says "continue".**
 | 5c | A completeness check | **done** — 7 Excel touchpoints, 6 GST-neutrality rewordings, ~40 term explanations and 20 ⚠ marks added; audit A filed as `PROJECT_AUDIT_AnnualStatement_oldv1.md` (15,699 lines), 22-10-2026 | wf_5ac603f8-42c |
 | 6 | B sections S3a, S67, S12BF, X345 | **done** — written and checked, 23-10-2026 | wf_c6d2eb54-2d9 |
 | 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
-| 8 | B sections S2, S10, S12own, X12 | running (fresh run; the partial S10 draft is finished, not redone) | wf_2ce78fc9-5d2 |
+| 8 | B sections S2, S10, S12own, X12 | **done** — written and checked, 23-10-2026 16:03 UTC; paused here as asked | wf_2ce78fc9-5d2 |
 | 9 | B final → commit audit B | not started | |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
