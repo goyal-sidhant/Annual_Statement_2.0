@@ -92,7 +92,7 @@ when the author says "continue".**
 | 6 | B sections S3a, S67, S12BF, X345 | **done** — written and checked, 23-10-2026 | wf_c6d2eb54-2d9 |
 | 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
 | 8 | B sections S2, S10, S12own, X12 | **done** — written and checked, 23-10-2026 16:03 UTC; paused here as asked | wf_2ce78fc9-5d2 |
-| 9 | B final (S11, S1, checks, assembly + self-consistency, completeness) → file audit B | running (started 23-10-2026 16:14 UTC) | wf_05224ce4-4c2 |
+| 9 | B final → file audit B | **done** — S11 and S1 written and checked; assembled; self-consistency review (58 corrections); completeness check (B's openpyxl path also drops drawn shapes, RAN); filed as `PROJECT_AUDIT_AnnualStatement_oldv2.md` (13,517 lines), 23-10-2026 | wf_05224ce4-4c2 |
 | 10a | Phase 2 part 1: MAP.md + sections C3, C4, C5a, C5b, C6, C78, C910 | MAP, C5a and C5b written (wf_d430da19-c9c, stopped at 17:30 UTC so that all writers could run at once, as the author asked). Now running together: C3+C4 (wf_729e1365-a4a), C910+C78 (wf_b77e6251-920), C6 (wf_1cc2bea7-bdb), checks of C5a+C5b (wf_9632ef73-e0b) | see left |
 | 10b | Phase 2 final: C12 (summary, family tree), assembly, review against audit B final → file MERGE_COMPARISON.md | waits for 9 and 10a | |
 | 11 | Phase 3: MERGE_DECISIONS.md → post list and answer sheet → STOP | waits for 10b | |
@@ -108,8 +108,8 @@ Feature split for Section 3: A-F1..A-F15 / A-F16..A-F31; B-F1..B-F17 / B-F18..B-
 | Phase | Status | Date | Notes |
 |---|---|---|---|
 | 0 — Set up and check access | Done | 21-10-2026 | Blockers cleared the same day |
-| 1 — Audit A and B | **Audit A done and filed** (22-10-2026); audit B paused at the author's request (queue items 6-9) | 21/22-10-2026 | `PROJECT_AUDIT_AnnualStatement_oldv1.md` in this folder |
-| 2 — Compare A and B | Not started | | |
+| 1 — Audit A and B | **Done** — both audits filed: A on 22-10-2026, B on 23-10-2026 | 21-23/10/2026 | `PROJECT_AUDIT_AnnualStatement_oldv1.md`, `PROJECT_AUDIT_AnnualStatement_oldv2.md` in this folder |
+| 2 — Compare A and B | In progress (map and sections 3-10 running) | 23-10-2026 | |
 | 3 — Numbered decision list | Not started | | |
 | 4 — Taking the author's answers | Not started | | |
 | 5 — Starting files | Not started | | |
