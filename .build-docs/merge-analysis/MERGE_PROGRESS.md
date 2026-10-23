@@ -39,7 +39,7 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**PAUSE after queue item 8, as the author asked (23-10-2026 20:10 IST): "pause after item 8. resume at 9:40 PM IST".** A scheduled message (scheduled task `trig_01LoAdHYFSvKXQcKe9kHdEmZ`) will wake this session at 16:10 UTC (21:40 IST) on 23-10-2026 to start queue item 9 (B final). Item 8 finished and was saved; nothing is running until then. B_cross_flags.md (all writers' flags for B) is ready for item 9.
+**Running all remaining items without pauses, as the author asked (23-10-2026 21:44 IST: "continue for all the items"), still ONE workflow at a time:** item 9 (B final) is running; then Phase 2 (MERGE_COMPARISON.md) and Phase 3 (MERGE_DECISIONS.md), after which the prompt's own stop point applies (wait for the author's answers). The 21:40 IST scheduled resume fired at 16:13 UTC and started item 9.
 
 **Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
@@ -92,7 +92,7 @@ when the author says "continue".**
 | 6 | B sections S3a, S67, S12BF, X345 | **done** — written and checked, 23-10-2026 | wf_c6d2eb54-2d9 |
 | 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
 | 8 | B sections S2, S10, S12own, X12 | **done** — written and checked, 23-10-2026 16:03 UTC; paused here as asked | wf_2ce78fc9-5d2 |
-| 9 | B final → commit audit B | not started | |
+| 9 | B final (S11, S1, checks, assembly + self-consistency, completeness) → file audit B | running (started 23-10-2026 16:14 UTC) | wf_05224ce4-4c2 |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),
 S67.md (Sections 6–7, gaps A-G1.., 208 KB), S10.md (partial); B — S3a.md, S3b.md, S45.md, S10.md
