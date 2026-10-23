@@ -90,7 +90,7 @@ when the author says "continue".**
 | 5b | A final, finishing run | S11 written + checked; S1 checked; assembled; self-consistency review done (58 edits) — the computer restarted (about 02:45 UTC, 22-10) before the reviewer wrote its record, so the record was compiled from its log; completeness check next | wf_b46ac854-45c |
 | 5c | A completeness check | **done** — 7 Excel touchpoints, 6 GST-neutrality rewordings, ~40 term explanations and 20 ⚠ marks added; audit A filed as `PROJECT_AUDIT_AnnualStatement_oldv1.md` (15,699 lines), 22-10-2026 | wf_5ac603f8-42c |
 | 6 | B sections S3a, S67, S12BF, X345 | **done** — written and checked, 23-10-2026 | wf_c6d2eb54-2d9 |
-| 7 | B sections S3b, S45, S89 | running (fresh run; partial S3b and S45 drafts are finished, not redone) | see run list |
+| 7 | B sections S3b, S45, S89 | running (fresh run; partial S3b and S45 drafts are finished, not redone) | wf_9ea2a2b2-4e9 |
 | 8 | B sections S2, S10, S12own, X12 | stopped early (partial S10) — resume | wf_33f178ac-b1e |
 | 9 | B final → commit audit B | not started | |
 
