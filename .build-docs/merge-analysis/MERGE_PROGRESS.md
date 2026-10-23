@@ -39,7 +39,7 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**Resumed on the author's "continue" (23-10-2026 11:30 UTC).** Queue item 6 is done; item 7 is running; then items 8, 9 one at a time; then Phase 2 and Phase 3. One workflow at a time.
+**Resumed on the author's "continue" (23-10-2026 11:30 UTC).** Queue items 6 and 7 are done; item 8 is running; then item 9 one at a time; then Phase 2 and Phase 3. One workflow at a time.
 
 **Resumed on the author's "continue" (21-10-2026 11:30 UTC).** Queue item 1 is done; item 2 is running. Next: resume the next queue item (Workflow with the script below, `resumeFromRunId: wf_02b98075-ec9`, same args), then items 2–9 one at a time.
 
@@ -90,8 +90,8 @@ when the author says "continue".**
 | 5b | A final, finishing run | S11 written + checked; S1 checked; assembled; self-consistency review done (58 edits) — the computer restarted (about 02:45 UTC, 22-10) before the reviewer wrote its record, so the record was compiled from its log; completeness check next | wf_b46ac854-45c |
 | 5c | A completeness check | **done** — 7 Excel touchpoints, 6 GST-neutrality rewordings, ~40 term explanations and 20 ⚠ marks added; audit A filed as `PROJECT_AUDIT_AnnualStatement_oldv1.md` (15,699 lines), 22-10-2026 | wf_5ac603f8-42c |
 | 6 | B sections S3a, S67, S12BF, X345 | **done** — written and checked, 23-10-2026 | wf_c6d2eb54-2d9 |
-| 7 | B sections S3b, S45, S89 | running (fresh run; partial S3b and S45 drafts are finished, not redone) | wf_9ea2a2b2-4e9 |
-| 8 | B sections S2, S10, S12own, X12 | stopped early (partial S10) — resume | wf_33f178ac-b1e |
+| 7 | B sections S3b, S45, S89 | **done** — written and checked, 23-10-2026 | wf_9ea2a2b2-4e9 |
+| 8 | B sections S2, S10, S12own, X12 | running (fresh run; the partial S10 draft is finished, not redone) | see run list |
 | 9 | B final → commit audit B | not started | |
 
 Drafts so far (also copied to `working-notes/drafts/`): A — S3a.md (features A-F1..A-F15, 139 KB),

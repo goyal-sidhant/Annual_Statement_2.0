@@ -1,0 +1,116 @@
+[
+ [
+  "S3b",
+  [
+   "Section 7: the tab-dot defects of B-F29 have no gap number. RAN: green after an empty scan and after an extraction that failed or was stopped; dots never reset; Step 2's dot can never turn green (no caller sets it to 'complete'); after an extraction error the status bar still says 'Extraction complete'. Only 7.8 row S4 mentions that dots are never reset (under B-G56). Suggest adding these to B-G71 or giving them a new gap.",
+   "Section 7: the Step 1 and Step 4 options are not saved when Start (Step 3) or Start Extraction is pressed, only at a later settings save. A crash in a handler skips even the save on close. No gap covers this (READ gui/pyqt_main_window.py:345-371, 506-547, 601-608).",
+   "Section 7, B-G40: RAN t34c. Closing during an extraction gave exit code 0 with no message, left an unrefreshed copy, and wrote no workbook, Extraction_Log or run history. This differs from the XL expectation of an abort.",
+   "Section 7, B-G43: RAN t23. A time-zone-aware date in one figure made create_report raise TypeError and left a 4,579-byte file that is not a valid Excel file (openpyxl BadZipFile) under PQ_Extraction_Report_<minute>.xlsx.",
+   "Section 7, B-G74: RAN t34b. A scan and a full processing run both completed while an extraction thread was running. The end of processing rebuilt the Step 4 tree onto the new run folder mid-extraction, while the extraction's report and log went into the old run folder.",
+   "Section 7, B-G6: RAN t24b. The stand-in performs no refresh at all, yet B logged '✅ Refresh completed successfully' and 'Validated - Client Name: …' because Info!BB2 already held a value. The check proves only that BB2 was filled when the file was last saved. [GST RULE] ⚠ (cell BB2).",
+   "Section 7, B-G61: RAN t26. With another program's 'Backup failed' dialog listed first, B clicked its OK button and left the Excel error dialog open. An Excel Yes/No question was answered '&Yes'. A 'Look up…' button was clicked because its caption contains 'ok'. The copy was saved in every case.",
+   "Sections 7 and 9, B-G44: RAN t30. launch_extractor.py writes no log file and the INFO lines appear nowhere. main.py's gst_organizer.log lands in the start folder, not the program folder, and is appended at every start (6 lines after two starts). With a simulated cp1252 encoding the line containing ✓ was missing and stderr showed '--- Logging error ---'.",
+   "Section 7, B-G71: RAN t24b. 536 of 541 Step 4 log lines were 'info', including '❌ Cell BB2 is empty' and '⚠️ Refresh completed with errors'. 'Extraction complete: 3/3 clients processed' was shown although one of the three failed. About 180 log lines per report.",
+   "B-F20 / B-F25: a refresh that failed because of an error dialog keeps validation_message 'Validated - Client Name: …' in its stored status (RAN t26). It sits in run_history.json next to the failure.",
+   "Section 2 dead code, confirmed by RAN grep: session_state.json is write-only (active_tab, window_size and recent_source_folders are never read); theme COLORS, the '#info' rules and ThemeManager.toggle; CollapsibleGroup (0 instances); CollapsibleCard.addLayout and its _bg/_border/_text_color attributes; power_query_extractor/extractor_main.py (cannot be imported); the 'client_key' of each Step 4 job is never read anywhere in power_query_extractor/ (grep); EXTRACTION_OPTIONS auto_refresh_if_missing and show_timestamp are never read.",
+   "Section 12 (history): Skip refresh and its fixed '_Refreshed_' search date from edac6a3 (shared). The configurable suffix that broke the agreement dates from bd176bf (shared). The tree status that also hard-codes '_Refreshed' dates from b0e7d0e (B only).",
+   "Section 10 (UI): at the default 1400x900 window, the Step 1 left column is 815 px high and SCAN FILES starts at y=989, so the main button is hidden until the user scrolls (RAN t33). 0 of 205 widgets have a tooltip (RAN)."
+  ],
+  [],
+  [
+   "Registry B-F21 (Origin column) says 'suffix and skip bd176bf'. The code history shows that Skip refresh existed in edac6a3, shared - before the split on 30-10-2025: the Tk tick box (edac6a3:power_query_extractor/gui/extractor_window.py:188-198, writing EXTRACTION_OPTIONS at :234-238) and the fixed '<stem>_Refreshed_*.xlsx' search together with a fixed copy name, in edac6a3:power_query_extractor/core/report_processor.py. Only the configurable suffix (and the wait time) came in bd176bf, which broke the agreement between the copy name and the skip search (bd176bf:report_processor.py lines 28, 93, 103). READ via git show.",
+   "Registry B-F26 and B-R103 say the dialog text 'goes to the program log only' / 'is written only to the program log'. The immediate line '⚠️ Error detected: <text>' does go to the program log only (report_processor.py:272, :295). But the same text also reaches the Step 4 screen log and Extraction_Log_*.txt at the end, as '⚠️ Refresh completed with errors: <text>' (report_processor.py:321-322). RAN scripts/t26_dialogs.py.",
+   "XL notes §5.2 step 8 expect Qt to abort the program when the window is closed during an extraction (MEDIUM). RAN scripts/t34c_close.py (real event loop, same exit path as main.py) shows otherwise: the process ended with exit code 0 and no message while the worker was mid-refresh. Left behind: an unrefreshed '_Refreshed_' copy, and no consolidated workbook, extraction log or run_history.json.",
+   "PQ notes say report_processor.py has '23 logger.warning/error/debug calls'. RAN grep: there are 23 logger.* calls in all, of which 18 are warning/error/debug and 5 are info (one of those is inside _log itself). So 22 calls bypass the screen log.",
+   "My own file, B-F18 item 3: the reference to 'B-F24's second run' for a failed-refresh version turning 'Refreshed' was wrong. It now points to B-F20 Scenario C and B-F25 Run B, which is where that case was RAN (t25_full). B-F24's second run is the Stop run."
+  ],
+  [
+   "[GST RULE] ⚠ What fills Info!BB2 in the ITC and Sales templates? Is BB2 empty in the saved templates? Should B compare BB2 with the client whose folder it is processing? Today any non-empty value passes, even when no refresh happened.",
+   "[GST RULE] ⚠ For the 'IMS Reco', 'Extra In Purchase' and 'Extra In GSTR2B' sheets of the consolidated workbook, which cells should feed IGST/CGST/SGST? Today they show the Diff GSTR-3B J15/K15/L15 figures whenever those cells hold a value, and the configured cells only when that sheet is absent.",
+   "[GST RULE] When a refresh check fails, should the consolidated workbook still show the figures that were read (with a warning), or 'Missing' as now? Should 'not ticked', 'report not found' and 'refresh failed' look different?",
+   "When 'Skip refresh' is ticked, should B re-use an earlier refreshed copy whose own refresh had failed? Today it does, and it reports success.",
+   "Does anyone change the Step 4 'File suffix' box? Any suffix without '_Refreshed' breaks 'Skip refresh' and the Refreshed/Pending status, and an empty suffix fails every report.",
+   "What does a real Power Query refresh error look like on the office PCs: a separate box titled 'Microsoft Excel', or a message inside Excel? Have you seen B close other programs' dialogs, or answer 'Yes' to an Excel question, during Step 4?",
+   "Should processing (Step 3) and extraction (Step 4) be prevented from running at the same time? Should closing the window during a run ask first, or wait for the job to finish?",
+   "How do staff start the program (main.py or launch_extractor.py, from a console or a shortcut), and from which folder? This decides where gst_organizer.log is written, and whether it is written at all. Do the office PCs use a cp1252 (Western European) Windows setting, which can drop log lines containing ✓?",
+   "The Setup help card says 'Re-Run: Overwrite existing' and 'Resume: Skip already processed', but the radio buttons and the code say otherwise. The note 'Names >10 chars will show warning…' refers to features B does not have. Which wording do you want, and should the note go?",
+   "Should a tab's green dot mean 'this step succeeded' rather than 'this step ran'? Should Step 2 ever turn green?",
+   "Do you use Dark Mode? It leaves Steps 1 and 2 light and makes the Step 3 and Step 4 status lines unreadable."
+  ]
+ ],
+ [
+  "S45",
+  [
+   "B-R83 precise condition: IMS Reco / Extra In Purchase / Extra In GSTR2B show Diff GSTR-3B J15/K15/L15 unless that value is None. '' gives 'Missing', 0 gives 0 (RAN t3). Sections 3 (B-F23), 6-7 should use this exact condition.",
+   "B-R60: a client counts as 'Success' (and is listed as Success in Client Status) even when both reports failed. In practice only a folder-creation exception makes it 'Failed'. Relevant to B-F15 and the Section 7 gaps.",
+   "B-R66: if all three Step 4 open attempts get 'Call was rejected by callee', the code still sends Alt+A,R,A with no workbook open. The refresh status then ends as a 'NoneType' save error (report_processor.py:195-205, 300-337).",
+   "B-R99: Step 4 open attempt 2 closes every workbook with the same file name in that Excel without saving (report_processor.py:691-699). Because Dispatch may attach to the user's Excel, this could close one of the user's workbooks (MEDIUM). Relevant to the Section 8 Standard 12 comparison.",
+   "Resource counts: Step 3 attaches to or starts one Excel per report (2 per client) and always quits it. Step 4 uses one visible refresh Excel plus one hidden reading Excel per report (up to 4 per client). At most one QThread per job kind (3 at once). The Step 4 disk scan runs on the window thread.",
+   "Split-era values for the A/B comparison: the Tkinter extractor's wait box was 5-60, default 10 (47a1492:power_query_extractor/gui/extractor_window.py:181-186). B uses 5-120 (c258047). The template picker was '*.xltx *.xlsx' with the label '(.xlsx or .xltx)' (47a1492:gui/handlers/file_handler.py:31, 42; 47a1492:gui/tabs/setup_tab.py:121). B uses '*.xlsx *.xlsm' (c258047; label added in 7e09e5c). Report naming expressions were identical at the split (47a1492:gui/handlers/processing_handler.py:229-235, 292-293).",
+   "The consolidated workbook's Summary sheet gets no column widths (data_consolidator.py:208-235). Only the output sheets are width-adjusted (cap 50).",
+   "The processing summary is saved in, and Explorer opens, the run folder of the first client whose folders were made (gui/controllers/processing_controller.py:100-101, 201; gui/pyqt_main_window.py:404-410).",
+   "The table header colour is #366092 in the light theme but #2d5280 in the dark theme (gui/theme/theme_manager.py:155, 340). The processing summary uses 366092 and the consolidated workbook 0078D4."
+  ],
+  [
+   "UNREGISTERED: Extraction output folder falls back to the target folder when no run folder is given (gui/controllers/extraction_controller.py:28-29; DEAD in practice because gui/pyqt_main_window.py:512-515 refuses to start without one; B only, b0e7d0e)",
+   "UNREGISTERED: Every organiser path is built by safe_path_join, which silently drops empty name parts and raises ValueError('No valid path components provided') when none are left (utils/helpers.py:49-64; used at core/file_organizer.py:94, 102, 132, 153, 176, 255, 314; shared, edac6a3)",
+   "UNREGISTERED: FileOrganizer.get_summary (dead) would count folders_created as distinct folders, unlike the organisation report's running total (core/file_organizer.py:392-408 vs 345-351; shared, edac6a3)"
+  ],
+  [
+   "PQ notes (B_code_pq_models_startup.md mapping table rows 14-22), LT §4.6 and OF §1.4C say the three one-word output sheets show their own cells when Diff GSTR-3B J15/K15/L15 are 'empty'. Precisely, the fallback happens only when the value read is None (an empty cell or a missing sheet). An empty text '' gives 'Missing', not the configured cell, and 0 gives 0 (power_query_extractor/core/data_consolidator.py:130-142; RAN t3_lookup.py).",
+   "Registry B-R60 says only an exception 'during folder creation or copying' makes a client Failed. Copy errors are caught per file in core/file_organizer.py:232-283 and never fail the client. In practice only folder creation (create_client_structure re-raises, core/file_organizer.py:140-144) or an unexpected bookkeeping error does. Organisation-report errors are only logged (core/file_organizer.py:300-362).",
+   "Registry B-R137 says every refresh/extraction message arrives as 'info'. That holds for the refresh/reading code's messages (power_query_extractor/core/report_processor.py:30-37). The extraction worker's own lines carry success/error/warning levels (gui/controllers/extraction_controller.py:62, 84, 93, 95, 98).",
+   "OF §5.2 approximates the refresh wait as 'about 2×wait + 20 s per report'. The exact sum of the fixed sleeps is 19 + w + max(10, w) seconds (34 s at w=5, 39 s at 10, 259 s at 120), plus Excel start-up (report_processor.py:139-141, 207-319; arithmetic RAN in t3)."
+  ],
+  [
+   "[GST RULE] Which source cells should feed the IGST/CGST/SGST columns of the 'IMS Reco', 'Extra In Purchase' and 'Extra In GSTR2B' output sheets? Configured: IMS_Reco AA1/AD1/AG1, ExtraInPurchase O1/P1/Q1, ExtraInGSTR2B S1/T1/U1. Today the look-up shows Diff GSTR-3B J15/K15/L15 there (B-R79 to B-R83).",
+   "How do the ITC and Sales templates' Power Queries use the Links cells: folder + stem + '.xlsx', or the whole GSTR-3B folder? What do ITC B3/B6/B9 and Sales B4/B7, which the code never writes, contain? What fills Info!BB2 (B-R54 to B-R56, B-R71)? Could you supply both templates with dummy data?",
+   "Should a report be created for a client that has none of that report's input files (B-R50)? Today both reports are always made.",
+   "Which template file format do you use (.xlsx, .xlsm or .xltx)? Reports are always named .xlsx (B-R51).",
+   "Should 'Successfully Run' ✓ mean 'refresh validated' or 'figures found', and should a report that was not ticked look different from one that failed (B-R88)?",
+   "Which Excel version and display language are on the office PCs? The refresh presses Alt+A, R, A (B-R67).",
+   "[GST RULE] Do you want the two-letter state abbreviations, with the made-up fallback, in client keys, folder names and report names, or something else (B-R21, B-R22)? This is asked, not judged.",
+   "What should Re-Run and Resume do? Today both add a new Version folder each minute and re-copy everything; Resume skips only within the same minute (B-R44)."
+  ]
+ ],
+ [
+  "S89",
+  [
+   "Python version (Sections 1, 11, 12F): the 'Python 3.7 or higher' in requirements.txt:2 and README.md:51 cannot be met. PyQt5 5.15.11 needs >=3.8, and the newest pyqt5_sip 12.20.0 needs >=3.10. Windows wheels for Python 3.14 exist for every package B needs (RAN pip download, 23-10-2026). B's syntax compiles on 3.11-3.14.",
+   "Qt on Windows (Sections 10, 12F): the newest PyQt5-Qt5 build for Windows is Qt 5.15.2, while all screenshots and look-checks on this Linux machine ran Qt 5.15.19, so Windows rendering may differ slightly.",
+   "Warnings switch (Sections 2, 7 B-G31): core/__init__.py imports core.excel_handler, so importing ANY core module (even just core.file_parser for a scan) runs warnings.filterwarnings('ignore') and loads openpyxl (RAN).",
+   "Section 11, Item 4 constraint: the keystroke refresh predates git. The 25-06-2025 compiled report_processor already had SendKeys and no RefreshAll (RAN, byte counts), and no B commit ever contained RefreshAll, DispatchEx or CalculateUntilAsyncQueriesDone (RAN, git log -S). Any change must guarantee the refresh has completed before saving (Standard 12 lines 860-867), so Section 11 must not recommend a plain RefreshAll followed by Save.",
+   "Sections 4 and 11: B builds every report and refreshed copy directly at its final path (no temporary-file stage; gst_excel_temp and temp_gst_ are pre-git remnants), and B has no folder-listing cache. The Step 4 list source changed three times (session results in c258047, run history in 7e09e5c, disk walk in b0e7d0e), and the disk walk was kept deliberately after the history-based list gave phantom and stale rows.",
+   "Standard 13 runtime (Sections 9 and 11, Foundation): pywin32 312 relies on its pywin32.pth file (adds win32, win32\\lib, pythonwin and runs import pywin32_bootstrap). Whether an embeddable _runtime honours it is unverified; check with `_runtime\\python\\python.exe -s -c \"import pythoncom, win32com.client, win32api, win32con, win32gui\"`.",
+   "Standard 13 launcher effect (Sections 7 and 11): under start /D \"%~dp0\" the start folder is the shared app folder, so gst_organizer.log (main.py:20) would be shared by all users. A simulated pythonw start (stdout and stderr None) gives exit code 1, nothing visible and one log line (RAN).",
+   "Section 12 (API history): the window's direct access to Setup and Extract widgets (gui/pyqt_main_window.py:185-207, 544-546) already existed at c258047 (RAN git show). The scan-button switching came in 7e09e5c. setup_view.py had 0 setStyleSheet calls at c258047 and 36 at 7e09e5c; there are 76 inline style sheets in views and widgets at the snapshot.",
+   "Every gui.* module (views, widgets, theme, controllers) fails to import without pywin32 in a fresh process, because gui/__init__.py:7 eagerly loads the whole window (RAN). The business core, models (except signals.py), cell_mappings and data_consolidator import without PyQt5 and without pywin32 (RAN)."
+  ],
+  [],
+  [
+   "Qt version: B_code_pq_models_startup.md says PyQt5-Qt5 / Qt 5.15.19, while B_history_part1.md and Section 12F.2 say 'PyQt 5.15.11 / Qt 5.15.14'. Both are partly right. RAN (me): PyQt5 5.15.11 was built against Qt 5.15.14 (QT_VERSION_STR) and runs Qt 5.15.19 (qVersion()) in venv-B. On Windows, pip's newest PyQt5-Qt5 build is 5.15.2.",
+   "B_docs.md R27 says 'Only Python 3.14 was available'. /usr/bin/python3.11, python3.12 and python3.13 also exist on this machine. All 38 B files compile with each of them and with 3.14.6: 0 syntax errors, 0 syntax warnings (RAN (me) compile_all.py, in memory).",
+   "Section 12F.3 says the 'Python 3.7 or higher' line matches the dataclasses requirement. That is true only for the syntax. The wheel metadata (RAN (me)) shows PyQt5 5.15.11 needs Python >=3.8, pywin32 312 >=3.9 and pyqt5_sip 12.20.0 >=3.10, so 3.7 cannot be met by the current packages.",
+   "B_dead_code_patterns.md P-05 counts '8 named constants' never read. Precisely, 7 constants (GUI_CONFIG, MESSAGES, EXCEL_EXTENSIONS, TEMPLATE_EXTENSIONS, MAX_FILE_SIZE_MB, EXCEL_SIGNATURES, EXCEL_SAFETY) plus the FOLDER_STRUCTURE['level2'] key are never read. This is a counting nuance only."
+  ],
+  [
+   "Before git (June-August 2025), did you try refreshing the templates from code with Excel's own RefreshAll, and what went wrong? The oldest surviving compiled copy (25-06-2025) already uses keystrokes.",
+   "What does 'Keep it visible to avoid issues' (power_query_extractor/core/report_processor.py:181) refer to: a prompt, a hang, or stale figures when Excel was hidden?",
+   "Was Step 3 meant to work inside an Excel you already have open and to leave it open afterwards (core/excel_handler.py:110-115, 206)? Have you seen your own Excel disappear or close during processing?",
+   "Did an earlier version build reports in a temporary folder (the unused gst_excel_temp folder and the temp_gst_ prefix), and why was that dropped?",
+   "What fills Info!BB2 in your templates, and is 'BB2 is not empty' the proof of a refresh you want? [GST RULE]",
+   "Why does Step 4 read the figures through a second, hidden Excel rather than reading the saved file directly?",
+   "Why PyQt5 for the v4 rewrite, rather than staying with Tkinter or using PySide6?",
+   "Was dropping EXPORT LIST, the per-client 'include client name' switch and the long-name warning intended?",
+   "Should Re-Run and Resume work inside the run's existing Version folder, or is a new Version folder per run what you want?",
+   "Do you edit power_query_extractor/config/cell_mappings.py and utils/constants.py yourself (with an AI assistant), or would a settings file or screen suit you better?",
+   "Should pywin32 become a real line in requirements.txt, or should the window open without it, as the v3 organiser did?",
+   "Which Python and package versions run on the office PCs today, and should they be pinned as Standard 13 asks?",
+   "Is B started through Standard 13's shared _runtime and a .bat launcher, or from a console on each PC? Where do gst_organizer.log files end up today?",
+   "Which Excel version and display language do the office PCs run (the refresh keys Alt+A, R, A depend on both)?",
+   "Do any office PCs restrict Windows Script Host (WScript.Shell is used for the refresh keystrokes)?",
+   "Are target folders on a local disk, a mapped drive, a UNC share or OneDrive, and how long are typical paths (B treats more than 218 characters as too long)?",
+   "Are the office screens large enough for the 1200 x 800 minimum window, and what display scaling do the laptops use?"
+  ]
+ ]
+]
