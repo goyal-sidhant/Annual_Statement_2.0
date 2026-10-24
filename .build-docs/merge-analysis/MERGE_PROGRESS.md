@@ -51,6 +51,10 @@ old-audit name tokens appear only as ordinary words. Still open by the author's 
 follow (list them in `context/FILES_TO_PROVIDE.md` in Phase 5).
 Next: the adapted consistency check (points 1-5 below), conflicts shown and resolved one at a
 time, then the "yes" question (adapted for the two open items) and STOP.
+Consistency-check workflow started 24-10-2026: run `wf_011ba3b4-970` (script
+`merge-phase4-consistency-wf_011ba3b4-970.js`; 4 checkers A files/names/dropped, B steps/refresh/
+figures, C stack/standards, D process rules, each verified by a skeptic, plus a skeptic on my 12
+candidate conflicts L1-L12). Answers in scratch: `~/merge-scratch/answers/answers_only.md`.
 
 Original Phase 4 steps (prompt section 10):
 1. Write each answer under its item in `MERGE_DECISIONS.md` ("Your answer: <answer> (DD-MM-YYYY)") and in the "Answers so far" table (answer + date); update the line "Answered N of 153".
