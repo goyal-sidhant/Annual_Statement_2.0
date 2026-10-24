@@ -1768,6 +1768,377 @@ These behaviours are the same in A and B and work as intended, so they are not d
 - **CL10.** Neither project stores a password, token or other secret (comparison §10.2, D10: 0 found), so Standard 13's password rule (Std:1041-1045) does not arise. Refs: none.
 - **CL11.** Neither project draws charts, so Standard 12's PySide6-Addons question (Std:840) does not arise (comparison §7.3). Refs: none.
 
+## Consistency check (Phase 4, 24-10-2026)
+
+I checked all 153 answers and the "Read this first" section the way your prompt asks: (1) something dropped that another answer relies on; (2) a rule kept in one item but different behaviour described in another; (3) the Top 3 against what you kept; (4) the Zero-Defect Requirement against the contracts; (5) the tech stack against your machines. As your rules also ask, I looked for GST-rule choices made without a reason, choices Claude made for you, and thin Brief sections. Four independent checks ran over the answers, and a second reviewer tried to disprove every finding; 19 findings were disproved and are left out. What is left is below: 46 questions, Q1 to Q46, plus a list of things recorded without a question.
+
+Questions marked **GST rule** carry no recommendation: they are yours alone. "Not sure yet" is a valid answer to any question; it becomes an Open item in Session 0 of the Decisions Log.
+
+**What the five checks found, in short**
+
+1. **Dropped but relied on:** item 57 ("clean-up not needed") rests on "a failed client never reaches the server", which no rule yet guarantees (Q38); item 29 dropped the client's name in category folders, but the folder tree of idea 1 could bring it back (Q26); quarterly handling is deferred, but quarterly due dates sit in the due-date table (Q19).
+2. **Rule against behaviour:** Q1 to Q30 and Q35 to Q43.
+3. **Top 3:** item 152 is "not sure yet". The proposal's priorities 1 and 2 match what you kept, with two catches: priority 1 ("right figures, proven: the right client ... a confirmed refresh") meets Q1 and Q6, and proposed priority 3 joins two goals (report profiles, and the look and feel). Asked again at the Brief review.
+4. **Zero-Defect Requirement:** too broad for any one contract (Q45).
+5. **Tech stack against your machines:** the packages fit Windows 10 and Python 3.14 (checked on PyPI on 24-10-2026: PySide6-Essentials 6.12.0, released 08-10-2026, has a 64-bit Windows build for Python 3.10 to 3.15; pywin32 312 has builds for Python 3.14; the latest openpyxl is 3.1.5). The window size fits about 1536 × 824 at 125% scaling, and English Excel 2021 fits the Alt+A, R, A key presses. Still open: Q32 to Q34.
+
+### Part A - The figures and the refresh
+
+### Q1. Figures from refreshed copies the tool did not confirm itself · GST rule · items 10, 21, 35, 55, 77, 88
+What clashes: Item 21 ("Collect figures only", your usual case, about 95%) reads the figures of each client's '_Refreshed' copy as it is now, and labels a copy changed after the tool's refresh "refreshed by hand, not confirmed by the tool". Promise 2 (item 88) and items 10 and 55 say every figure comes from a confirmed refresh, anything unproven shows the reason instead of a number, "never old figures". C7 was reworded for the label; promise 2 was not. Three cases are affected: (i) a copy refreshed or saved by hand after the tool's refresh (the tool can see only that the file changed, not that it was refreshed); (ii) a copy whose input files in the batch were replaced but which was not refreshed again; (iii) the copies in batches made by the old tools, such as July 2026, which have no stamp and no record file. In one whole-batch workbook the same rule must apply to ticked and unticked clients.
+Question: In these cases, should the consolidated workbook show the copy's figures, with a label, or the reason instead of a number?
+Options: (a) Show the figures, each row labelled with where they came from ("refreshed by hand, not confirmed by the tool", "made by the old tool, not confirmed"); promise 2 and items 10 and 55 are reworded to allow labelled rows. (b) Show the figures only if the copy passes the item 69 Info-sheet test and the item 68 heading checks when it is read, still labelled "not confirmed by the tool"; otherwise the reason. (c) Show no figures, only the reason; figures appear only after a refresh the tool confirmed (promise 2 as written). (d) Show such figures only on a separate, clearly marked sheet; the main sheets hold confirmed figures only. (e) A different answer for each of the three cases (say which).
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q2. A newer refresh failed, but an older confirmed copy is still there · GST rule · items 10, 21, 69, 70
+What clashes: A failed refresh never overwrites the last good '_Refreshed' copy (item 70), and that night's row shows "Refresh failed: <reason>" (item 69). But in any later run, "Collect figures only" (item 21) and the whole-batch workbook (item 10) read the older good copy again. The row would show the failure one night and the older figures the next, with nothing changed in between.
+Question: Should later workbooks show the older copy's figures, or the failure?
+Options: (a) The failure, in every later workbook, until a new refresh is confirmed. (b) The older figures, labelled with their refresh date and "a later attempt failed on <date>". (c) The older figures with their refresh date only; the failure shows only in that night's workbook.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q3. Errors in queries that need a file the client does not have · GST rule · items 64, 69, 77, 94, 95
+What clashes: Item 69 says errors only in queries that need a missing non-critical file (for example no IMS Reco file) are expected: the report still counts as refreshed, and those columns show "no IMS file". But C7 (item 77) confirms only when "every query finished without error", item 95 only when "no query reported an error", and item 94 turns every pop-up from the tool's own Excel into a failure reason. As written, a client without an IMS Reco file could never get a confirmed ITC report. (To apply item 69, the tool must also know which queries read which file type; see Q24.)
+Question: Do such errors still allow "confirmed"?
+Options: (a) Yes, as item 69 says: errors and error pop-ups that come only from queries reading a missing non-critical file are allowed; C7 and items 94 and 95 are reworded. (b) No: any query error means "not confirmed"; item 69's sentence goes. (c) Yes, but the report and the client show "confirmed with gaps: no IMS file", not plain "confirmed" or "Success".
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q4. "Every query's last-refreshed time is after the start" · GST rule (it decides whether figures are shown) · items 69, 95
+What clashes: Item 95 makes this one of the checks for a confirmed refresh. Your Standard 12, copied into CLAUDE.md word for word, records from its own test that a connection's last-refreshed time "stayed empty, so never use it as proof of a refresh" (rebuild_pipeline_FINAL.md:865-867). If Excel 2021 also leaves it empty, no report would ever pass. The run PC is free for tests only from about January 2027 (item 151).
+Question: Which test decides?
+Options: (a) Keep the time test as written. (b) Drop it; the other checks decide (no query error, none still running, the Info-sheet test of item 69). (c) Replace it with another sign that the queries ran during this run, to be found and tested on the run PC. (d) Use it only if a test on the run PC shows Excel 2021 fills it in; otherwise (b) or (c).
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q5. How the GSTIN in Info!BB4 is matched to the client's state · GST rule · items 65, 69, 141
+What clashes: Item 69 checks "a GSTIN whose state code matches the client's state". A GSTIN's state code is its first two digits, but item 65 row 1, which you confirmed, says "letter codes only - the numeric state codes are not used anywhere". BB4 also shows the state name in brackets.
+Question: What should the tool compare?
+Options: (a) The state name in brackets in BB4 with the client's state as written in the file names (for '<State>_<label>', the state part). (b) The GSTIN's first two digits, using a table of numeric state codes that you approve (this changes item 65 row 1). (c) Both must match.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q6. Does the refreshed report belong to the right client? · GST rule · items 65, 69, 152
+What clashes: Item 69 says the Info sheet must "show the company name (BB2)", but not that it is compared with the client; the old rule never compared it. The proposed priority 1 promises "the right client". A report of another client in the same state would pass every agreed check.
+Question: Should the tool check that the report belongs to that client, and how?
+Options: (a) No: BB2 must only be filled in (not empty, not 0, not an Excel error); the client is assured by the folder the report was built in. (b) BB2 must match the client's name from the file names, ignoring letter case and the Pvt/Ltd shortening; a mismatch fails the refresh, with the reason. (c) A mismatch does not fail the refresh, but is shown at Step 4 for you to confirm. (d) The client's GSTIN is recorded once (from its first confirmed refresh, or typed in by you), and every later refresh must show the same GSTIN.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q7. Which financial year Step 4 checks when it runs on its own · GST rule · items 21, 39, 69, 119, 121
+What clashes: Item 69 checks that BB5 shows "the financial year being worked on", and idea 2 chooses the period "when running the flow". But Step 4 is often run on its own, weeks later, from its own shortcut, and on batches made by the old tools; a batch folder's name holds only a date and time.
+Question: Where should a Step 4 run on its own take the financial year from?
+Options: (a) From the period saved with the batch when Step 3 ran; for a batch made by the old tools, Step 4 asks before starting. (b) Step 4 always asks before starting. (c) From each client's Annual Report file name (for example '2025-26').
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q8. A GSTR-3B month that appears twice inside a batch after Step 3 · GST rule · items 64, 118, 121, 140
+What clashes: Item 64 holds the ITC report at Step 2 when a GSTR-3B month appears twice, because the template reads the whole GSTR-3B folder and would count that month twice. But after a run you put corrected downloads straight into the batch folders and refresh by hand (items 118, 121). If the old file is not removed, Step 4 would refresh or collect with that month counted twice, and the refresh would still pass every check.
+Question: Should Step 4 check each client's GSTR-3B folder again before it refreshes or collects figures?
+Options: (a) Yes; a month appearing twice holds that client's ITC report and its figures, with the reason, until the extra file is removed. (b) Yes, but only as a warning on the row; the figures are still shown. (c) No; the Step 2 check is enough.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q9. What a row shows instead of a figure · GST rule · items 10, 21, 55, 67, 69, 95
+What clashes: Items 10 and 55 say "not refreshed" with the reason; item 69 says "Refresh failed: <reason>", "Missing" for an empty cell and "no IMS file"; item 21 says "never refreshed"; item 95 says "timed out". There is no single list.
+Question: Which words should a row show in each case?
+Options: (a) One general label with the reason after it ("not refreshed: refresh failed <date>: <reason>", "not refreshed: timed out", "not refreshed: never refreshed"), with "no IMS file" and "Missing" as item 69 says. (b) A separate wording for each case ("Refresh failed: <reason>", "Timed out", "Never refreshed", "no IMS file", "Missing"); items 10 and 55 point to this list. (c) You give the list.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q10. How the tool tells a report from its refreshed copy · GST rule · items 14, 21, 35, 69, 70
+What clashes: Item 70 and your consistency note 4 fix the copy's name ('<report>_Refreshed'), and item 21 reads "the latest '_Refreshed' copy"; but item 35 (4) finds copies "by the stamp, not by the file-name suffix". The two ways pick different files when a stamped copy is saved under another name, and in batches made by the old tools (copies named '_Refreshed', but without a stamp).
+Question: How should the tool find a client's report and its refreshed copy?
+Options: (a) By fixed name only ('<report>', '<report>_Refreshed', '<report>_Refresh_FAILED'); the stamp only proves "confirmed"; any other file is left alone and listed as not used. (b) By the stamp only, whatever the name; for an old-tool batch you pick the copy on the Step 4 screen. (c) Both: the fixed-name copy is used and counts as confirmed only with the stamp; a stamped file under another name is listed as "extra copy, not used".
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Part B - Files, periods and completeness
+
+### Q11. "(1)" copies: alone, and beside the plain file · GST rule · items 22, 63, 64, 67, 138
+What clashes: (a) The consistency note under item 63 says a file ending in " (1)" "is treated as a copy and flagged as a duplicate". Items 22 and 64 call a file a duplicate only when a second file of the same type (the same month, for GSTR-3B) is also there, and in July 2026 the '(1)' copies of the five types other than GSTR-3B were each the only file of their type. (b) When the plain file and its '(1)' copy are both there, item 22 settles IMS Reco (the '(1)' copy is linked) and item 64 settles GSTR-3B (the ITC report waits). For GSTR-2B Reco, Sales, Sales Reco and the Annual Report, item 64 only "flags" it, and item 67 row 5 says the case "no longer arises". The same gap covers two IMS exports with different dates.
+Question (a): Is a lone '(1)' copy simply the client's file?
+Options: (a1) Yes, with no flag; it is a duplicate only when another file of the same type (the same month, for GSTR-3B) is also there. (a2) Yes, but Step 2 notes "downloaded copy". (a3) It is flagged and not used until a plain file is downloaded.
+Question (b): When a type that should have one file has two, what happens?
+Options: (b1) As for IMS Reco (item 22): "Has duplicates", the report is built and the '(1)' copy is linked; the other file is listed "not used: duplicate". (b2) "Has duplicates", the report is built and the plain file is linked. (b3) As for GSTR-3B (item 64): the report that needs that type waits until one file is removed and Scan is pressed again. Please also say what happens with two files neither of which is a '(1)' copy (for example two IMS export dates).
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q12. A GSTR-3B month that was already due is missing · GST rule · items 26, 64
+What clashes: Item 64 row 5 makes GSTR-3B critical to the ITC report ("Missing critical", report not built), and row 3 keeps the percentage as "types found ÷ 6". Idea 2 and item 26 now name missing months. Nothing says what one missing month that was already due does.
+Question: What status does such a client get, and is its ITC report built?
+Options: (a) "Missing" (orange) with the month named; the percentage stays by types; the ITC report is built. (b) As (a), and the ITC rows in the consolidated workbook carry a note naming the missing month. (c) "Missing critical: GSTR-3B <month>"; the ITC report is not built until the month is added. (d) "Missing critical" only when there is no GSTR-3B file at all; a single missing month is named in the Missing column, and the client stays "Complete".
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q13. When a GSTR-2B Reco, Sales, Sales Reco or Annual Report file belongs to the period · GST rule · items 63, 64, idea 2
+What clashes: Idea 2 uses only "files that belong to that period". These types have one file each, which "can be exported covering several months" (item 64), named with a whole year, one month or a range (item 63). Nothing says when a range that runs past March, a range covering part of the year, or a single month counts for a financial-year run.
+Question: For a financial-year run, when does such a file count?
+Options: (a) Only when its period is that financial year (or exactly April to March); every other file is "outside the period". (b) When its period lies inside the run's window (April to October of the next year, as for GSTR-3B). (c) When its period overlaps the financial year at all; a part-year file is used but shown at Step 2 as "part of the period". (d) A rule per file type in the report profile, with Annual Statement defaults that you give now.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q14. A GSTR-3B file for a month whose return is not yet due · GST rule · items 26, 72, idea 2
+What clashes: Idea 2's "only up to the latest month whose return was already due on the day of the run" can mean only "which missing months are reported", or also "which files are used". In the second reading, a return filed and downloaded before its due date would be left out of the batch.
+Question: Is such a file used?
+Options: (a) Yes; the "already due" limit only decides which missing months are reported. (b) No; it is listed "outside the period" and left out until a later run. (c) Yes, with a note at Step 2 that it is for a month not yet due.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q15. The client's first month of business · GST rule · items 26, 80, idea 2
+What clashes: The first month of business is read from the client's earliest GSTR-3B file. A client that lacks its April file (or its first few months) would look as if it started later: those months would never be named as missing, and the client could show "Complete". Also not said: is your correction kept for later runs of the same year?
+Question: How should the first month be set, and is your correction kept?
+Options: (a) As written; your correction applies to this run only. (b) As written, and your correction is kept for later runs of the same financial year. (c) April is assumed for every client and missing months are shown, unless you have entered a later first month for that client (kept for later runs). (d) The earliest file sets the month, but a client that starts after April is not "Complete" until you confirm that month.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q16. Which day decides "already due" · GST rule · items 26, 30, 33, idea 2
+What clashes: One run spans the scan, the Dry Run, pressing Start and Step 3 running past midnight (July 2026: Step 3 began at 01:53). Also not said: does a month count as due on its due date itself, or only from the next day?
+Question: Which day counts, and from when is a month due?
+Options: (a) The day of the Step 2 scan; due from the day after the due date. (b) The day of the scan; due on the due date itself. (c) The day Start is pressed; due from the day after the due date. (d) The day Start is pressed; due on the due date itself.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q17. A Sales file whose month is written with a hyphen ('Apr-2022') · GST rule · items 23, 63, 64
+What clashes: Item 63 calls it "wrong and flagged", but does not say whether the file is still used; Sales is critical to the Sales report (item 64 row 5).
+Question: Is such a file used?
+Options: (a) No: it is set aside and listed with the suggested correct name; the Sales report waits for a correctly named file. (b) Yes, with a warning; its month is read as if written with a space. (c) Only if its period can be read without doubt; otherwise it is set aside.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q18. Flagging a hyphen inside a client or state name: the "too many parts" test · GST rule · items 24, 63, 65
+What clashes: You asked for such hyphens to be flagged (item 24). An unknown state text is already flagged (item 65 row 2). The second test, "more parts than its type allows", is Claude's suggestion, not yours, and the period styles themselves contain hyphens ('Apr-2025-Sep-2026', '2025-26').
+Question: Which test should flag such a file?
+Options: (a) Only an unknown state text. (b) Also a name with more parts than its type allows, counting the hyphens each period style may contain. (c) Another rule you name.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q19. Quarterly (QRMP) filers · GST rule · items 47, idea 2
+What clashes: The due-date table has quarterly due dates (the 22nd or 24th by state), but nothing tells the tool which clients file quarterly, and "no special handling for now" is marked "(proposed)", not confirmed by you. Settings that nothing reads are what item 47 drops.
+Question: What should the first build do about quarterly filers?
+Options: (a) Confirm no special handling now, and leave the quarterly dates out of the table until it is built (Parking Lot). (b) Confirm no special handling, and keep the quarterly dates as defaults that nothing uses yet, saying so in the Brief. (c) Build it now: a per-client "quarterly filer" setting (with its state group), so that a quarterly client expects one GSTR-3B per quarter.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q20. A second registration when its folder name must be shortened · GST rule · items 9, 27, 65
+What clashes: I read item 27 as keeping the whole ending '-DL_Trading' (state code and label) and trimming only the client name. But at the lowest length setting (15), '-DL_Trading' alone takes 11 characters, and a longer label could leave no room at all. Not said: what happens then.
+Question: What happens when the ending leaves too little room?
+Options: (a) The ending is never cut; if it cannot fit, the client is skipped and listed. (b) The ending is never cut; that client's folder may be longer than the length setting. (c) The label may be trimmed, but never the state code; if two names then collide, item 9 skips both.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q21. A target folder reached through a mapped drive letter · GST rule (the path form goes into the Links cells, item 127) · items 3, 88, 127, 144
+What clashes: Item 127 writes the target as a \\server\share path, which also goes into the Links cells, and drag-and-drop "fills in its full real path" (item 144). But if the share is mapped to a drive letter on the run PC and opened that way, Explorer and the Browse box give the letter form (for example Z:\...). Whether the share is mapped there is not recorded.
+Question: What should the tool do with a drive-letter path for the target folder?
+Options: (a) Turn it into its \\server\share form automatically and show that in the box. (b) Refuse it, asking for the \\server\share form. (c) Accept it as dropped, and write that form into the Links cells.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q22. Two additions Claude made to item 26 · GST rule · item 26
+What clashes: The note under item 26 says B's summary label ("3 clients (1 complete)") and the neutral colour for "not due yet" are Claude's additions: "say if not wanted". You have not confirmed them yet.
+Question: Keep them?
+Options: (a) Keep both. (b) The summary label only. (c) The neutral colour only. (d) Neither.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Part C - Report profiles
+
+### Q23. What "mandatory" means in a report profile · GST rule · items 60, 64, 69, idea 1
+What clashes: Idea 1 gives each file type one setting, "mandatory for the run". Item 64 has two levels: "required" (it counts for "Complete" and the percentage) and "critical" to a particular report (that report is not built without it). IMS Reco, for example, is required but not critical (item 69).
+Question: What does "mandatory" mean, and where do the "critical" settings go?
+Options: (a) "Mandatory" means required; the profile gets a separate per-report "critical" setting. (b) "Mandatory" means critical; every type listed in the profile counts as required. (c) "Mandatory" means a client without it is left out of the run altogether, with separate "required" and per-report "critical" settings as well.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q24. What a report profile must hold, so the ITC Claim sheet works "with no new code" · GST rule · items 60, 64, 69, 95, idea 1
+What clashes: The refresh test (items 69, 95) is fixed to an Info sheet filled from the Annual Report, and item 69's exception needs to know which queries read which non-critical file type. The ITC Claim sheet has no Annual Report among its inputs, and the profile settings of item 60 hold neither the test nor that list.
+Question: Should each profile also hold its refresh-success test and its critical file types?
+Options: (a) Yes: both become profile settings - which sheet and cells prove a refresh and what they are compared with, and, per template, the critical file types and which queries read each type; the Annual Statement's defaults come from items 64 and 69, the ITC Claim sheet's are set when its template arrives. (b) No: the test stays fixed, and the ITC Claim sheet template must carry an Info sheet filled the same way. (c) Decide when the ITC Claim sheet template arrives; the Build Plan holds this part back with the other template steps.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q25. A free folder tree against the rules that need a Version folder · GST rule · items 10, 13, 21, 35, 36, 87, idea 1
+What clashes: Idea 1 lets you choose "which levels exist" and "how older copies are kept". But Re-Run, Step 4's "newest Version folder" rule and switch, Skip refresh, "Collect figures only", the record file and Resume all assume batch > client > Version, with each refreshed copy beside its report; and item 10 keeps every older consolidated workbook "untouched under their own names".
+Question: Which parts of the tree must every profile keep, and may a profile replace older consolidated workbooks?
+Options for the tree: (a) Every profile must keep batch, client and Version levels, with each refreshed copy beside its report; the settings screen refuses a tree without them. (b) The tree is free; for a profile without a Version level, Re-Run, the Version switch, Skip refresh and Resume are switched off, and the screen says why. (c) You arrange and name the tree freely, but the tool always keeps its own batch, client and Version levels inside it.
+Options for older workbooks: (d) Always kept (item 10). (e) A profile may choose "keep all", "keep the last N" or "replace, after a backup".
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q26. The client's name in category-folder names, through the folder tree · GST rule · items 27, 29, 40, idea 1
+What clashes: Item 29 dropped every way of putting the client's name into the category-folder names ("dropping it keeps paths shorter"), but idea 1's placeholders, such as {client}, could bring it back at any level.
+Question: May the folder-tree settings use {client} below the client folder?
+Options: (a) No: the settings screen does not offer {client} below the client folder. (b) Yes, at any level; the length setting and "the state code is never cut" apply wherever {client} is used. (c) Yes, at any level; only the pre-flight path check (items 30, 83) guards the length.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q27. Who may change the report profiles, and what happens after an update or with a damaged file · GST rule · items 60, 97, 117, 141, consistency note 8
+What clashes: Note 8 keeps the profile rules as "GST rules that only Sidhant changes", while item 97 accepts that "any account on that PC can read and change the shared setup", which holds the profiles. Not said: which applies when a new version of the tool brings changed built-in defaults (for example after the IMS_Reco fix of item 68); and item 97's "a damaged settings file is replaced by defaults" would replace your edited GST rules with the built-in ones.
+Question: Please pick one answer for each of the three parts.
+Options: (1) Who may change a profile: (1a) any account on the run PC (item 97 as written); (1b) only your own Windows account, other accounts see it read-only; (1c) any account, but every change is recorded (who, when, old -> new) and listed in the run log and the summary workbook. (2) After an update: (2a) your edited profile always applies; (2b) the new defaults are shown beside yours and apply only when you accept them. (3) A damaged profile file: (3a) replaced by the built-in defaults, with a message (item 97 as written); (3b) no run starts until it is fixed or restored from a kept copy.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q28. Two Step 4 runs in the same minute · GST rule (Part 6 names) · items 10, 16, 66
+What clashes: Batch folders now get distinct names (item 66 row 1), but the consolidated workbook and the Step 4 run log are named to the minute, and item 10 promises that earlier workbooks stay untouched.
+Question: What happens when a name is already used?
+Options: (a) Add the seconds to both names. (b) Add a counter, such as " (2)", to the second file's name. (c) Refuse to start until the minute has changed, and say why.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q29. C8 as worded by Claude · GST rule · items 68, 78
+What clashes: C8 is marked "object if wrong". Every clause traces to your item 68 answer, but the wording is Claude's, and you have not approved it.
+Question: Do you approve C8 exactly as worded?
+Options: (a) Approve C8 as worded. (b) Reword it (your words).
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Q30. Two files still to come that are not on any list · GST rule · items 63, 64, 68, 100, 102, 103, idea 1
+(a) The corrected ITC master: item 68 takes the final IMS_Reco cells from the template you will correct, and the build tests with your masters (items 100, 102). In the current master the IMS totals sit three columns off after a refresh, so item 68's heading check would refuse them.
+Options: (a1) List the corrected master in context/FILES_TO_PROVIDE.md, and hold the IMS_Reco cell addresses (and the tests that use them) until it arrives. (a2) Build and test with the current master; you change the cells in the settings screen later (item 141 (e)).
+(b) The GSTR-3B Portal export: idea 1 sets up the ITC Claim sheet's file types "from the start", but there is no naming pattern and no sample for this one.
+Options: (b1) Add a GSTR-3B Portal sample and its name pattern to context/FILES_TO_PROVIDE.md; the build sets the type up when they arrive. (b2) You set it up later, through pattern analysis in the settings screen; the build proves that path only with its stand-in template.
+Recommendation: No recommendation - your call.
+Your answer: ____
+
+### Part D - Reasons for GST-rule choices
+
+### Q31. Your reasons, for the Brief · GST rule
+Your rule: when you pick a version of a GST rule, or change one, without a reason, I ask "why?" once, and the reason goes into the Brief. One line each is enough; "same reason as item N" or "no particular reason" is also an answer.
+- Item 22: why link the '(1)' IMS copy, not the plain file, when both are there? (A links it only because of name order.)
+- Item 25: why B's way of handing the client key to Step 3?
+- Item 26: why B's colours with A's named missing types?
+- Item 27: why must the state code never be cut, and why is 15 the lowest length?
+- Item 35: why reuse a refreshed copy only after the stamp-and-record check?
+- Item 36: why one row per client, rather than one per Version folder?
+- Item 64 row 5: why these critical types, and why are GSTR-2B Reco and IMS Reco not critical to the ITC report?
+- Item 65 row 2: why flag an unknown state, rather than give it a made-up code?
+- Item 66 row 1: why must a new run never reuse an existing batch folder?
+- Item 68: why should the IMS Reco sheet carry the IMS-versus-purchase differences as well as the IMS totals?
+- Item 69: why this refresh-success test, and why are errors from a missing IMS file acceptable? (This depends on Q3 to Q6.)
+- C3 (item 73): why skip both clients and go on, rather than stop before anything is copied?
+- Idea 2: why use only the files of the chosen period, and why take the first month of business from the earliest GSTR-3B file?
+- Idea 2: are the due-date defaults (GSTR-3B on the 20th; quarterly on the 22nd or 24th by state) ⚠ your own values, and why count a month only once its due date has passed?
+Your answer: ____
+
+### Part E - Technical points (each with a recommendation)
+
+### Q32. Your departures from Standards 12 and 13: where they are written down · not a GST rule · items 1, 10, 21, 37, 61, 70, 92, 94, 95, 96, 97, 126
+What clashes: CLAUDE.md will say, word for word, "These standards apply to EVERY file and EVERY function in this project. No exceptions" (rebuild_pipeline_FINAL.md:364-365), and its fixed Tech Stack line says the app runs on the shared Python in _runtime with nothing installed on users' PCs (:213-215). The only "which document wins" rule puts the Brief above the audit (:274), not above a Standard. Your answers knowingly depart from the Standards in six places: (1) the install offer (items 1, 37, 92), against Standard 13 :924; (2) the launcher starts the run PC's own Python (item 96), against Standard 13 :957; (3) a second shortcut straight to Step 4 (items 21, 96), against Standard 13's single launcher (:951-963); (4) the shared setup and step log in C:\Users\Public\Statement Maker\ (item 97), against Standard 13 :1039-1040; (5) Alt+A, R, A with the tool's Excel brought to the front as the default refresh (items 70, 94, 95), against Standard 12 :851 and :860-867; (6) reading figures through Excel from copies the tool neither writes nor refreshes in that run (items 10, 21, 61), against Standard 12 :846-847. A new build session reads CLAUDE.md first and would "correct" these back to the Standard. Also, Phase 5 must fill the "Shared apps folder" bracket, but item 126 says "no path yet"; and it is not recorded where the finished app folder will live (today the code sits on the server and runs on the run PC).
+Question: Where should these approved departures be written down? And where will the finished app folder live?
+Options: (a) A section "Approved departures from Standards 12 and 13" in the Brief, one line each (the Standard's line, the item, your reason), plus the "Shared apps folder" bracket filled with "none yet (item 126); until it exists the run PC's own Python 3.14 is used - see the Brief's approved departures". No fixed line of CLAUDE.md changes. (b) As (a), and you allow one extra pointer line in CLAUDE.md's Reference Documents (Phase 5 does not otherwise allow it). (c) As (a), and you allow me to reword the fixed Runtime line to say what is true today. (d) Record nothing extra.
+Recommendation: (a). A new session reads the Tech Stack first; the filled bracket sits right under the Runtime line and points to your approved list, and no fixed text changes. For the app folder: please say "on the server share, as today" or "on the run PC".
+Your answer: ____
+
+### Q33. The run PC's own Python · not a GST rule · items 1, 37, 91, 92, 96, 119, 124
+What clashes: Items 91 and 96 assume that "python" on the run PC is a regular 3.14, but item 124 left the version unrecorded: according to A's commit messages (`c463256`, 26-07-2026), on your PC "py" started a free-threaded 3.14t without pywin32, while "python" started one with pywin32 whose version is not given. Also not recorded: whether Python is installed for all users or for one account, and whether that account has administrator rights (without them, pip installs into your own user folder, which Standard 13's "-s" switch ignores, so the tool would report the package missing at every start). The old tool A runs on the same Python with its own openpyxl and pywin32 (item 119 (c)), so installing the new pinned versions changes what A uses. And item 1 offers to install only when a package is "missing", not when it is there at another version.
+Question: How should the tool use the run PC's Python until the shared folder exists?
+Options: (a) Use the PC's own Python; a package at a different version is only warned about, and nothing is replaced without your Yes. (b) Use it; a different version counts as missing, and the install offer replaces it (A then runs on the new versions too). (c) Give the tool its own Python 3.14, in a folder of its own on the run PC laid out like _runtime: Standard 13's "-s" switch and the pinned versions then work, and A's Python is left alone. Recorded as a departure (Q32).
+Recommendation: First check the facts on the run PC (version, regular build, all users or one account, administrator rights) and record them in the Brief; until then (a), so nothing A depends on changes without your Yes. If the facts show a per-user Python, or one A still needs unchanged, (c) is the safer layout.
+Your answer: ____
+
+### Q34. Which computer the build tests on · not a GST rule · items 99, 102, 107, 151
+What clashes: Item 99 sets up the tests "as Standard 13 says" (a local copy of _runtime plus pytest), but there is no _runtime yet. Item 102 refreshes the templates "on his PC" without saying which computer. The run PC (Windows 10, Excel 2021) is free only from about January 2027. The key-press refresh, its confirmation, the Windows 10 pin and the launcher can be proved only on Windows with English Excel.
+Question: Which computer will the build test on, and which checks wait for the run PC?
+Options: (a) Your own computer (please say its Windows and Excel versions), with a local Python 3.14 laid out like _runtime; the Windows 10 and Excel 2021 checks wait for the run PC, and the Build Plan marks them. (b) The run PC only, so every step that needs Excel waits until about January 2027. (c) Tests on the run PC's own Python rather than a _runtime copy (a further departure, Q32).
+Recommendation: (a), with the run-PC checks carried into the Build Plan as steps that wait for January 2027.
+Your answer: ____
+
+### Q35. The wording of C16 · not a GST rule · items 18, 41, 86, 97
+What clashes: (1) C16 calls C:\Users\Public\Statement Maker\ "the shared app folder", the very name Standard 13 uses for the server folder that holds the program, where settings and logs must never go. (2) C16 leaves out %LOCALAPPDATA%\Statement Maker\, where your look-and-feel is kept (item 97) and where Standard 13's fixed error lines write every unexpected error, often with a client's file path in it. (3) Item 41 keeps A's Export List, which saves the client list wherever you choose.
+Question: May C16 be reworded as below?
+Options: (a) Yes: "Client names, file names and figures are written only to the chosen target folder, the SSD working folder (or the run's temporary folder on C:), the shared setup folder C:\Users\Public\Statement Maker\ (setup and step log, no figures), %LOCALAPPDATA%\Statement Maker\ (look-and-feel and Standard 13's error files, no figures), the user's own %TEMP%, and a client list you save yourself with Export List; never to the program folder or anywhere else." Export List's Save As box opens in the batch's target folder. (b) As (a), but Standard 13's error files go to the shared setup folder instead (this changes fixed main.py lines: a further departure, Q32). (c) As (a), but Export List saves only in the target folder, under a fixed name, with no Save As box.
+Recommendation: (a). It makes C16 true as worded, leaves Standard 13's tested start-up lines untouched, and keeps item 41 as you decided it.
+Your answer: ____
+
+### Q36. The higher log level and figures · not a GST rule · items 16, 43, 86, 98
+What clashes: Item 98 offers "a higher level available when tracing a problem"; its default "no figures" is Claude's reading. C16 and item 16 allow no figures in the step log or the run log.
+Question: May the higher level ever write figures, and if so, where? And do you confirm "no figures" by default?
+Options: (a) Never: no log at any level holds figures; the higher level adds only step detail (cells read, Links values, timings). (b) At the higher level only, figures go into a separate trace file in that batch's own folder (which already holds the reports), never into the shared step log or the run log.
+Recommendation: (b), switched on for one run at a time, with "no figures" as the default. Figures then stay only where the client's work already is, and C16 and item 16 stay true.
+Your answer: ____
+
+### Q37. C11 and the files the tool replaces on purpose · not a GST rule · items 10, 35, 66, 70, 81, 87, 136
+What clashes: C11 says a taken name skips the client. But the tool replaces some files on purpose: its own '<report>_Refreshed' copy after a confirmed refresh and '<report>_Refresh_FAILED' after a failed one (item 70), its record file (item 35), files sent again by Retry copy and Resume (items 10, 87), and copies sent back after Step 4 on an older batch (item 10). Read literally, every second refresh would skip the client. Item 136 also keeps "a backup before any overwrite", and item 66 row 8 a backup beside the file, which, in the GSTR-3B folder, the template would read as a second copy.
+Question: May C11 be reworded as below?
+Options: (a) Yes: "A run never silently overwrites a file. It replaces only its own files, each replacement written in the log: the '<report>_Refreshed' copy after a confirmed refresh, the '<report>_Refresh_FAILED' copy after a failed one, its record file, and, for Retry copy, Resume and Step 4 on an older batch, only files this tool wrote for that client. When Step 4 sends an older batch back to the server, only the files Step 4 wrote go back; client files, Step 3's reports and your own files stay as they are on the server. Before replacing a '_Refreshed' copy that is not exactly the tool's own last confirmed copy (changed by hand since, or made by an old tool), the tool keeps it as '<name>_backup_<DDMMYY_HHMM>' in the Version folder, never in a folder a template reads whole; a backup is never refreshed or read for figures. Any other taken name skips the client, with the reason." (b) As (a), but always back up the old '_Refreshed' copy. (c) As (a), but never back up. (d) As (a), but a copy changed by hand or made by an old tool is never replaced: that client is skipped, with the reason.
+Recommendation: (a). The backup is kept exactly when the copy being replaced holds work that is not the tool's own, and it can never be counted twice or mistaken for a report.
+Your answer: ____
+
+### Q38. What reaches the server, and when · not a GST rule · items 10, 39, 57, 64, 70, 87, 88
+What clashes: Item 10 sends a client to the server only "as soon as its refresh is confirmed", and item 57 drops clean-up because "a failed client never reaches the server". Three cases are not covered: (1) an "Organise only" run, in which nothing is refreshed, although Step 4 later expects the batch on the server with server paths in its Links cells (promise 1); (2) a half-done client (one report confirmed, the other failed or not built; July 2026 had one), whose folder you normally fix on the server the next morning; (3) a copy to the server that breaks off part-way.
+Question: May this rule be added?
+Options: (a) Yes: (1) in "Organise only", each client goes up as soon as its Step 3 work is done and checked, after Excel writes the server paths into its Links cells (promise 1), with the '.partial' and fingerprint steps (C12), and its SSD copy is then cleared; (2) in the full pipeline, everything confirmed goes up the same night, with any '<report>_Refresh_FAILED' copy (its Links cells first rewritten to the server paths, without refreshing), and the client is listed as partly done, with the reason, and its SSD copy kept until it is fixed; (3) a client counts as "on the server" only once every file is checked and renamed; until then it shows "copy not finished", and Retry copy sends only the missing files. Item 57 becomes "no client is left half-copied on the server without being listed as copy not finished". (b) Only a client whose every step succeeded ever goes up; anything else stays on the SSD (and cannot be fixed by hand on the server). (c) As (a), but an "Organise only" batch stays on the SSD until Step 4.
+Recommendation: (a). It keeps your habit of fixing clients on the server, and nothing half-copied ever sits there unlisted.
+Your answer: ____
+
+### Q39. Resume after an interrupted Step 4-only run · not a GST rule · items 10, 17, 35, 87, 121
+What clashes: C17 rebuilds a "not done" client whose SSD copy is not intact, which is Step 3 work. In a Step 4-only run on a batch already on the server, often holding corrected downloads you put there, rebuilding would ignore those files.
+Question: How is an interrupted Step 4-only run continued?
+Options: (a) Resume refreshes only the "not done" clients, from the batch as it is on the server, and never rebuilds or reads the source folder; C17 says so. (b) Resume is for Step 3 and the full pipeline only; for Step 4 you start it again with Skip refresh ticked.
+Recommendation: (a). One button behaves the same way after any interruption, and it never undoes your hand corrections.
+Your answer: ____
+
+### Q40. The wording of promise 1 · not a GST rule · items 10, 67, 88, 100, 101
+What clashes: Promise 1 says "every Links cell holds the real server path", but the file-name cells, the spacer cells and the cells of a missing file hold no path, so as written every report would fail; and a path into the temporary folder on C: (item 10) would pass.
+Question: May promise 1 be reworded as below?
+Options: (a) Yes: "Before any report is copied to the server, every Links cell that holds a folder holds that folder's path on the server, never a path in the working folder (the SSD or the temporary folder on C:). File-name cells, spacer cells and the cells of a missing non-critical file are not checked for a path. A report that fails is not copied and is marked failed, with the reason." (b) As (a), and also check that every file-name cell names a file that really is in that client's folder on the server. (c) Keep the wording as it is.
+Recommendation: (a). It says what you meant, and closes the gap for the temporary folder on C:.
+Your answer: ____
+
+### Q41. Reading copies that sit on the server · not a GST rule · items 10, 21, 61, 83, 127
+What clashes: C13 only warns about long report paths, because "the tool builds and refreshes on the SSD". But "Collect figures only" and the whole-batch workbook have Excel open copies that are already on the server, and in July 2026, 10 of the 44 clients you copied to E: had report files over Excel's limit of about 218 characters ⚠ on the server (6 built reports and 19 refreshed copies).
+Question: Should Excel open such copies where they are?
+Options: (a) No: each copy is first copied to the SSD working folder (its fingerprint checked), the tool's own Excel reads it there, and the SSD copy is then cleared; the pre-flight check also measures these SSD paths. (b) Yes: Excel reads straight from the server, and a copy whose path is too long shows "could not read: path too long". (c) Bring item 61's side-by-side test forward, and read these copies without Excel.
+Recommendation: (a). It reads through Excel exactly as after a refresh, avoids failures from long server paths, and writes only to folders C16 already allows.
+Your answer: ____
+
+### Q42. The last words of C7 · not a GST rule · items 14, 17, 21, 35, 77, 80, 95
+What clashes: C7 ends "anything else is shown as failed", but other answers give "never refreshed", "reused: refreshed on <date, time>", "timed out", "stopped" and "not done".
+Question: May C7 name these statuses, so that only the rest show as "failed"?
+Options: (a) Yes, worded once after Q1, Q3 and Q9 are answered. (b) Keep C7 as it is.
+Recommendation: (a). Otherwise a test written from C7 would count every one of these as a broken promise.
+Your answer: ____
+
+### Q43. Pop-up boxes · not a GST rule · items 10, 15, 17, 18, 19, 144
+What clashes: Item 144 (c) wants "a pop-up only when the tool itself must stop", while item 19 keeps A's separate "Warning" boxes, and items 10, 15 and 17 ask for question boxes.
+Question: When may a box pop up?
+Options: (a) No "Warning" box: warnings appear in the window and the log, in a style of their own (item 19's difference between errors and warnings is kept there); boxes only for errors that stop the tool and for the questions of items 10, 15 and 17. (b) Warning boxes are allowed outside a run (for example when a template is refused at Step 1), never during a run. (c) Item 19 as written: Warning boxes at any time.
+Recommendation: (a). It follows your later, more specific answer (item 144 (c)) and the overnight rule of item 18.
+Your answer: ____
+
+### Q44. The two master templates in context/ · not a GST rule · items 100, 101, 102, 112
+What clashes: Items 100 and 101 approve your master ITC and Sales templates "as it is", but neither is in the project, and they are not on the list of files still to come.
+Question: Where should the build find them?
+Options: (a) Copied unchanged into .build-docs/context/ (they hold no client data), with their fingerprints in context/README.md, and listed in context/FILES_TO_PROVIDE.md until they are there. (b) Kept only in your Formats folder on E:; context/README.md records where they are.
+Recommendation: (a). The build and its tests then always have the exact templates the tool was built against, and the fingerprints let the build notice a later template change (item 141 (e)).
+Your answer: ____
+
+### Q45. The Zero-Defect Requirement and the contracts · not a GST rule · items 88, 153 (check 4)
+What clashes: Your Zero-Defect Requirement is "any functionality in this app". Promise 2 covers the figures only; C1 to C17 and promise 1 cover files, names, Links cells, Excel, statuses, errors, the one-run lock and Resume. No contract covers, for example, the report-profile screen and its load check, the period window and due dates, drag-and-drop, dark mode or the install offer. A requirement this broad cannot be covered by any one contract. Also, "tested hardest" for promise 2 is Claude's addition. (This is also where your answers for one Brief point are thin: the template asks for "the one thing that must be flawless".)
+Question: May the Brief record it as below?
+Options: (a) Yes: the Zero-Defect Requirement is met by the whole test plan (every function tested; every contract and promise with its own tests), with promise 2 - no figure unless proven - as the one thing tested hardest; item 88's note becomes "covers the figures part of item 153"; and a new contract C18: "a report profile that fails its load check is never used, and the screen says which setting is wrong". (b) As (a), without C18. (c) Name further contracts (say which).
+Recommendation: (a). It keeps your words, names the one thing a test can prove hardest, and gives the new settings screen a promise of its own.
+Your answer: ____
+
+### Q46. Three answers Claude compiled from your earlier words · not a GST rule · items 126, 129, 148
+What clashes: Items 126 and 129 are marked "from his earlier answers (object if wrong)", not "from his files", and 148 (b) is "Claude's view unless he objects" (the server path is internal rather than secret). Item 129 (b) also cites "items 39, 99", but item 99 is about testing; I will correct it to items 39 and 59.
+Question: Do you confirm the three?
+Options: (a) Confirm all three. (b) Object to one (say which).
+Recommendation: (a), unless one of them is wrong.
+Your answer: ____
+
+### Recorded without a question (say if you object)
+
+- **Audit corrections, for the Brief:**
+  - [AUDIT CORRECTION: Audit stated the 8-digit date in IMS Reco file names is one of the period parts of the name (item 65 row 7; B audit, B-R23), but per builder's knowledge, the actual behaviour is that it is the export (download) date of the IMS file, not a return period (items 138 (f), 63)]
+  - [AUDIT CORRECTION: Audit stated B is an unfinished rewrite with no record of a run on Windows (MEDIUM that it was set aside), but per builder's knowledge, the actual behaviour is that B was used for real client work on the office run PC, with its problems handled by hand (item 119 (b)-(c))]
+- **Parking Lot:** two rows added - setting up the shared Python folder and switching "Use shared Python folder" to YES (items 1, 91, 126); moving to a newer Python (3.15) once its add-ons support it (item 91).
+- **Technical assumptions for Session 0:** Python 3.14, the regular build, on Claude's advice after you asked for a higher version (item 91); exact pinned versions of only PySide6-Essentials 6.12.x, openpyxl and pywin32 (item 92); tests written first from the approved plan, with A's 288 tests as a reference list only (item 99); the five toolkit files kept, your "ok" read as "keep" (item 110); the "Maximum time per report" box allows 60 to 3,600 seconds, default 300 plus the internal 5 (items 5, 95).
+- **Open items for Session 0:** 148 (a); 152 (Top 3; the proposal is recorded, and proposed priority 3 joins two goals - report profiles, and the look and feel - to be asked at the Brief review); the ITC Claim sheet template; the files of items 103 and 104; which Python 3.14 the run PC has (124 (c)); 124 (d); whether the shorter share root was adopted (127 (c)); 146 (b)-(d); 147 (b)-(e), never asked; the office-PC hours (151 (a)), and checking the 125% scaling there (122 (b)); the path of the real-files folder (107); the second half of 148 (b) - whether the run figures quoted in A's commit messages (file counts, scan times, path lengths) count as confidential; and every "Not sure yet" given to Q1 to Q46.
+- **Thin Brief sections (said once):** Section 4, New features - no MUST HAVE or NICE TO HAVE marks, and no reason of your own for the SSD workbench (item 10). Section 6, Edge cases - you remember no case either way (items 132-136, 139), so "gaps that bit you" can come only from your files: the three sheets that repeated the GSTR-3B difference, one failed Sales refresh check, and report paths over 218 characters. Section 7, Design - "smooth as butter" has no concrete example. Section 8, What I learned - "what would you do differently" (150 (a)) and "what had you forgotten" (149) are unanswered. Add to any of these if you like; otherwise the Brief says they are light.
+
 ## Parking Lot
 
 Ideas you mention while answering, kept for later. Items you answer "Defer" are added here with today's date.
@@ -1780,6 +2151,8 @@ Ideas you mention while answering, kept for later. Items you answer "Defer" are 
 | Skill files (SKILL.md) written from the lessons of A and B, after the first working build | 24-10-2026, item 62 (answered "Defer") | Later | Deferred |
 | GSTR-9 and GSTR-9C applicability columns in the consolidated workbook (turnover above Rs 2 crore / Rs 5 crore ⚠), which he adds by hand today | 24-10-2026, item 130 and "Read this first" (seen in his files) | Not requested | Candidate only |
 | Special handling for quarterly (QRMP) filers beyond the due-date table: none among the July 2026 clients, so "no special handling for now" | 24-10-2026, idea 2 ("proposed") | Later | To revisit |
+| Set up the shared Python folder (`_runtime`), switch "Use shared Python folder" to YES and move Python 3.14 there | 24-10-2026, items 1, 91, 126 | Later | Deferred |
+| Move to a newer Python (3.15) once PySide6 6.12 and pywin32 support it (you asked for a higher version if better) | 24-10-2026, item 91 | Later | To revisit |
 
 ## Coverage
 

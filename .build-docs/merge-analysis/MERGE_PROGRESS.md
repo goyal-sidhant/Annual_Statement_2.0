@@ -55,6 +55,17 @@ Consistency-check workflow started 24-10-2026: run `wf_011ba3b4-970` (script
 `merge-phase4-consistency-wf_011ba3b4-970.js`; 4 checkers A files/names/dropped, B steps/refresh/
 figures, C stack/standards, D process rules, each verified by a skeptic, plus a skeptic on my 12
 candidate conflicts L1-L12). Answers in scratch: `~/merge-scratch/answers/answers_only.md`.
+Consistency check DONE (24-10-2026): 19 findings refuted by the skeptics; the rest merged into
+46 questions Q1-Q46 in `MERGE_DECISIONS.md`, section "Consistency check (Phase 4, 24-10-2026)"
+(Parts A figures/refresh, B files/periods, C report profiles, D reasons ("why?" once, Q31),
+E technical with recommendations), plus "Recorded without a question" (2 audit corrections,
+2 Parking Lot rows, technical assumptions, Open items, thin Brief sections). Raw findings and
+verdicts: `working-notes/consistency/findings_and_verdicts.md`.
+NOW: asking Q1 to Q46 one at a time in the chat (the author may also answer them all in the
+file). Write each answer under its Q with the date, commit and push after each batch. When all
+are answered: re-check the answers against each other once, then ask the "yes" question,
+adapted: "All items are answered except 148 (a) and 152, which you are keeping open, and nothing
+conflicts. Shall I create the starting files now?" — and STOP.
 
 Original Phase 4 steps (prompt section 10):
 1. Write each answer under its item in `MERGE_DECISIONS.md` ("Your answer: <answer> (DD-MM-YYYY)") and in the "Answers so far" table (answer + date); update the line "Answered N of 153".
