@@ -39,8 +39,20 @@ clone>`, fetch both `main`s).
 
 ## Exact next action
 
-**Phase 3 is done and STOPPED (the prompt's stop point "End of Phase 3 — wait for my answers").** Nothing is running.
-When the author answers (Phase 4, prompt section 10):
+**Phase 4 is in progress (24-10-2026).** The author sent every answer in one file
+(`MERGE_DECISIONS_answered.md`: the list with every "Your answer" filled in, plus a "Read this
+first" section: intent, two new decided requirements (idea 1 report profiles, idea 2
+period-aware scanning), consistency notes, facts from the real templates and the July 2026
+run, open items). It is saved as `MERGE_DECISIONS.md` (only the answer lines, the "Answers so
+far" table, the status line and the new section differ from the Phase 3 file; the Parking Lot
+was filled from the "Defer" answers). Scanned before commit: 0 GSTIN/PAN-like strings; the
+old-audit name tokens appear only as ordinary words. Still open by the author's choice:
+148 (a) and 152. The ITC Claim sheet template does not exist yet; items 103-104 files will
+follow (list them in `context/FILES_TO_PROVIDE.md` in Phase 5).
+Next: the adapted consistency check (points 1-5 below), conflicts shown and resolved one at a
+time, then the "yes" question (adapted for the two open items) and STOP.
+
+Original Phase 4 steps (prompt section 10):
 1. Write each answer under its item in `MERGE_DECISIONS.md` ("Your answer: <answer> (DD-MM-YYYY)") and in the "Answers so far" table (answer + date); update the line "Answered N of 153".
 2. Commit (`[DOCS]`, Standard 10) and push after each batch; report "Answered N of 153. Still open: …".
 3. Follow-up questions one at a time, only when an answer is unclear, contradicts another, or picks a GST-rule version without a reason (ask "why?" once; the reason goes into the Brief). If the author says "you decide" on a GST-rule item, remind them it is theirs and offer "Not sure yet".
@@ -112,7 +124,7 @@ Feature split for Section 3: A-F1..A-F15 / A-F16..A-F31; B-F1..B-F17 / B-F18..B-
 | 1 — Audit A and B | **Done** — both audits filed: A on 22-10-2026, B on 23-10-2026 | 21-23/10/2026 | `PROJECT_AUDIT_AnnualStatement_oldv1.md`, `PROJECT_AUDIT_AnnualStatement_oldv2.md` in this folder |
 | 2 — Compare A and B | **Done** | 23-10-2026 | `MERGE_COMPARISON.md` in this folder |
 | 3 — Numbered decision list | **Done** — posted in the chat; waiting for the author's answers | 23-10-2026 | `MERGE_DECISIONS.md` in this folder |
-| 4 — Taking the author's answers | Waiting for the author | | Answered 0 of 153 |
+| 4 — Taking the author's answers | **In progress** — all answers received in one file on 24-10-2026 and recorded; consistency check next | 24-10-2026 | Answered 151 of 153; still open: 148 (a), 152 ("not sure yet") |
 | 5 — Starting files | Not started | | |
 | 6 — Final checks and hand-over | Not started | | |
 

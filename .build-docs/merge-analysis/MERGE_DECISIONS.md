@@ -1,6 +1,6 @@
 # MERGE DECISIONS - Annual Statement 2.0
 
-**Date:** 23-10-2026 · **For:** Adv. Sidhant Goyal · **Status:** waiting for your answers (Phase 4)
+**Date:** 23-10-2026 · **For:** Adv. Sidhant Goyal · **Status:** answered on 24-10-2026 (151 answered, 1 not sure yet, 1 partly answered) - see "Read this first" below
 
 **The two snapshots compared**
 
@@ -119,165 +119,229 @@ Every technical word in the answer table and the items is explained here once, i
 | Test, pytest, `pytest.ini`, test harness, deliberate bug (mutation check) | A test is a small program that runs part of the real code on made-up inputs and checks the result; pytest is the tool that finds and runs tests, and `pytest.ini` is its settings file. A harness is a helper set-up used to run such checks. A mutation check puts an old bug back on purpose into a copy of the code to see whether a test notices. |
 | lxml, XML; `gh api` | lxml is a package for reading XML files (the format inside an `.xlsx`). `gh api` is GitHub's command-line tool, used here to read a repository's settings. |
 
+## Read this first: the answers (24-10-2026)
+
+**Status:** answered on 24-10-2026. 151 of 153 items are answered; item 152 is "not sure yet" (a proposal is recorded under it); item 148 (a) is still open. Every answer is written under its item ("Your answer (24-10-2026): …") and shortened in the table "Answers so far".
+
+**How the answers were made.** Sidhant answered in one long conversation with Claude (Cowork), item by item, and every answer was kept in a tracker as it was given. Where his real files could settle a fact, Claude read them instead of asking him: the two master templates, one client's four reports from the July 2026 batch (layout, formulas and Power Query only), that run's Step 3 summary workbook and consolidated workbook, and names-only listings of the FY 2025-26 source folder and of the batch. Answers built that way carry the note "from his files"; they were shown to him in a summary and he raised no objection. No client name, GSTIN, PAN, client figure or server path appears in this file.
+
+### His intent, in his own words
+
+- **What the tool does (item 114):** "Statement Maker takes a financial year's Octa GST exports for all my clients and checks that each client's set is complete. It files them into a dated folder per client, builds each client's ITC and Sales reports from my templates, refreshes them overnight, and gathers every client's key differences into one workbook, so I can see before GSTR-9/9C which clients need attention. Its scope is growing: the same way of working will build other reports from other sets of files."
+- **Why (item 115):** to automate a boring, repetitive task - nothing else. It is growing, hence the new name Statement Maker (item 108).
+- **What it means to him (item 149):** not being a coder, he did not know so much could be done with Python. The overnight run makes him feel his work is happening while he is away; his assistants are happy not to do the boring, repetitive task by hand; the area of error has shrunk - he no longer has to doubt anyone's ability to arrange files, fill formats and refresh them.
+- **How it must feel (items 142-144):** the best in its functionality, "smooth as butter", with an incredible user experience. Drag-and-drop on every path box as well as Browse buttons; dark mode by default.
+- **The principle (item 150):** "No figure is shown unless it is proven" is one of his principles.
+- **Zero-Defect Requirement (item 153):** "any functionality in this app" - every function must work perfectly. Within that, the figures promise (item 88, promise 2) is tested hardest, because a wrong figure is the costliest bug.
+- **Top three priorities (item 152):** not sure yet; the proposal under item 152 is drawn from his own answers.
+
+### Two new requirements, decided (beyond the 153 items)
+
+**Idea 1 - a configurable app built on report profiles.** The app is built around editable 'report profiles', changed in a settings screen (this settles item 60). Two profiles are built in from the start: the Annual Statement, and the monthly ITC Claim sheet (built from GSTR-3B, GSTR-3B Portal, GSTR-2B Reco and IMS Reco). The ITC Claim sheet template does not exist yet: the build sets up that profile's file types from the start, and its template parts (Links cells, cells read, output) are completed when Sidhant provides the template - the build plan must hold that step until then. The app is made so that this needs no new code: once the template is ready, he fills in that profile in the settings screen and it works; the build proves this path with a small stand-in template. Pattern analysis: pointed at a folder of exports, the app splits each file name into its parts (fixed prefix, client, state, period) and lists the file types it finds, with counts, for the user to name and confirm; names that fit no type are listed apart. Folder arrangement (the user's liberty): the user designs the folder tree - which levels exist and how each is named, using placeholders such as {client}, {state code}, {date}, {financial year} (today: batch folder > client folder > Version folder > category folders) - and places each file type in it, and decides where the reports, refreshed copies and the consolidated workbook go; the settings screen shows the resulting tree as a preview. No fixed folder rule: the profile marks any file type the template reads as a whole folder (GSTR-3B today), and the app warns when other files share that folder; Sidhant may instead change the template's query to take only GSTR3B files from the folder. Either way the Step 2 block on a month appearing twice stays (item 64), because a '(1)' copy also has GSTR3B in its name. For each file type the user also sets: its naming pattern (the live nomenclature understander); whether it is mandatory for the run; and how many files are allowed (one per client, or one per month up to 19 for GSTR-3B). For each template: what each Links cell gets - a folder path or a file name, and of which file type. Which cells are read after the refresh, each with the heading or column it must total (item 68). The output: its name, where it is kept, and how older copies are kept.
+
+**Idea 2 - period-aware scanning.** The period being worked on - one month or a financial year - is chosen when running the flow. The app picks up only the files that belong to that period; other files are listed at Step 2 as 'outside the period'. The files a client 'should have' are the file types configured in the report profile, with the counts set there (idea 1). Financial-year window: from the later of April and the client's first month of business, to October of the next year - never '19 months from the start' (a client that began in February 2026 is expected from Feb 2026 to Oct 2026) - and only up to the latest month whose return was already due on the day of the run; months not yet due show as 'not due yet (due <date>)'. The first month of business is read from the client's earliest GSTR-3B file and shown at Step 2 for him to confirm or correct per client (July 2026: three clients began mid-year, in Aug 2025, Dec 2025 and Mar 2026). Due dates sit in a settings table with defaults (monthly GSTR-3B on the 20th; quarterly on the 22nd or 24th by state), all editable. IMS Reco: no period check - its name holds only the export date, which Step 2 shows. Quarterly (QRMP) filers: none among the 126 July 2026 clients, so no special handling for now (proposed). Single month (e.g. the ITC Claim sheet): the month and its files are chosen while running the flow. Periods are read from each type's name (item 63: '2025-26', 'Sep-2026', 'Apr-2025-Sep-2026', 'Sep 2026', 'Apr 2025-Mar 2026').
+
+### Consistency notes (later answers that change earlier ones)
+
+1. **GSTR-3B months:** at most 19 per financial year, April to October of the next year (item 64; "17" was a slip, corrected the same day). A client's window starts at the later of April and its first month of business (idea 2).
+2. **C13 (item 83):** report paths over Excel's limit only produce a warning before the run; they no longer skip the client. This changed after the report names were kept exactly as they are (item 66 row 7).
+3. **GSTR-3B folder:** no fixed "folder to itself" rule. The report profile marks file types the template reads as a whole folder, and the app warns when anything else shares that folder (idea 1, item 64). The Step 2 block on a month appearing twice stays.
+4. **Refreshed copy:** one fixed name `<report>_Refreshed` with no time; replaced only after a confirmed refresh; a failed attempt is saved as `<report>_Refresh_FAILED` and is never read by "Collect figures only" (items 21, 70).
+5. **Item 63 row 6:** an .xls input is flagged at Step 2 ("save as .xlsx first"), because the templates add .xlsx to every file name; a trailing " (1)" is never read as part of a period.
+6. **Item 66 row 1:** a new run never reuses an existing batch folder; Resume and Re-Run deliberately work inside the chosen batch (items 10, 87).
+7. **Item 111:** you prepare the adjusted Rebuild Prompt in Phase 5, as you proposed.
+8. **Parts 2 and 6** become the Annual Statement profile's defaults (idea 1). They stay GST rules that only Sidhant changes.
+
+### Facts from his real files (for the build; no client data)
+
+Templates - the masters in his Formats folder are identical to the July 2026 report copies (queries, sheets, defined names, formulas):
+
+- **ITC template:** .xlsx, no macros, no drawn shapes (cell notes only), 39 queries. Links B2 = GSTR-3B folder; B4/B5 = Annual Report folder/name; B7/B8 = GSTR-2B Reco folder/name; B10/B11 = IMS Reco folder/name; B3, B6, B9 are blank spacer rows. The Links B-cells are empty in the master, its query tables are empty, and it holds no client data.
+- **Sales template:** .xlsx, 24 queries. Links B2/B3 = Sales folder/name; B5/B6 = Annual Report; B8/B9 = Sales Reco; B4, B7 spacers. It reads only the three named files.
+- Every query that reads a named file adds ".xlsx" to the name and a closing "\" to the folder taken from the Links cells; no folder, file name or path is hard-coded anywhere.
+- **GSTR-3B:** query TR3B reads every non-hidden file in the GSTR-3B folder, sub-folders included, that has an "ITC Claims-Actions" sheet - not by name and without removing duplicates - and keeps the rows whose Claim Period falls in the financial year. ClaimedNextYr keeps that year's documents claimed after it, which is why GSTR-3B runs to October of the next year.
+- **Financial year:** taken from the Annual Report's "Overview" sheet by query BasicDetails, which also fills Info!BA1:BB5 - Company Name (BB2), Contents (BB3), GSTIN with the state in brackets (BB4), Financial Year (BB5). All are empty before a refresh.
+- **Refresh settings:** every query has background refresh on, and none refreshes on opening. This explains his early experience with RefreshAll from code ("a few queries not running"): the call returns at once (item 145).
+- **The 22 cells (item 68):** Diff GSTR-3B J15:L15 = SUBTOTALs of the IGST/CGST/SGST differences; Diff - GSTR-1 I1 = GSTR-1 taxable value and N1:Q1 = "Difference (GSTR-1 - Sales)"; Reco C37:E37 = "Net Difference"; T6 of R9 K29 = "Difference (I - A above)", a number; T8 of R9 G6 = "Difference [A-(B+C)]", a number; IMS_Reco AA1/AD1/AG1 = IMS IGST/CGST/SGST totals and AC1/AF1/AI1 = the differences; ExtraInPurchase O1:Q1 = Purchase IGST/CGST/SGST; ExtraInGSTR2B S1:U1 = GSTR-2B IGST/CGST/SGST.
+- **IMS_Reco layout:** the template's table has placeholder columns (Column1-47); after a refresh it has 50 columns and the row-1 totals sit three columns left of their headings. Sidhant will correct these formulas before the next run; take the final cell addresses from the corrected template (item 68).
+
+The July 2026 run (made with A):
+
+- One batch of 126 clients and 2,497 source files - about 20 per client (15 GSTR-3B months and one file of each other type). Every client was 100% complete with no unrecognised file; 36 "(1)" copies were used.
+- Step 3 took about 8 minutes; Step 4 about 3 h 47 min for 252 reports (about 54 s each).
+- The consolidated workbook's IMS Reco, Extra In Purchase and Extra In GSTR2B sheets repeat the GSTR-3B difference for 124 of 125 clients - the live bug of item 68. One client's Sales refresh check failed.
+- Path lengths on the server (44 clients checked): 10 clients have report files over 218 characters (6 built reports and 19 refreshed copies; longest 239). Input files stay at or under 248 characters with the short category names.
+- After the run, corrected downloads were put straight into the batch folders and the reports refreshed by hand (17 of the 44 clients, late July to mid-September). The batch also holds hand-made files and folders (a workbook at the top level, folders inside Version folders). The tool must leave anything it did not create alone.
+- In the consolidated workbook he adds, by hand, GSTR-9 and GSTR-9C applicability columns (turnover above Rs 2 crore / Rs 5 crore). Parking Lot candidate only - not requested.
+- Client names: no hyphens, dots or digit-only names; many contain "&" or a bracketed code; up to 52 characters. States are written in full (18 in use), plus `<State>_<label>` for a second registration in one state.
+
+### Still open
+
+- **Item 148 (a):** the company-like name in A's March 2026 audit (around line 130). He could not find it; making the old repositories private (item 113) covers it either way.
+- **Item 152:** top three priorities - "not sure yet" (proposal recorded).
+- **The ITC Claim sheet template does not exist yet** (idea 1): hold the steps that need it.
+- **Items 103-104:** Claude (Cowork) prepares the anonymised sample files and the names-only listing; until they arrive, list them in `context/FILES_TO_PROVIDE.md`.
+- **CL1-CL11** ("Same in both and working - no decision needed"): no objection raised.
+
 ## Answers so far
 
-153 items. "Your call" = a GST rule or a rule you confirm (no recommendation); "your answer" = a question about you and your office (Part 11). Answered 0 of 153.
+153 items. "Your call" = a GST rule or a rule you confirm (no recommendation); "your answer" = a question about you and your office (Part 11). Answered on 24-10-2026: 151 answered, item 152 not sure yet, item 148 partly answered. Full answers sit under each item; this table shortens them.
 
 | # | Short title | Part | Recommendation in a few words | Your answer | Date |
 |---|---|---|---|---|---|
-| 1 | Start-up checks when an add-on is missing | 1 | A's check and clear refusal, no install offer; B's console-free start |  |  |
-| 2 | The main window: size, top bar, status bar, tab dots | 1 | B's frame, smaller minimum size, no tab dots |  |  |
-| 3 | Step 1 (Setup) screen: layout, Browse buttons, path problems | 1 | A's one-column Step 1, Scan in view, quotes removed |  |  |
-| 4 | Remembering your settings: what is kept, and when it is saved | 1 | B (saves on closing, keeps Step 4 options) |  |  |
-| 5 | Number boxes: client-folder length and Step 4 wait time | 1 | B's whole-number boxes, active whenever used |  |  |
-| 6 | Scanning the source folder: speed, and keeping the window alive | 1 | A's folder reading, in a background worker, with a live count |  |  |
-| 7 | Problem files in the source folder: dropped silently or counted | 1 | B's counting, plus an on-screen list with reasons |  |  |
-| 8 | Step 2 client list: what is ticked, sorting, export, keyboard | 1 | A's list (nothing pre-ticked), keyboard-usable buttons |  |  |
-| 9 | Shortening "Private" and "Limited" in file and report names | 1 | A, plus a stop when two names would collide |  |  |
-| 10 | Building each report: local disk first, or in the client folder | 1 | A (build on local disk, copy once) |  |  |
-| 11 | Step 3 progress, log and messages (and the Dry Run preview) | 1 | A's plain log without [DEBUG]; B's Clear Log and bar |  |  |
-| 12 | Step 4 screen: layout, which folder it reads, failure reasons | 1 | B's one-page layout with A's behaviour |  |  |
-| 13 | Step 4: which batch and which Version folders are offered | 1 | Third way: date in the folder name, shown, changeable |  |  |
-| 14 | Step 4 list: ticks and the "last refresh" status | 1 | A, worded "copy made <time>" |  |  |
-| 15 | Consolidated workbook: where it is saved, and the end of the run | 1 | B's fixed destination, plus A's "Open?" question |  |  |
-| 16 | A record of each Step 4 run on disk | 1 | B's per-run log file, written as it goes, no figures |  |  |
-| 17 | Running jobs: background work, one job at a time, Stop, closing | 1 | B's workers and Stop, one lock, "Stop and exit?" |  |  |
-| 18 | An unexpected error inside the window | 1 | Follow Standard 13 (message box and log) |  |  |
-| 19 | Help texts, hover tips and message boxes | 1 | A's hover tips and Error/Warning titles, texts rewritten |  |  |
-| 20 | Dark mode: whether the first build needs it, and how to build it | 1 | Defer; build it later B's way |  |  |
-| 21 | Opening Step 4 on its own, and its log file | 1 | B's way (one window, opened on Step 4) |  |  |
-| 22 | IMS Reco files saved with a "(1)" after the date | 2 | your call (GST rule) |  |  |
-| 23 | Showing staff the files the tool could not use, with the naming hint | 2 | your call (GST rule) |  |  |
-| 24 | The example file names shown on Step 1 | 2 | your call (GST rule) |  |  |
-| 25 | The client key handed from Step 2 to Step 3, and where it is shown | 2 | your call (GST rule) |  |  |
-| 26 | How Step 2 shows each client's completeness | 2 | your call (GST rule) |  |  |
-| 27 | Shortest allowed client-folder name, and whether the state code may be cut off | 2 | your call (GST rule) |  |  |
-| 28 | Names of the three category folders - also written into the Links cells ⚠ | 2 | your call (GST rule) |  |  |
-| 29 | Client's name in the category-folder names: per client, or for all clients only | 2 | your call (GST rule) |  |  |
-| 30 | What must be chosen before a Dry Run | 2 | your call (GST rule) |  |  |
-| 31 | Which template file types can be picked | 2 | your call (GST rule) |  |  |
-| 32 | A Links cell inside merged cells, when a report is made without Excel ⚠ | 2 | your call (GST rule) |  |  |
-| 33 | Which template a batch uses if the Step 1 box is changed mid-run; order of clients | 2 | your call (GST rule) |  |  |
-| 34 | How Step 4 recognises the ITC and Sales reports | 2 | your call (GST rule) |  |  |
-| 35 | "Skip refresh": which existing refreshed copy may be reused | 2 | your call (GST rule) |  |  |
-| 36 | Consolidated workbook: one row per client, or one row per Version folder | 2 | your call (GST rule) |  |  |
-| 37 | Offer to install missing add-ons | 3 | Drop |  |  |
-| 38 | Live Setup checklist | 3 | Keep, with real checks off the window's line of work |  |  |
-| 39 | Workflow choice: "organise only" or "full pipeline" | 3 | Keep A's choice, with exact texts |  |  |
-| 40 | Warning about long client names | 3 | Keep, as one warning before Step 3 |  |  |
-| 41 | Export the ticked client list | 3 | Keep A's export, in UTF-8 |  |  |
-| 42 | Hand-written mouse-wheel rules | 3 | Drop |  |  |
-| 43 | B's run history and "Last Run" column | 3 | Drop |  |  |
-| 44 | Step 4 fills itself when the window opens | 3 | Drop the start-up fill (A's way) |  |  |
-| 45 | Fold-away help cards | 3 | Keep, texts rewritten |  |  |
-| 46 | One-time import of the old settings file | 3 | Drop |  |  |
-| 47 | Settings and lists that nothing ever reads | 4 | Drop all |  |  |
-| 48 | Helper functions that are never called | 4 | Drop |  |  |
-| 49 | Dead or unreachable code in the Excel and Step 4 parts | 4 | Drop |  |  |
-| 50 | A's own leftovers | 4 | Drop |  |  |
-| 51 | B's own leftovers | 4 | Drop |  |  |
-| 52 | The old extractor entry file `extractor_main.py` | 4 | Drop it in both |  |  |
-| 53 | The old documents inside A, and the shared README | 4 | Drop all five |  |  |
-| 54 | Reopen where you left off | 5 | Defer |  |  |
-| 55 | Failure reason inside the consolidated workbook | 5 | Defer |  |  |
-| 56 | Content check of copied files | 5 | Defer |  |  |
-| 57 | Clean-up after a client fails | 5 | Defer |  |  |
-| 58 | A "Continue to extraction" button after an "organise only" run | 5 | Defer |  |  |
-| 59 | Start the refresh automatically after Step 3 | 5 | Defer |  |  |
-| 60 | A settings screen for the GST configuration | 5 | Defer |  |  |
-| 61 | Read the refreshed figures without a second Excel | 5 | Defer |  |  |
-| 62 | Skill files written from the lessons of A and B | 5 | Defer |  |  |
-| 63 | File-name patterns and how a name is read ⚠ | 6 | your call (confirm or correct) |  |  |
-| 64 | Expected return files and completeness ⚠ | 6 | your call (confirm or correct) |  |  |
-| 65 | State codes, the client key, GSTIN/PAN and the period ⚠ | 6 | your call (confirm or correct) |  |  |
-| 66 | Folder, file and report names | 6 | your call (confirm or correct) |  |  |
-| 67 | The template Links-sheet cells ⚠ | 6 | your call (confirm or correct) |  |  |
-| 68 | Extraction cells and the consolidated-workbook columns ⚠ | 6 | your call (confirm or correct) |  |  |
-| 69 | When a refresh counts as successful, and how figures are shown ⚠ | 6 | your call (confirm or correct) |  |  |
-| 70 | Waits, the refreshed-copy suffix, key presses and Excel limits ⚠ | 6 | your call (confirm or correct) |  |  |
-| 71 | C1 - Client files and templates are never changed | 7 | Agree |  |  |
-| 72 | C2 - Every client file found is accounted for | 7 | Agree |  |  |
-| 73 | C3 - Clients shown separately are kept separately | 7 | your call (GST rule) |  |  |
-| 74 | C4 - Templates are checked before any report is built | 7 | Agree |  |  |
-| 75 | C5 - No Power Query workbook is ever saved by openpyxl | 7 | Agree |  |  |
-| 76 | C6 - The user's own Excel and other programs are never touched | 7 | Agree |  |  |
-| 77 | C7 - A report is shown as refreshed only when Excel confirmed the refresh | 7 | Agree |  |  |
-| 78 | C8 - Each consolidated column holds the figure from the cell your list names | 7 | your call (GST rule) |  |  |
-| 79 | C9 - Every Step 4 client gets its row, and one bad value never loses the workbook | 7 | Agree |  |  |
-| 80 | C10 - Statuses and counts tell the truth | 7 | Agree |  |  |
-| 81 | C11 - No file is ever silently overwritten | 7 | Agree |  |  |
-| 82 | C12 - No half-written file ever sits under a final name | 7 | Agree |  |  |
-| 83 | C13 - Paths that are too long are found before the run starts | 7 | Agree |  |  |
-| 84 | C14 - Only one run at a time works on a batch | 7 | Agree |  |  |
-| 85 | C15 - Every error is shown; the tool never stops silently | 7 | Agree |  |  |
-| 86 | C16 - Client data is written only to the target folder and the user's own folder | 7 | Agree |  |  |
-| 87 | C17 - "Resume" continues an interrupted run | 7 | Agree |  |  |
-| 88 | What would you add? | 7 | your answer (add any) |  |  |
-| 89 | Window toolkit: PySide6, PyQt5 or Tkinter | 8 | PySide6-Essentials (your standard) |  |  |
-| 90 | Windows 10 or 11, and the PySide6 version | 8 | Pin PySide6 6.12.x while any PC runs Windows 10 |  |  |
-| 91 | Python version and the shared portable runtime | 8 | Python 3.14 in the shared runtime only |  |  |
-| 92 | The package list | 8 | Follow Standard 13 (exact versions, no pytest or lxml) |  |  |
-| 93 | Excel libraries, and the Power Query safety check | 8 | Follow Standard 12 (no openpyxl fallback) |  |  |
-| 94 | How the tool drives Excel | 8 | Follow Standard 12 in full, plus time limits |  |  |
-| 95 | How a refresh is started and confirmed | 8 | Standard 12's RefreshAll method |  |  |
-| 96 | How users start the tool | 8 | Follow Standard 13 (one .bat and shortcut) |  |  |
-| 97 | Where settings, logs and temporary files live | 8 | Follow Standard 13 (%LOCALAPPDATA%) |  |  |
-| 98 | What the program log may contain | 8 | Names and paths, no figures |  |  |
-| 99 | Testing, and what becomes of A's 288 tests | 8 | Follow your pipeline; A's tests as a reference note |  |  |
-| 100 | The ITC report template | 9 | Provide anonymised |  |  |
-| 101 | The Sales report template | 9 | Provide anonymised |  |  |
-| 102 | One refreshed ITC report and one refreshed Sales report | 9 | Provide anonymised |  |  |
-| 103 | One sample of each of the six input file types | 9 | Provide anonymised |  |  |
-| 104 | A names-only listing of one source folder and one finished batch | 9 | Provide anonymised |  |  |
-| 105 | Old settings files and old logs from office PCs | 9 | Not needed |  |  |
-| 106 | Reference notes I can write into context/ from the code | 9 | Write notes 1 to 4 |  |  |
-| 107 | Where real client files will live during the build | 9 | A folder on your own PC, outside the project |  |  |
-| 108 | The tool's name | 10 | "Annual Statement" ("2.0" in the title only) |  |  |
-| 109 | Should the new repository be private? | 10 | Make it private now |  |  |
-| 110 | Keep your toolkit files in .build-docs/toolkit/ after setup? | 10 | Keep them |  |  |
-| 111 | A ready-to-paste Rebuild Prompt for two audits | 10 | Yes, prepare it |  |  |
-| 112 | A .gitignore in the new project from the first commit | 10 | Yes, add it |  |  |
-| 113 | The old public history (advice only) | 10 | (b) Make both private now |  |  |
-| 114 | What the tool does, in your own words | 11 | your answer |  |  |
-| 115 | The problem you first built it for, and how it has changed | 11 | your answer |  |  |
-| 116 | Parts of the tool you never use | 11 | your answer |  |  |
-| 117 | Who uses the tool, and how comfortable they are with computers | 11 | your answer |  |  |
-| 118 | How often, and in which months | 11 | your answer |  |  |
-| 119 | Which project is in daily use now, and since when | 11 | your answer |  |  |
-| 120 | Your actual workflow, click by click | 11 | your answer |  |  |
-| 121 | How you use Step 4 in practice | 11 | your answer |  |  |
-| 122 | Which Windows, and which screens | 11 | your answer |  |  |
-| 123 | Which Excel, in which language, set up how | 11 | your answer |  |  |
-| 124 | Which Python, and how people start the tool today | 11 | your answer |  |  |
-| 125 | Office PCs only, or also from outside over a VPN | 11 | your answer |  |  |
-| 126 | Your shared apps folder | 11 | your answer |  |  |
-| 127 | Where client files sit while the tool works | 11 | your answer |  |  |
-| 128 | How big a typical run is | 11 | your answer |  |  |
-| 129 | Two people, or two jobs, at the same time | 11 | your answer |  |  |
-| 130 | What you still do by hand after the tool finishes | 11 | your answer |  |  |
-| 131 | Anything you wish it also did | 11 | your answer |  |  |
-| 132 | Gaps that hurt you: the Step 4 figures | 11 | your answer |  |  |
-| 133 | Gaps that hurt you: the refresh and your own Excel | 11 | your answer |  |  |
-| 134 | Gaps that hurt you: files, folders and counts | 11 | your answer |  |  |
-| 135 | Gaps that hurt you: starting, closing and the screens | 11 | your answer |  |  |
-| 136 | Protections that have saved you | 11 | your answer |  |  |
-| 137 | How client and state names are really written in your file names | 11 | your answer |  |  |
-| 138 | File types, duplicates and periods in a real source folder | 11 | your answer |  |  |
-| 139 | The worst data you have received | 11 | your answer |  |  |
-| 140 | Your templates: how their queries find the client files | 11 | your answer |  |  |
-| 141 | Your templates: format, refresh settings and the success cell | 11 | your answer |  |  |
-| 142 | A's screens: what you like and dislike | 11 | your answer |  |  |
-| 143 | B's screens: what you like and dislike | 11 | your answer |  |  |
-| 144 | How you want the new tool to look and behave | 11 | your answer |  |  |
-| 145 | How the refresh came to be done this way | 11 | your answer |  |  |
-| 146 | Why there are two versions | 11 | your answer |  |  |
-| 147 | Records that live only with you | 11 | your answer |  |  |
-| 148 | Two confidentiality facts only you know | 11 | your answer |  |  |
-| 149 | What surprised you, and what you had forgotten | 11 | your answer |  |  |
-| 150 | What you would do differently, and the principle above all | 11 | your answer |  |  |
-| 151 | Office-PC time for the checks the build needs | 11 | your answer |  |  |
-| 152 | Your top three priorities | 11 | your answer |  |  |
-| 153 | The one thing that must work perfectly (Zero-Defect Requirement) | 11 | your answer |  |  |
+| 1 | Start-up checks when an add-on is missing | 1 | A's check and clear refusal, no install offer; B's console-free start | Agree, with a change. Keep A's add-on check and clear refusal, and B's start without the black console window … | 24-10-2026 |
+| 2 | The main window: size, top bar, status bar, tab dots | 1 | B's frame, smaller minimum size, no tab dots | B's frame (File/View menus, a status bar that reports results), without the tab dots … | 24-10-2026 |
+| 3 | Step 1 (Setup) screen: layout, Browse buttons, path problems | 1 | A's one-column Step 1, Scan in view, quotes removed | Agree: A's one-column Step 1 with all Browse buttons visible and path problems flagged as you type, with the Scan button brought into view and pasted quote marks removed … | 24-10-2026 |
+| 4 | Remembering your settings: what is kept, and when it is saved | 1 | B (saves on closing, keeps Step 4 options) | Agree: B's way. Settings are saved on closing, and the Step 4 options are kept between sessions. | 24-10-2026 |
+| 5 | Number boxes: client-folder length and Step 4 wait time | 1 | B's whole-number boxes, active whenever used | Agree: both boxes accept whole numbers only, within their range, so a typo cannot break saving or stop a run … | 24-10-2026 |
+| 6 | Scanning the source folder: speed, and keeping the window alive | 1 | A's folder reading, in a background worker, with a live count | Agree: A's fast way of reading the folder, run in the background so the window stays responsive, with a live file count. | 24-10-2026 |
+| 7 | Problem files in the source folder: dropped silently or counted | 1 | B's counting, plus an on-screen list with reasons | Agree: count every rejected file and list each by name with its reason on screen … | 24-10-2026 |
+| 8 | Step 2 client list: what is ticked, sorting, export, keyboard | 1 | A's list (nothing pre-ticked), keyboard-usable buttons | Agree: A's list with nothing pre-ticked, and buttons that also work from the keyboard (the export itself is item 41). | 24-10-2026 |
+| 9 | Shortening "Private" and "Limited" in file and report names | 1 | A, plus a stop when two names would collide | A's shortening rule (whole words, any letter case) … | 24-10-2026 |
+| 10 | Building each report: local disk first, or in the client folder | 1 | A (build on local disk, copy once) | A (build each report on a local disk and copy it once), EXTENDED into a local workbench: a working folder on a local SSD holds a full mirror of the batch … | 24-10-2026 |
+| 11 | Step 3 progress, log and messages (and the Dry Run preview) | 1 | A's plain log without [DEBUG]; B's Clear Log and bar | Agree: A's plain, time-stamped log without the [DEBUG] lines on screen, plus B's Clear Log button and readable bar … | 24-10-2026 |
+| 12 | Step 4 screen: layout, which folder it reads, failure reasons | 1 | B's one-page layout with A's behaviour | Agree: B's one-page Step 4 layout with A's behaviour: the folder follows Step 1, the server is never read at start-up, and each failed report's reason shows on screen. | 24-10-2026 |
+| 13 | Step 4: which batch and which Version folders are offered | 1 | Third way: date in the folder name, shown, changeable | Agree with the third way: read the date and time written in the folder name, show which batch is in use, and let you pick another … | 24-10-2026 |
+| 14 | Step 4 list: ticks and the "last refresh" status | 1 | A, worded "copy made <time>" | A's list (one row per client, existing reports pre-ticked, ticks kept after a run), with each report's status taken from the item 35 stamp: 'Confirmed <date, time>', 'Fai … | 24-10-2026 |
+| 15 | Consolidated workbook: where it is saved, and the end of the run | 1 | B's fixed destination, plus A's "Open?" question | Agree: B's fixed destination (the batch is fixed when Start is pressed) plus A's 'Open the consolidated report?' question at the end, opening the copy on the server. | 24-10-2026 |
+| 16 | A record of each Step 4 run on disk | 1 | B's per-run log file, written as it goes, no figures | Agree: B's per-run log file in the batch folder, written line by line as the run goes, with each report's status and failure reason but no figures, ending with the issues … | 24-10-2026 |
+| 17 | Running jobs: background work, one job at a time, Stop, closing | 1 | B's workers and Stop, one lock, "Stop and exit?" | Agree: B's background model with Stop (taking effect even inside a wait … | 24-10-2026 |
+| 18 | An unexpected error inside the window | 1 | Follow Standard 13 (message box and log) | Agree: follow Standard 13 (a plain message box, the error written to the log, the window kept open where possible) … | 24-10-2026 |
+| 19 | Help texts, hover tips and message boxes | 1 | A's hover tips and Error/Warning titles, texts rewritten | Agree: A's hover tips and separate 'Error' and 'Warning' boxes, with every help text rewritten to match what the new tool actually does. | 24-10-2026 |
+| 20 | Dark mode: whether the first build needs it, and how to build it | 1 | Defer; build it later B's way | Build dark mode now, in the main flow (not deferred), the clean way: one colour scheme for the whole window, with no colours fixed inside single screens … | 24-10-2026 |
+| 21 | Opening Step 4 on its own, and its log file | 1 | B's way (one window, opened on Step 4) | Keep it, B's way: a second desktop shortcut that opens the main window straight on Step 4, with normal logging … | 24-10-2026 |
+| 22 | IMS Reco files saved with a "(1)" after the date | 2 | your call (GST rule) | A: accept IMS Reco files with '(1)' after the date … | 24-10-2026 |
+| 23 | Showing staff the files the tool could not use, with the naming hint | 2 | your call (GST rule) | Show the problem files at Step 2, before the run, on screen: each file by name, with the reason and the suggested correct name for reference … | 24-10-2026 |
+| 24 | The example file names shown on Step 1 | 2 | your call (GST rule) | B: the short list of example names. The other additions are not needed, because the source files are exports from Octa GST, which follow one simple naming rule … | 24-10-2026 |
+| 25 | The client key handed from Step 2 to Step 3, and where it is shown | 2 | your call (GST rule) | B with the 'Folder Name' column fixed: Step 2 stores each client's exact key in its row and hands it to Step 3 unchanged, and the 'Folder Name' column shows the real (sho … | 24-10-2026 |
+| 26 | How Step 2 shows each client's completeness | 2 | your call (GST rule) | A mix: B's three distinct colours (green Complete, orange Missing, red-orange anything else such as Has duplicates) with A's Missing column naming the missing types (e.g … | 24-10-2026 |
+| 27 | Shortest allowed client-folder name, and whether the state code may be cut off | 2 | your call (GST rule) | Mix of B and Other: the length box is held within 15-100 (values outside are refused), AND the state code is never cut: when a folder name must be shortened, only the cli … | 24-10-2026 |
+| 28 | Names of the three category folders - also written into the Links cells ⚠ | 2 | your call (GST rule) | A: the short category folder names GSTR3B / ITC / Sales … | 24-10-2026 |
+| 29 | Client's name in the category-folder names: per client, or for all clients only | 2 | your call (GST rule) | Drop it: no option to add the client's name to the category-folder names, neither the tick for all clients nor the per-client switch … | 24-10-2026 |
+| 30 | What must be chosen before a Dry Run | 2 | your call (GST rule) | Keep Dry Run (it removes the worry about what will be created), as a mix of A and B: it always runs with whatever is chosen so far (B), but never promises what Start won' … | 24-10-2026 |
+| 31 | Which template file types can be picked | 2 | your call (GST rule) | B: the Browse button offers .xlsx and .xlsm … | 24-10-2026 |
+| 32 | A Links cell inside merged cells, when a report is made without Excel ⚠ | 2 | your call (GST rule) | Falls away: item 93 removes the no-Excel way of building reports, which is the only place this merged-cell problem can occur. | 24-10-2026 |
+| 33 | Which template a batch uses if the Step 1 box is changed mid-run; order of clients | 2 | your call (GST rule) | B: one snapshot of all settings when Start is pressed … | 24-10-2026 |
+| 34 | How Step 4 recognises the ITC and Sales reports | 2 | your call (GST rule) | Step 4 recognises the ITC and Sales reports whatever the letter case of the name or ending, and accepts .xlsm reports as well as .xlsx (to match item 31) … | 24-10-2026 |
+| 35 | "Skip refresh": which existing refreshed copy may be reused | 2 | your call (GST rule) | Reuse an existing refreshed copy only after checking that its own refresh had passed, made exact by: (1) a STAMP: when a refresh passes every check, Excel writes a hidden … | 24-10-2026 |
+| 36 | Consolidated workbook: one row per client, or one row per Version folder | 2 | your call (GST rule) | One row per client, from the Version folder in use for that client under item 13's rule (by default the newest by the date written in its name, shown on screen and change … | 24-10-2026 |
+| 37 | Offer to install missing add-ons | 3 | Drop | Keep the install offer, changed: only while 'Use shared Python folder' is NO … | 24-10-2026 |
+| 38 | Live Setup checklist | 3 | Keep, with real checks off the window's line of work | Keep A's live Setup checklist, with proper checks (a folder must be a folder, a template must be a file) run in the background so an unreachable server never freezes the … | 24-10-2026 |
+| 39 | Workflow choice: "organise only" or "full pipeline" | 3 | Keep A's choice, with exact texts | Keep the choice before Step 3, with honest labels, because both happen: 'Organise only' stops after Step 3 (Step 4 is run later on its own) … | 24-10-2026 |
+| 40 | Warning about long client names | 3 | Keep, as one warning before Step 3 | No separate long-name warning (its trigger, the client name in category folders, was dropped in item 29) … | 24-10-2026 |
+| 41 | Export the ticked client list | 3 | Keep A's export, in UTF-8 | Yes: keep A's export of the ticked client list, saved in UTF-8 so every name survives. | 24-10-2026 |
+| 42 | Hand-written mouse-wheel rules | 3 | Drop | Drop: A's hand-written mouse-wheel rules exist only to patch Tkinter … | 24-10-2026 |
+| 43 | B's run history and "Last Run" column | 3 | Drop | Drop B's run history and 'Last Run' column: the dated batch folders show when a client was processed, the record file and run log (items 35, 16) keep the history inside t … | 24-10-2026 |
+| 44 | Step 4 fills itself when the window opens | 3 | Drop the start-up fill (A's way) | Drop the start-up fill (A's way): Step 4 reads the server only when asked, never when the app opens (consistent with item 12). | 24-10-2026 |
+| 45 | Fold-away help cards | 3 | Keep, texts rewritten | Keep fold-away help cards, with every text written to match what the new tool really does. | 24-10-2026 |
+| 46 | One-time import of the old settings file | 3 | Drop | Drop B's one-time import of A's old settings: runs happen on one PC, so typing the paths once (four plus the SSD working folder) is quicker and safer. | 24-10-2026 |
+| 47 | Settings and lists that nothing ever reads | 4 | Drop all | Drop all settings and lists that nothing ever reads (they contradict what the code does and mislead anyone reading it later). | 24-10-2026 |
+| 48 | Helper functions that are never called | 4 | Drop | Drop the helper functions that are never called … | 24-10-2026 |
+| 49 | Dead or unreachable code in the Excel and Step 4 parts | 4 | Drop | Drop the dead or unreachable Excel and Step 4 code … | 24-10-2026 |
+| 50 | A's own leftovers | 4 | Drop | Drop A's own leftovers (misleading pywin32 notice, test-only helpers, unused settings, pasted AI comments). | 24-10-2026 |
+| 51 | B's own leftovers | 4 | Drop | Drop B's own leftovers (unused signal hub and widgets, session file never read, empty temp folder made every run). | 24-10-2026 |
+| 52 | The old extractor entry file `extractor_main.py` | 4 | Drop it in both | Drop the old extractor start file extractor_main.py in both (item 21 keeps a second way into Step 4). | 24-10-2026 |
+| 53 | The old documents inside A, and the shared README | 4 | Drop all five | Drop all five old documents from the new project (A's March 2026 audit with its company-like name, the design note, the tests README, the AI tool's settings file, the REA … | 24-10-2026 |
+| 54 | Reopen where you left off | 5 | Defer | Defer to the Parking Lot: reopen on the last tab with a recent-folders list. | 24-10-2026 |
+| 55 | Failure reason inside the consolidated workbook | 5 | Defer | Build now, as part of item 10's whole-batch workbook: every row of a client without a confirmed refresh shows 'not refreshed' with the reason. | 24-10-2026 |
+| 56 | Content check of copied files | 5 | Defer | Build now: every file copied to the server is read back and compared by fingerprint with the original … | 24-10-2026 |
+| 57 | Clean-up after a client fails | 5 | Defer | Not needed: with the SSD working folder (item 10), a failed client never reaches the server, so there is nothing to clean up there … | 24-10-2026 |
+| 58 | A "Continue to extraction" button after an "organise only" run | 5 | Defer | Defer to the Parking Lot: a 'Continue to Step 4' button after 'Organise only' (the Step 4 tab does the same). | 24-10-2026 |
+| 59 | Start the refresh automatically after Step 3 | 5 | Defer | Not deferred: build it now. 'Full pipeline' starts the Step 4 refresh automatically after Step 3, for unattended overnight runs, relying on the agreed safety nets (refres … | 24-10-2026 |
+| 60 | A settings screen for the GST configuration | 5 | Defer | Build now, as part of idea 1: a settings screen to edit report profiles - file types found by pattern analysis, their naming, which are mandatory, how many files each may … | 24-10-2026 |
+| 61 | Read the refreshed figures without a second Excel | 5 | Defer | Defer: the first build reads the figures through Excel … | 24-10-2026 |
+| 62 | Skill files written from the lessons of A and B | 5 | Defer | Defer: instruction (skill) files written from these lessons after the first working build. | 24-10-2026 |
+| 63 | File-name patterns and how a name is read ⚠ | 6 | your call (confirm or correct) | Current Octa GST export names (fresh export checked by Sidhant on 24-10-2026 … | 24-10-2026 |
+| 64 | Expected return files and completeness ⚠ | 6 | your call (confirm or correct) | Row 1: for the Annual Statement the six types are required (GSTR-2B Reco, IMS Reco, GSTR-3B, Sales, Sales Reco, Annual Report), but the set of types must not be fixed in … | 24-10-2026 |
+| 65 | State codes, the client key, GSTIN/PAN and the period ⚠ | 6 | your call (confirm or correct) | Row 1 correct: all 18 state texts in the July 2026 run are standard full names, plus the '<State>_<label>' second registration … | 24-10-2026 |
+| 66 | Folder, file and report names | 6 | your call (confirm or correct) | All correct as seen in the July 2026 batch (run, client and Version folder names … | 24-10-2026 |
+| 67 | The template Links-sheet cells ⚠ | 6 | your call (confirm or correct) | Rows 1-3 correct, checked in both master templates: same cells … | 24-10-2026 |
+| 68 | Extraction cells and the consolidated-workbook columns ⚠ | 6 | your call (confirm or correct) | Rows 1-6 correct: each cell reads what its label says (Diff GSTR-3B J15:L15 = totals of the IGST/CGST/SGST differences … | 24-10-2026 |
+| 69 | When a refresh counts as successful, and how figures are shown ⚠ | 6 | your call (confirm or correct) | From the real templates (shown to him in the gist, no objection): a report counts as refreshed only when Excel confirms every query finished without error after the start … | 24-10-2026 |
+| 70 | Waits, the refreshed-copy suffix, key presses and Excel limits ⚠ | 6 | your call (confirm or correct) | Row 1: one fixed name '<report>_Refreshed' with no time … | 24-10-2026 |
+| 71 | C1 - Client files and templates are never changed | 7 | Agree | Agree (C1): after any run, every file in the source folder and both templates are exactly as before (same fingerprint) … | 24-10-2026 |
+| 72 | C2 - Every client file found is accounted for | 7 | Agree | Agree (C2): every file in the source folder is either used, or listed on screen with the reason it was not (unrecognised, outside the period, multi-registration Annual Re … | 24-10-2026 |
+| 73 | C3 - Clients shown separately are kept separately | 7 | your call (GST rule) | Agree, in Sidhant's item 9 form (C3): two clients shown as separate rows on Step 2 never share a client folder or a report … | 24-10-2026 |
+| 74 | C4 - Templates are checked before any report is built | 7 | Agree | Agree (C4): before any report is built, each template is checked (it opens as an Excel workbook, contains Power Query queries, and has its Links sheet) … | 24-10-2026 |
+| 75 | C5 - No Power Query workbook is ever saved by openpyxl | 7 | Agree | Agree (C5): no workbook containing Power Query is ever saved without Excel (item 93) … | 24-10-2026 |
+| 76 | C6 - The user's own Excel and other programs are never touched | 7 | Agree | Agree, reworded for item 95 (C6): the tool never takes over, hides or closes an Excel the user has open, and never touches other programs' windows … | 24-10-2026 |
+| 77 | C7 - A report is shown as refreshed only when Excel confirmed the refresh | 7 | Agree | Agree, reworded for items 21 and 35 (C7): a report is shown as 'confirmed' only when Excel itself confirmed that every query finished without error (and the stamp is writ … | 24-10-2026 |
+| 78 | C8 - Each consolidated column holds the figure from the cell your list names | 7 | your call (GST rule) | Agreed, worded to match item 68: every column of the consolidated workbook holds the figure read from exactly the sheet and cell the approved list names for that column - … | 24-10-2026 |
+| 79 | C9 - Every Step 4 client gets its row, and one bad value never loses the workbook | 7 | Agree | Agree (C9): every client processed in Step 4 gets its row in the consolidated workbook, and a problem with one value or one client never stops the workbook being written … | 24-10-2026 |
+| 80 | C10 - Statuses and counts tell the truth | 7 | Agree | Agree (C10): a client, report or run is shown as 'Success' only when every part succeeded … | 24-10-2026 |
+| 81 | C11 - No file is ever silently overwritten | 7 | Agree | Agree, reworded in the item 9 style (C11): a run never silently overwrites a file … | 24-10-2026 |
+| 82 | C12 - No half-written file ever sits under a final name | 7 | Agree | Agree (C12): no file under its final name is ever incomplete: every copy and save is written under a temporary '.partial' name, verified by fingerprint (item 56), then re … | 24-10-2026 |
+| 83 | C13 - Paths that are too long are found before the run starts | 7 | Agree | Agree, reworded (C13), changed by him on 24-10-2026: the pre-flight check (Dry Run and again at Start) works out every path the run will create … | 24-10-2026 |
+| 84 | C14 - Only one run at a time works on a batch | 7 | Agree | Agree (C14): only one run at a time works on a batch or drives the tool's Excel … | 24-10-2026 |
+| 85 | C15 - Every error is shown; the tool never stops silently | 7 | Agree | Agree (C15): every error, at start-up, in a button or in a background job, is shown or listed and written to the log … | 24-10-2026 |
+| 86 | C16 - Client data is written only to the target folder and the user's own folder | 7 | Agree | Agree, reworded for item 97 (C16): client names, file names and figures are written only to the chosen target folder, the SSD working folder, the shared app folder C:\Use … | 24-10-2026 |
+| 87 | C17 - "Resume" continues an interrupted run | 7 | Agree | Keep Resume (C17), redefined for the SSD design: after an interrupted run, one click processes only the clients marked 'not done', into the same batch … | 24-10-2026 |
+| 88 | What would you add? | 7 | your answer (add any) | Promise 1 (accuracy must be flawless): before any report is copied from the SSD workbench to the server, the tool checks that every Links cell holds the real server path … | 24-10-2026 |
+| 89 | Window toolkit: PySide6, PyQt5 or Tkinter | 8 | PySide6-Essentials (your standard) | PySide6 (the PySide6-Essentials package), as the standard says. | 24-10-2026 |
+| 90 | Windows 10 or 11, and the PySide6 version | 8 | Pin PySide6 6.12.x while any PC runs Windows 10 | The run PC is on Windows 10, so PySide6 is pinned to 6.12.x (the last Qt line that supports Windows 10) until no PC that runs the tool is on Windows 10. | 24-10-2026 |
+| 91 | Python version and the shared portable runtime | 8 | Python 3.14 in the shared runtime only | Python 3.14, the regular build (not the free-threaded '3.14t'), kept on its latest patch release … | 24-10-2026 |
+| 92 | The package list | 8 | Follow Standard 13 (exact versions, no pytest or lxml) | Claude's call at Sidhant's request: exact versions of only the three packages the tool imports (PySide6-Essentials 6.12.x, openpyxl, pywin32), pinned to the versions test … | 24-10-2026 |
+| 93 | Excel libraries, and the Power Query safety check | 8 | Follow Standard 12 (no openpyxl fallback) | Agree: follow Standard 12. Reports are only ever built and saved by Excel itself … | 24-10-2026 |
+| 94 | How the tool drives Excel | 8 | Follow Standard 12 in full, plus time limits | Agree, adjusted for item 95: the tool always uses its own separate Excel, never the user's … | 24-10-2026 |
+| 95 | How a refresh is started and confirmed | 8 | Standard 12's RefreshAll method | Keep Alt+A, R, A as the DEFAULT way to start the refresh (Excel's own refresh command only as an optional setting) … | 24-10-2026 |
+| 96 | How users start the tool | 8 | Follow Standard 13 (one .bat and shortcut) | Yes: Standard 13: a desktop shortcut (Run: Minimized) to 'Run Statement Maker.bat', no console window, error hooks at the top of main.py … | 24-10-2026 |
+| 97 | Where settings, logs and temporary files live | 8 | Follow Standard 13 (%LOCALAPPDATA%) | Changed from Standard 13 at Sidhant's suggestion: the shared setup everyone must use (folders, templates, SSD working folder, later the naming rules of idea 1) and the st … | 24-10-2026 |
+| 98 | What the program log may contain | 8 | Names and paths, no figures | Log every step the app performs (what it did, for which client and file, and the result), with client names and paths … | 24-10-2026 |
+| 99 | Testing, and what becomes of A's 288 tests | 8 | Follow your pipeline; A's tests as a reference note | Claude's call at Sidhant's request: follow the pipeline (Fable writes the tests first from the approved plan, set up as Standard 13 says) … | 24-10-2026 |
+| 100 | The ITC report template | 9 | Provide anonymised | Use the master ITC template from his Formats folder as it is (he also allows any non-refreshed report copy, which holds only the Links values) … | 24-10-2026 |
+| 101 | The Sales report template | 9 | Provide anonymised | Use the master Sales template from his Formats folder as it is … | 24-10-2026 |
+| 102 | One refreshed ITC report and one refreshed Sales report | 9 | Provide anonymised | Take any real refreshed pair (his words) … | 24-10-2026 |
+| 103 | One sample of each of the six input file types | 9 | Provide anonymised | Claude makes anonymised samples from one real file of each of the six types: same sheets, headings and layout, with invented names, GSTINs and figures … | 24-10-2026 |
+| 104 | A names-only listing of one source folder and one finished batch | 9 | Provide anonymised | Claude writes the names-only listing from the real source folder and the July 2026 batch, with invented names of the same length and the real shape and length of the root … | 24-10-2026 |
+| 105 | Old settings files and old logs from office PCs | 9 | Not needed | Not needed (agreed). | 24-10-2026 |
+| 106 | Reference notes I can write into context/ from the code | 9 | Write notes 1 to 4 | Notes 1-4, not 5 (agreed), plus note 6: what the templates' queries actually do (which file each reads, where the financial year comes from), written from the real templa … | 24-10-2026 |
+| 107 | Where real client files will live during the build | 9 | A folder on your own PC, outside the project | A folder of real-file copies on his own computer, outside the project and never on GitHub (for example on the E: drive) … | 24-10-2026 |
+| 108 | The tool's name | 10 | "Annual Statement" ("2.0" in the title only) | Name the tool 'Statement Maker' (its scope is expanding beyond the annual statement): used for the app folder, the 'Run Statement Maker.bat' launcher, the desktop shortcu … | 24-10-2026 |
+| 109 | Should the new repository be private? | 10 | Make it private now | Yes: Sidhant will make the new repository private himself. | 24-10-2026 |
+| 110 | Keep your toolkit files in .build-docs/toolkit/ after setup? | 10 | Keep them | Keep the five toolkit files in .build-docs/toolkit/ as a record of which version of the standards the project started from (they never reach users' PCs). | 24-10-2026 |
+| 111 | A ready-to-paste Rebuild Prompt for two audits | 10 | Yes, prepare it | Yes, prepare it: Claude Code, in Phase 5 as proposed - only what the merge makes untrue is changed (project name, opening sentence, reading-list point 2), with every chan … | 24-10-2026 |
+| 112 | A .gitignore in the new project from the first commit | 10 | Yes, add it | Yes: add a .gitignore from the first commit that keeps Excel files, CSV, PDF, logs, settings and compiled Python files out of git everywhere, except what is deliberately … | 24-10-2026 |
+| 113 | The old public history (advice only) | 10 | (b) Make both private now | (b) Sidhant will make both old repositories private himself. | 24-10-2026 |
+| 114 | What the tool does, in your own words | 11 | your answer | In his words (drafted from his answers, corrected by him): Statement Maker takes a financial year's Octa GST exports for all his clients and checks that each client's set … | 24-10-2026 |
+| 115 | The problem you first built it for, and how it has changed | 11 | your answer | (a) To automate a boring, repetitive task - nothing else … | 24-10-2026 |
+| 116 | Parts of the tool you never use | 11 | your answer | (a) Used: Dry Run (item 30); Step 4 on its own (item 21) … | 24-10-2026 |
+| 117 | Who uses the tool, and how comfortable they are with computers | 11 | your answer | (a) Mainly Sidhant himself; staff run it only on his instructions, with hand-holding … | 24-10-2026 |
+| 118 | How often, and in which months | 11 | your answer | (a) About 4-5 runs a year (item 95); the July 2026 run was one batch of all 126 clients … | 24-10-2026 |
+| 119 | Which project is in daily use now, and since when | 11 | your answer | (a) A for the July 2026 run (from his files: an IMS Reco '(1)' copy was accepted, which only A does, and the batch has the long category names A used until 26-07-2026) … | 24-10-2026 |
+| 120 | Your actual workflow, click by click | 11 | your answer | (a) Step 4 is repeated often, after fixing data (item 21) … | 24-10-2026 |
+| 121 | How you use Step 4 in practice | 11 | your answer | (a) Yes: he comes back to a batch for weeks after the run (July 2026 batch: hand refreshes until mid-September) and wants fresh consolidated figures then (item 21, 'Colle … | 24-10-2026 |
+| 122 | Which Windows, and which screens | 11 | your answer | (a) The run PC is on Windows 10 (item 95) … | 24-10-2026 |
+| 123 | Which Excel, in which language, set up how | 11 | your answer | (a) Excel 2021 on the run PC (item 95). (b) English: Alt+A, R, A works every time (item 95) … | 24-10-2026 |
+| 124 | Which Python, and how people start the tool today | 11 | your answer | (a) He runs it himself with 'python main.py' in a console … | 24-10-2026 |
+| 125 | Office PCs only, or also from outside over a VPN | 11 | your answer | (a) Nobody runs it from outside the office … | 24-10-2026 |
+| 126 | Your shared apps folder | 11 | your answer | (a) No: the shared Python folder (_runtime) is not set up yet … | 24-10-2026 |
+| 127 | Where client files sit while the tool works | 11 | your answer | (a) Source: one flat folder per financial year on a local disk (E:) … | 24-10-2026 |
+| 128 | How big a typical run is | 11 | your answer | (a) July 2026: 126 clients in one batch, 2,497 files, about 20 per client (15 GSTR-3B months + one each of the five other types) … | 24-10-2026 |
+| 129 | Two people, or two jobs, at the same time | 11 | your answer | (a) No: runs happen on one PC, overnight (item 95) … | 24-10-2026 |
+| 130 | What you still do by hand after the tool finishes | 11 | your answer | Seen in his files: in the consolidated workbook he adds GSTR-9 and GSTR-9C applicability columns (turnover above Rs 2 crore / Rs 5 crore) … | 24-10-2026 |
+| 131 | Anything you wish it also did | 11 | your answer | Idea 1 (make the app configurable, with report profiles) and idea 2 (period-aware scanning), drag-and-drop on path boxes (item 144), and a best-in-class, butter-smooth UX … | 24-10-2026 |
+| 132 | Gaps that hurt you: the Step 4 figures | 11 | your answer | (a) He does not remember noticing it, or whether such figures reached clients … | 24-10-2026 |
+| 133 | Gaps that hurt you: the refresh and your own Excel | 11 | your answer | (a)-(e) He does not remember any of these happening … | 24-10-2026 |
+| 134 | Gaps that hurt you: files, folders and counts | 11 | your answer | (a)-(c) He does not remember any of these happening … | 24-10-2026 |
+| 135 | Gaps that hurt you: starting, closing and the screens | 11 | your answer | He does not remember meeting any of these. | 24-10-2026 |
+| 136 | Protections that have saved you | 11 | your answer | He does not remember one visibly saving him … | 24-10-2026 |
+| 137 | How client and state names are really written in your file names | 11 | your answer | Source files are Octa GST exports named by one fixed rule (item 24) … | 24-10-2026 |
+| 138 | File types, duplicates and periods in a real source folder | 11 | your answer | (a) Yes, '(1)' downloads occur for all six types … | 24-10-2026 |
+| 139 | The worst data you have received | 11 | your answer | (a), (b) 'Just don't ask': people really don't know how to maintain data … | 24-10-2026 |
+| 140 | Your templates: how their queries find the client files | 11 | your answer | (a) Only the named file, except GSTR-3B: that query reads every file in the GSTR-3B folder, sub-folders included, that has an 'ITC Claims-Actions' sheet (hidden files ski … | 24-10-2026 |
+| 141 | Your templates: format, refresh settings and the success cell | 11 | your answer | (a) .xlsx with no macros (.xltx did not work properly) … | 24-10-2026 |
+| 142 | A's screens: what you like and dislike | 11 | your answer | Beyond what is already decided (B's frame and layout with A's behaviour, A's live checklist and hover help, dark mode): he wants the app to be the best in its functionali … | 24-10-2026 |
+| 143 | B's screens: what you like and dislike | 11 | your answer | (a) As item 142. (b) No longer relevant: the new window is built fresh, and Browse buttons must be clearly visible in both colour schemes … | 24-10-2026 |
+| 144 | How you want the new tool to look and behave | 11 | your answer | (a) One window with step tabs in B's frame (items 2, 12) … | 24-10-2026 |
+| 145 | How the refresh came to be done this way | 11 | your answer | (a) Yes: early versions refreshed with Excel's RefreshAll from code … | 24-10-2026 |
+| 146 | Why there are two versions | 11 | your answer | (a) The PyQt5 rewrite (B) was made to merge Tab 4 (the separate extractor) into the main app and to make it look better … | 24-10-2026 |
+| 147 | Records that live only with you | 11 | your answer | (a) No: no pre-git versions or old test files remain … | 24-10-2026 |
+| 148 | Two confidentiality facts only you know | 11 | your answer | (a) Not settled: he could not find the name … [partly answered] | 24-10-2026 |
+| 149 | What surprised you, and what you had forgotten | 11 | your answer | Not being a coder, he did not know so much could be done with Python … | 24-10-2026 |
+| 150 | What you would do differently, and the principle above all | 11 | your answer | (a) Not answered. (b) No single mistake: 'mistakes make you a better person' … | 24-10-2026 |
+| 151 | Office-PC time for the checks the build needs | 11 | your answer | (a) After December, perhaps January 2027 - outside the annual-return season … | 24-10-2026 |
+| 152 | Your top three priorities | 11 | your answer | He could not pick ('I don't know what to say') … [not sure yet] | 24-10-2026 |
+| 153 | The one thing that must work perfectly (Zero-Defect Requirement) | 11 | your answer | His words: 'any functionality in this app' - every function of the app must work perfectly … | 24-10-2026 |
 
 ## Part 1 - Same job, done differently
 
@@ -289,7 +353,7 @@ A's way: A prints a report of each add-on (A:main.py:66-73). If anything is miss
 B's way: B checks nothing. Without pywin32 its window cannot open at all, on any PC, because pywin32 is loaded with no fallback (B:power_query_extractor/core/report_processor.py:11-15, reached through B:gui/controllers/extraction_controller.py:10). Its advice, "pip install PyQt5 openpyxl", does not fix the problem (B:main.py:49-54), and B:requirements.txt:13-14 lists pywin32 only as a comment. B does survive a start without a console (B:main.py:12-13), and it creates no folders in the program folder (both tools write their log file, `gst_organizer.log`, into whatever folder they were started from).
 Evidence: RAN (comparison §3, check C3-1, re-run independently): B's window code fails with "No module named 'pythoncom'", while A's loads. A's checks came in `f363946`, `be6418c` and `a5ad487` (26-07-2026) and are covered by 32 tests. A's check only looks for pywin32's files without loading them, so a damaged pywin32 passes it, and the reports are then built without Excel and lose their Power Query (A-G7, RAN). Item 96 settles the start-up method by Standard 13: a double-click launcher, and "Nothing is installed on users' PCs" (`rebuild_pipeline_FINAL.md:924`), which rules out A's install offer (asked in item 37). RAN (comparison §4, rows 4B-5 and 4B-6): with no console, A stopped with an error and B ran on; A added `logs` and `temp` to the program folder, B added nothing. Comparison §3 row 1; §5 Category 15.
 Recommendation: A's add-on check and its clear refusal on Windows, without the install offer, plus B's console-safe start that creates no folders in the program folder. Only A tells the user exactly what is missing and keeps reports from losing Power Query, and B's start is the one that survives Standard 13's no-console launch.
-Your answer: ____
+Your answer (24-10-2026): Agree, with a change. Keep A's add-on check and clear refusal, and B's start without the black console window. The shared Python folder (_runtime) is not set up yet: add a setting 'Use shared Python folder' (Yes/No), set to NO for now. While it is NO, if pywin32 or another needed package is missing, offer to install it: only the 3 packages the tool needs, at fixed versions, never the test tools. When it is YES, no install offer, only the clear message.
 
 ### 2. The main window: size, top bar, status bar, tab dots          Part 1 · refs A-F2, B-F1, B-F29, A-R131, A-R155, A-R156, A-R157, B-R129, B-R140, B-R143, A-G63, B-G68
 What this is about: How the window around the four steps looks, including the status bar (the line of text along the bottom of the window). Example: a partner opens the tool on a 1366×768 laptop (a common laptop screen size, in dots) at a client's office during an audit visit. The whole window and its controls must fit on that screen.
@@ -297,7 +361,7 @@ A's way: The window opens at 1200×800 and can shrink to 1000×700. At that smal
 B's way: The window opens at 1400×900, and its smallest size, 1200×800, is taller than a 1366×768 screen (B:gui/pyqt_main_window.py:70-118). It has File and View menus, and its status bar reports results ("Scan complete: 3 clients, 19 files"). A coloured dot on each tab means "this step has run", not "this step worked". A dot turns green after an empty scan, a failed run or a stopped run, and is never reset. Step 2's dot never turns green at all (B:gui/pyqt_main_window.py:567-590).
 Evidence: RAN (comparison §6, rows D4, D7 and D8; B audit, B-F29). Both tools call themselves "GST File Organizer" (v3.0 and v4.0). The new tool's name is item 108. Comparison §3 row 2; §5 Category 16.2.
 Recommendation: B's frame (menus, and a status bar that reports results), with a smallest size that fits a 1366×768 screen and without the tab dots. A's status bar hides results behind the tab name, B's smallest size does not fit common laptops, and B's dots show green after failures (RAN).
-Your answer: ____
+Your answer (24-10-2026): B's frame (File/View menus, a status bar that reports results), without the tab dots. No need to fit 1366×768: every screen in use is at least Full HD (1920×1080). _(Note: display scaling to confirm at item 122(b).)_
 
 ### 3. Step 1 (Setup) screen: layout, Browse buttons, path problems  Part 1 · refs A-F3, B-F3, A-R134, B-R133, B-R141, A-G20, B-G50, B-G67
 What this is about: Step 1 is the first screen. There you choose the source folder of downloaded returns, the ITC and Sales templates, and the target folder. Example: the assistant points the tool at the folder holding <Client A>'s GSTR-2B and GSTR-3B downloads for FY 2025-26.
@@ -305,7 +369,7 @@ A's way: All controls sit in one scrolling column, and all four Browse buttons a
 B's way: The controls sit in two columns with a draggable divider, with the help cards and a scan log on the right. Three of its four Browse buttons are white on white: they work, but cannot be seen (B:gui/widgets/colored_section.py:62, since `7e09e5c`). A path problem shows only in a "Warning" box after SCAN or START is pressed (B:gui/pyqt_main_window.py:218-225, 352-361). The note under the include-name tick promises a long-name warning and per-client settings, and B has neither (B:gui/views/setup_view.py:385).
 Evidence: RAN (B audit, pixel check: the invisible buttons). RAN (comparison §6, screens A06b and B06; rows D15 and D17). Two faults are shared and need fixing whichever screen is kept. In both, the Scan button sits below the visible part of the page at the opening window size. Both also refuse a folder pasted with the quote marks that Explorer's "Copy as path" adds, reporting it as "not found" (RAN; comparison §6 D22; §3, note 3.5 point 7). B's RE-SCAN button runs exactly the same scan as SCAN FILES (B:gui/pyqt_main_window.py:124-125, READ; B audit Appendix X6, Q45), so one Scan button is enough. Comparison §3 row 3; §6.5.2. Which template file types the picker offers is item 31.
 Recommendation: A's Step 1 (one column, visible buttons, problems shown beside the box if you keep the live checklist in item 38), with the Scan button brought into view and pasted quote marks removed. B's hidden buttons cannot be found unless someone is told where they are, and its note promises features B does not have.
-Your answer: ____
+Your answer (24-10-2026): Agree: A's one-column Step 1 with all Browse buttons visible and path problems flagged as you type, with the Scan button brought into view and pasted quote marks removed automatically.
 
 ### 4. Remembering your settings: what is kept, and when it is saved  Part 1 · refs A-F27, B-F27, A-R114, A-R115, A-R116, A-R119, B-R65, B-R115, B-R116, A-G24, B-G36, B-G76
 What this is about: The tool keeps your four paths (the source and target folders and the two templates), the processing mode and your other choices in a small settings file, so the next session opens where you left off. Example: on Monday the assistant types the path of the FY 2025-26 folder and closes the tool. On Tuesday the path should still be there.
@@ -313,7 +377,7 @@ A's way: A keeps one file, `~/.gst_organizer_cache.json` (A:gui/utils/cache_mana
 B's way: B keeps a folder, `~/.gst_organizer/`, with `settings.json` inside (B:models/cache_manager.py:16-62). It saves at every scan, after processing, on the dark-mode switch, from File > Save Settings and on closing, and it keeps the Step 4 options (B:gui/pyqt_main_window.py:194-214, 601-608).
 Evidence: RAN (comparison §5, Category 14.3): in A, a path typed just before closing was lost; B kept it. RAN (§5, 14.6): B's second start showed the custom suffix, while A's showed the default. Both share two faults: a damaged file silently resets to the defaults, and a wrongly typed value stops the start (A-G24 / B-G36). Where the file lives is settled by Standard 13: each user's own program-data folder on Windows (`%LOCALAPPDATA%\<App>\`, `rebuild_pipeline_FINAL.md:1039-1040`), decided in item 97. B's one-time import of A's settings file is item 46. One more shared fault (LOW): "Skip refresh" is passed through a program-wide setting held in memory, so the tick on screen and the setting actually used can disagree - in A a value set in the extraction settings file takes effect while A's box, which always starts unticked, shows "off" (comparison §9, L15; B-G76). Comparison §3 row 27; §4 row 4B-13.
 Recommendation: B, because it saves on closing and keeps the Step 4 options, so nothing typed is lost between sessions (RAN), while A forgets typed paths and the Step 4 options.
-Your answer: ____
+Your answer (24-10-2026): Agree: B's way. Settings are saved on closing, and the Step 4 options are kept between sessions.
 
 ### 5. Number boxes: client-folder length and Step 4 wait time       Part 1 · refs A-F6, B-F4, A-F21, B-F19, A-R36, A-R72, B-R65, B-R68, B-R138, A-G26, B-G24
 What this is about: Two boxes take a number. One sets the longest client-folder name (default 35). The other sets how many seconds Step 4 waits for Excel during a refresh (default 10). Example: an assistant types "3O", with the letter O, for 30 seconds, or empties the box by mistake.
@@ -322,7 +386,7 @@ B's way: Both boxes accept only whole numbers inside their range: length 15 to 1
 Other choices: Drop the wait box, if item 95 adopts Standard 12's way of refreshing (Excel reports when the refresh has finished, so no fixed wait may be needed).
 Evidence: RAN (comparison §4, rows 4A-20, 4B-11 and 4B-20): typing 8 kept 8 in A, while B stayed at 35. RAN (A audit): text in A's length box breaks saving and Step 3. RAN (§5, Category 9.6): the wait box. The lowest length allowed is a GST rule and is item 27: at 8 or less (9 or less for a three-letter state code), the state code can be cut off and two clients can share one folder (RAN, comparison §4.4.3). Comparison §3 rows 6 and 21.
 Recommendation: B's kind of box (whole numbers only, kept within its range - for the length box, the lowest value you choose in item 27 - with a wait of 5 to 120 seconds), active whenever its value is used. A's boxes accept text that breaks saving or Step 3 (RAN), and B's greyed-out but still-used length box misleads.
-Your answer: ____
+Your answer (24-10-2026): Agree: both boxes accept whole numbers only, within their range, so a typo cannot break saving or stop a run; a box is never greyed out while its value is used. Lowest length per item 27; the wait box may go if item 95 removes fixed waits. _(Note: the Step 4 number box becomes 'Maximum time per report', default 300 s (item 95).)_
 
 ### 6. Scanning the source folder: speed, and keeping the window alive  Part 1 · refs A-F7, B-F6, B-F7, B-F34, A-R109, A-R110, B-R1, B-R3, B-R111, A-G48, B-G56
 What this is about: Step 1 reads every file in the source folder, often on the network share, with thousands of downloads for the season. Example: 2,500 GSTR-2B, GSTR-3B and sales files for 150 clients.
@@ -330,7 +394,7 @@ A's way: A reads the folder's list once and reuses the file sizes that the list 
 B's way: B searches the folder three times. Then, one file after another, it asks for each file's size and reads its first bytes (B:utils/helpers.py:255-257; B:core/file_parser.py:171-215). It does all this in a background worker, so the window stays usable, with a live scan log and a percentage in the status bar (B:gui/controllers/scan_controller.py:57-94; B:gui/pyqt_main_window.py:227-242).
 Evidence: RAN (comparison §4, row 4A-19): for 100 made-up files with a 20 ms delay added per file, A took 0.15 s and B 2.03 s. RAN (§5, Category 13.2): 0.11 s against 1.08 s. A's commit `4f84ba9` reports 41 s for 2,508 files on the real share, against about 11 minutes projected for the old one-by-one reads. RAN (B audit): B's one-line-per-file log slows down as it grows (1,000 lines took 5.6 s). Comparison §3 rows 7 and 34.
 Recommendation: A's way of reading the folder, run in a background worker with B's live progress shown as a count rather than one log line per file. A's reading was 10 to 13 times faster in the timed runs, B's worker keeps the window responsive, and the two fit together.
-Your answer: ____
+Your answer (24-10-2026): Agree: A's fast way of reading the folder, run in the background so the window stays responsive, with a live file count.
 
 ### 7. Problem files in the source folder: dropped silently or counted  Part 1 · refs A-F7, B-F6, B-F7, A-R8, A-R9, A-R10, A-R31, A-R132, B-R1, B-R2, B-R3, B-R4, B-R29, B-R140, A-G37, B-G22, B-G46
 What this is about: Some files in the folder cannot be used: a download that broke off, a portal error page saved as .xlsx, or one of the temporary "~$" lock files Excel makes while a workbook is open. Example: <Client A>'s July GSTR-3B is a 500-byte broken download. Should anyone be told?
@@ -339,7 +403,7 @@ B's way: B lists such files as problems ("File too small to be valid Excel", "In
 Other choices: A third way: list every rejected file by name, with its reason, on screen - something neither tool does today.
 Evidence: RAN (comparison §5, Categories 1.2 to 1.5 and 5.2; §4, rows 4B-17 and 4B-18): the 500-byte file was invisible in A and counted in B. B changed to this in `7e09e5c` (08-02-2026). At the split, both dropped such files silently. On Windows both tools find a capital ".XLSX" name (HIGH, not run on Windows; on Linux, B misses it, RAN). Whether the list of unrecognised files, with its suggested names, goes into the summary workbook (the workbook Step 3 writes with a summary of the run) is item 23.
 Recommendation: B's rule (count every rejected file and skip "~$" lock files), plus an on-screen list naming each rejected file and the reason, and A's stay-on-Step-1 after a scan that finds nothing, because in A a broken download disappears and the client simply has one month less (RAN), while B at least counts it.
-Your answer: ____
+Your answer (24-10-2026): Agree: count every rejected file and list each by name with its reason on screen; skip '~$' lock files; if a scan finds nothing usable, stay on Step 1.
 
 ### 8. Step 2 client list: what is ticked, sorting, export, keyboard  Part 1 · refs A-F8, B-F8, A-F12, B-F10, A-R138, A-R142, B-R134, A-G31, A-G62, B-G73
 What this is about: After the scan, Step 2 lists every client with its status, and you tick the clients to process. Example: of 150 clients, 30 still lack their IMS reconciliation file. You want to process only the complete ones today and send the list of ticked clients to a colleague.
@@ -347,7 +411,7 @@ A's way: No client is ticked until you tick it (RAN, comparison §5, Category 16
 B's way: After every scan, every client is ticked, complete or not, so pressing START at once also processes the incomplete clients (B:gui/views/validation_view.py:370). Clicking a heading sorts the rows, but it sorts numbers as text (B:gui/views/validation_view.py:262, 321-324, 369). EXPORT LIST is drawn but connected to nothing (B:gui/views/validation_view.py:186-221). The buttons work from the keyboard.
 Evidence: RAN (B audit): START processed every client. EXPORT LIST has no action connected, re-checked in comparison §3 row 12. RAN (comparison §6, rows D30, D35 and D36). B's own `a62d3cc` says "All functionality has been reimplemented", yet the export was lost. Six things on this screen are decided elsewhere: what the "Missing" column shows (names or a count), the status colours and "Complete Only" (item 26); the "Folder Name" column and the client key (the client's name plus its state code, which ties its files together) handed to Step 3 (item 25); the processing order (item 33); B's "Last Run" column (item 43); whether to keep the export (item 41); and the per-client name toggle (item 29). Comparison §3 rows 8 and 12; §6.5.3.
 Recommendation: A's list (nothing ticked until you choose), with buttons that also work from the keyboard, because B's all-ticked default sends incomplete clients through Step 3 unless someone unticks them (RAN); the export itself is item 41.
-Your answer: ____
+Your answer (24-10-2026): Agree: A's list with nothing pre-ticked, and buttons that also work from the keyboard (the export itself is item 41).
 
 ### 9. Shortening "Private" and "Limited" in file and report names   Part 1 · refs A-F13, B-F12, A-R19, A-R20, B-R19, B-R20, A-G8, A-G40, B-G15, B-G18, B-G80
 What this is about: When Step 3 copies a client's files and names its reports, it turns "Private" into "Pvt" and "Limited" into "Ltd" to keep paths short. Example: one GSTR-2B download gives the client as "<CLIENT A> PRIVATE LIMITED" in capitals, and another client is "<Privateer Traders>".
@@ -355,7 +419,7 @@ A's way: A shortens whole words only, in any letter case (A:utils/helpers.py:91-
 B's way: B shortens only the exact spellings "Private" and "Limited" (capital first letter, the rest small), anywhere in the text, even inside another word (B:utils/helpers.py:77-79). "PRIVATE LIMITED" stays as written, so the client folder says "Pvt Ltd" while its files and reports say "PRIVATE_LIMITED". That adds 8 characters every time the name appears, against Excel's path limit of about 218 characters ⚠. "Privateer" becomes "Pvter".
 Evidence: RAN (comparison §3 row 13; §5, Category 2.2): the examples above. 3 of A's tests fail on B's code. RAN (A audit's checker; §5, 2.2): in A, two spellings of one client in one state get identical copy and report names, so the second overwrites the first while both show "Success". In B only the client folder is shared. This is not a GST rule. The client-folder name with its state code is built by a separate function that is identical in both (A:utils/helpers.py:620-644 = B:utils/helpers.py:513-537), and the report-name pattern does not change. Both also share one fault whichever rule is kept: a name with a dot in it (for example "<Client A> Pvt. Ltd") is only partly cleaned, and a name ending in a dot is cleaned differently on different Python versions (A-G40 / B-G18, B-G80; RAN in both audits). How two spellings of one client are told apart (the client key with its state code) stays your call in items 65 and 73.
 Recommendation: A, plus a check that stops the run when two clients would get the same folder, file or report name, because A's rule is tested and keeps each client's names consistent, and the overwrite it exposes comes from the shared folder-collision gap (A-G8 / B-G15), which needs its own guard.
-Your answer: ____
+Your answer (24-10-2026): A's shortening rule (whole words, any letter case). Changed: when two clients would end up with the same folder, file or report name, do NOT stop the run; skip BOTH of those clients, show them clearly as skipped with the reason (on screen and in the summary), and continue the run for everyone else. _(Note: keep contracts C3 (item 73) and C11 (item 81) consistent with this.)_
 
 ### 10. Building each report: local disk first, or in the client folder  Part 1 · refs A-F14, B-F13, A-F15, B-F14, A-R98, A-R111, B-R52, B-R105, A-G12, B-G5, B-G26
 What this is about: Step 3 copies the ITC and Sales templates, writes the client's folder paths into each copy's Links sheet and saves it as the client's report. Example: Excel fails half-way through <Client A>'s ITC report on the network share.
@@ -363,7 +427,7 @@ A's way: A builds each report in a temporary folder on the local disk (`%TEMP%\g
 B's way: B copies the template straight to the report's final name and fills it there (B:core/excel_handler.py:122-129, 227-231). If filling fails, an unfilled template stays behind under the report's name, and B's Step 4 later lists it as a report to refresh (B-G5; B:gui/pyqt_main_window.py:461). B also works out the batch folder again for every client (B:core/file_organizer.py:146-179).
 Evidence: RAN (comparison §4 row 4A-2; §5, Categories 8.8 and 12.3): with a damaged template, A left nothing behind, while B left an unopenable "ITC_Report_…" file. RAN (§5, 13.3): when a newer batch folder appeared mid-run (a colleague's run), one B run was split over two batch folders; A kept it in one. A has one limit of its own: a network copy broken half-way can still leave a partial file (A-G12). `12d505f` asks for one report to be checked on Windows before bulk use. The promise behind this item is contract C12 (item 82).
 Recommendation: A. A failed report never leaves a fake report for Step 4 to refresh, and one run always stays in one batch folder (both RAN).
-Your answer: ____
+Your answer (24-10-2026): A (build each report on a local disk and copy it once), EXTENDED into a local workbench: a working folder on a local SSD holds a full mirror of the batch. The working folder is a setting with NO default path (a network folder is refused there). Step 3 builds the whole batch there (folders, copied client files, reports). Step 4 refreshes the reports there, with the Links cells pointing at the SSD copies. Once a refresh is confirmed, Excel itself rewrites the Links cells to the real server paths and saves without refreshing again. Each client is copied to the server as soon as its refresh is confirmed: every file goes up under a temporary '.partial' name, is checked, then renamed; Excel's '~$' files are never copied; leftover '.partial' files from an interrupted night are removed by the next run (only the tool's own). Final reports on the server must always hold the server paths in their Links cells (promise 1, item 88). After the server copy is verified, the SSD copy is cleared; if anything failed, it is kept. If the working folder is not set, missing, not writable or too full, the run does not start: the tool offers 'Choose another folder' or 'Use a temporary folder on C: for this run only' (showing C:'s free space); never a silent fallback. If the SSD disappears mid-run, the run stops safely and the remaining clients are listed as 'not done'. After a failure: if only the copy to the server failed, a 'Retry copy' button sends the finished SSD work again (no rebuild, no second refresh); if processing failed, you fix the cause, Re-Run Step 3 for that client (new Version folder in the same batch, shown on screen), then run Step 4 for it. Step 4 then writes ONE complete consolidated workbook for the whole batch: that client's fresh figures plus every other client's figures read again from their earlier confirmed refreshed copies (no second refresh); every row shows the refresh date and time and the Version folder its figures came from; a client without a confirmed refresh shows 'not refreshed' with the reason, never old figures; earlier workbooks stay untouched under their own names. Step 4 on an older batch works the same way: copy it to the SSD, refresh there, copy back. _(Note: settled 24-10-2026; the whole-batch workbook depends on item 35 (which earlier copies count as confirmed).)_
 
 ### 11. Step 3 progress, log and messages (and the Dry Run preview)   Part 1 · refs A-F11, B-F11, A-F15, B-F14, A-F16, B-F15, A-F17, B-F16, A-R61, A-R139, A-R140, A-R141, B-R94, B-R113, B-R135, B-R137, B-R139, A-G52, A-G69, A-G72, B-G56, B-G60, B-G65, B-G70, B-G75
 What this is about: While Step 3 sorts the files and builds the reports, a progress bar and a log show what is happening. Dry Run is a preview that changes nothing and prints what a run would do. Example: after a run for 40 clients, you want to see which ITC report failed, and why.
@@ -371,7 +435,7 @@ A's way: A writes plain text with a time stamp on every line and one line per co
 B's way: B writes its log as web-page text (HTML), so anything between "<" and ">" vanishes, all indentation is lost, and the log slows down as it grows (B:gui/views/processing_view.py:142-157). There are no time stamps, no per-file lines and no "[DEBUG]" lines. B has a Clear Log button and a readable green bar. If the summary workbook cannot be written, nothing is shown (B:gui/controllers/processing_controller.py:189-193), and a run that fails as a whole shows only a box.
 Evidence: RAN (B audit): one error message was cut to "❌ ITC Report Error: '", and 2,000 lines took about 49 s to show in B's Step 4 log, which is built the same way. RAN (comparison §5, 16.8; §6, rows D38 to D45). Both say "Successfully processed 1/5" after Stop (A-G69 / B-G70). A's bar also moves within each client (copying, then reports); B's moves only between clients (comparison §5, 13.5). Whether Dry Run needs the templates first is item 30. Three LOW points the rebuild should not repeat: a Dry Run made after a run lists the cleaned file names, because the run writes them back into the scan data (both; comparison §9, L1; A-G19 in part, B-G75); B's Dry Run writes one log line per file on the window's own line of work (B-G60); A's time-left estimate is one client behind (A-G72). Comparison §3 rows 15 to 17; §4 rows 4A-13 and 4B-7.
 Recommendation: A's log content in plain text, without the "[DEBUG]" lines, plus B's Clear Log button and readable bar. A's log keeps every message whole and reports failures, while B drops text and stays silent when the summary fails (RAN).
-Your answer: ____
+Your answer (24-10-2026): Agree: A's plain, time-stamped log without the [DEBUG] lines on screen, plus B's Clear Log button and readable bar. The [DEBUG] lines were added for a reason (the Sales report had problems while being created), so that detail goes to the program log file instead of the screen, for tracing. Added: at the end of every run, all issues (failures, skipped clients, rejected files, warnings) are gathered in one list for quick reference. _(Note: issues list should also appear in the summary workbook (contract C10).)_
 
 ### 12. Step 4 screen: layout, which folder it reads, failure reasons  Part 1 · refs A-F18, B-F18, B-F24, A-R129, A-R143, A-R144, B-R39, B-R126, B-R138, B-R139, A-G65, A-G66, B-G28, B-G58, B-G71
 What this is about: Step 4 refreshes each client's ITC and Sales reports in Excel and collects their figures into one consolidated workbook. Example: Step 3 has built reports for 40 clients, and you open Step 4 to refresh them for the GSTR-9 working.
@@ -379,7 +443,7 @@ A's way: A places its old stand-alone extractor inside a tab, with two sub-tabs 
 B's way: One page shows the options, the client list, the buttons, the bar and the log together. There is no folder box: B reads the last SAVED target, so a target typed but not yet saved is ignored (B-G28). It walks the share on the window's own line of work at start-up, after processing, after a completed extraction and on Refresh List (B:gui/pyqt_main_window.py:171-190, 419-504, 561). A failed version shows only "Result: ITC: FAIL, Sales: FAIL"; for many failures the reason goes only to the program's log file (B:gui/controllers/extraction_controller.py:76-84).
 Evidence: RAN (comparison §6, rows D48, D49 and D56; B audit: a typed target is ignored). A avoided the start-up walk on purpose in `bfcb24a` (A:gui/tabs/extract_tab.py:79; its message: scanning at start-up "would hit the network on every launch"), and the same commit calls tabs inside a tab a decision still to be made ("Flattening is the next decision"). Whether Step 4 should fill itself when the window opens is asked separately in item 44. Comparison §3 row 18; §4 row 4A-28; §5, 16.13.
 Recommendation: B's one-page layout with A's behaviour (the folder follows Step 1, the share is never read on the window's own line of work, and the reason for each failed report shows on screen), because B shows the list and the log together, but its walk of the share can stall the window on a slow share and it hides why a report failed.
-Your answer: ____
+Your answer (24-10-2026): Agree: B's one-page Step 4 layout with A's behaviour: the folder follows Step 1, the server is never read at start-up, and each failed report's reason shows on screen.
 
 ### 13. Step 4: which batch and which Version folders are offered     Part 1 · refs A-F19, B-F18, A-R42, A-R43 (Re-Run part), A-R65, B-R38, B-R39, B-R61, A-G45, B-G12, B-G13
 What this is about: The target folder holds one batch folder per Fresh run, and each client folder holds one Version folder per run. Step 4 must pick the right ones. Example: a batch made on 31-12-2025 and a newer one made on 05-01-2026 for the same clients.
@@ -388,7 +452,7 @@ B's way: B takes the batch whose NAME sorts highest. Names start with the day, s
 Other choices: A third way: read the date and time written in the folder name as a real date, show on screen which batch is in use, and let you pick another.
 Evidence: RAN (comparison §3 row 19, check C3-6; §4 row 4A-7; §5, Category 6.5): A picked 05-01-2026 and B picked 31-12-2025. Once a lock file appeared in the older batch, A switched to it too. A's own `c1583d6` stopped sorting Version folders by name because day-first names "do not sort chronologically". In B, "Select All" also refreshes older versions, which costs about 39 s of Excel per report and adds a row per version to the consolidated workbook. Step 3's Re-Run and Resume pick the batch by date modified in both tools (A-R43 / B-R38; a shared gap, A-G45 / B-G13) and should follow whatever rule you choose here. Whether Step 4 reads only each client's newest Version folder (one row per client) or every Version folder (one row per Version folder) decides which figures reach the consolidated workbook, so it is treated as a GST rule and asked in item 36; this item decides only how the tool finds "the newest".
 Recommendation: The third way (read the date and time written in the folder name, show which batch is in use, let you pick another), and the same name-date rule wherever the newest Version folder is needed, because B's rule picked the older batch outright and A's switched to it as soon as a lock file appeared there, as when an old summary is opened (both RAN), while the date written in a folder's name does not change when someone opens a file. Which Version folders Step 4 reads stays your call in item 36.
-Your answer: ____
+Your answer (24-10-2026): Agree with the third way: read the date and time written in the folder name, show which batch is in use, and let you pick another; the same name-date rule is used wherever 'the newest' is needed (including Step 3's Re-Run and Resume).
 
 ### 14. Step 4 list: ticks and the "last refresh" status              Part 1 · refs A-F20, B-F18, A-R65, A-R145, B-R136, B-R142, A-G2, B-G7, B-G73
 What this is about: Each row shows which reports exist, which are ticked for refreshing, and when each was last refreshed. Example: you refreshed 25 clients yesterday and want to see which 15 are still pending today.
@@ -396,7 +460,7 @@ A's way: A shows one row per client, with ITC and Sales ticked wherever the repo
 B's way: B shows a tree (a list in which each client opens out to show its Version folders), all unticked, and every rebuild clears the ticks. Its status is per Version folder: "Refreshed (dd/mm/yy HH:MM)" in green, or "Pending". B finds it by any file name containing "_Refreshed", so with any other suffix it shows "Pending" for ever (B:gui/pyqt_main_window.py:466-479).
 Evidence: RAN (comparison §3 row 20, re-run independently; §5, Category 16.12): a "_PQ_" copy showed "Pending" in B. Shared: the copy is made before the refresh, so a copy left by a failed refresh also shows a time, and B's green "Refreshed" claims a success that nothing checked (A-G2 / B-G7; §6 D58). Which copies count as refreshed, and "Skip refresh", are item 35.
 Recommendation: A (ticks preset where a report exists and kept after a run, and a status per report that follows your suffix), worded "copy made <time>" rather than "Refreshed". A's status is tested and follows your setting, while B's stays "Pending" with any other suffix and labels unchecked copies "Refreshed".
-Your answer: ____
+Your answer (24-10-2026): A's list (one row per client, existing reports pre-ticked, ticks kept after a run), with each report's status taken from the item 35 stamp: 'Confirmed <date, time>', 'Failed <date, time>: reason', or 'Never refreshed'; plus the per-client Version-folder switch (item 36).
 
 ### 15. Consolidated workbook: where it is saved, and the end of the run  Part 1 · refs A-F24, B-F23, A-R86, A-R143, B-R86, A-G29, B-G43
 What this is about: Step 4 ends by writing one workbook, `PQ_Extraction_Report_<date>.xlsx`, with every client's figures. Example: while Step 4 refreshes the December batch, a colleague browses Step 4 to another target folder to check something.
@@ -404,7 +468,7 @@ A's way: A writes into the batch chosen by the LAST Step 4 scan, read only when 
 B's way: B fixes the batch when Start is pressed and writes there, whatever the screen shows later (B:gui/controllers/extraction_controller.py:29, 92). It writes the workbook only if at least one result exists, and it asks nothing at the end. If saving fails, it writes one log line, and its run log file is still written.
 Evidence: RAN (comparison §5, Category 11.2; A audit): A's workbook landed in the second target's batch, although it held the first target's clients. B's stayed where it belonged. In both, one bad value loses the whole workbook (A-G29 / B-G43). Whether the workbook has one row per client or one per Version folder is item 36. Comparison §3 row 24; §4 row 4B-27.
 Recommendation: B's fixed destination, plus A's "Open the consolidated report?" question at the end. B's workbook always lands in the batch it belongs to (RAN), and the question saves a trip through Explorer.
-Your answer: ____
+Your answer (24-10-2026): Agree: B's fixed destination (the batch is fixed when Start is pressed) plus A's 'Open the consolidated report?' question at the end, opening the copy on the server.
 
 ### 16. A record of each Step 4 run on disk                            Part 1 · refs A-F25, B-F24, B-F25, A-R122, B-R122, A-G56, B-G27, B-G64
 What this is about: After Step 4 you may later need to know which reports failed and why. Example: a week after the run, a partner asks why <Client B>'s Sales figures show "Missing".
@@ -412,7 +476,7 @@ A's way: A keeps no file of its own. The Step 4 log is on screen only and is cle
 B's way: B writes `Extraction_Log_<YYYYMMDD_HHMM>.txt` into the batch folder beside the consolidated workbook, with every screen line, including every extracted figure (B:gui/controllers/extraction_controller.py:100-121; `b0e7d0e`). The file is written only at the end, so closing the window mid-run loses it. Two runs in the same minute overwrite it (B-G27). Warnings that go only to the program log are missing from it.
 Evidence: RAN (comparison §4 row 4B-26; B audit). Comparison §6 D59 and D61. Both tools already print every figure on screen and in the program log (A-G56 / B-G64). B's run history, which also keeps the figures, is item 43. Where log files live is settled by Standard 13 (item 97); what the program log may hold is item 98.
 Recommendation: B's per-run log file in the batch folder, written as the run goes, with each report's status and failure reason but without the figures. It leaves a lasting answer to "what failed, and why", which A does not, without making a second plain-text copy of client figures outside the reports.
-Your answer: ____
+Your answer (24-10-2026): Agree: B's per-run log file in the batch folder, written line by line as the run goes, with each report's status and failure reason but no figures, ending with the issues list from item 11.
 
 ### 17. Running jobs: background work, one job at a time, Stop, closing  Part 1 · refs A-F2, B-F1, A-F17, B-F16, A-F25, B-F24, B-F34, A-R135, A-R143, B-R111, B-R112, B-R138, A-G13, A-G27, A-G48, A-G50, A-G65, A-G70, A-G71, B-G40, B-G41, B-G70, B-G74
 What this is about: Scanning, Step 3 and Step 4 can each take many minutes on the share. The window should stay usable, two jobs should not collide, a run should be stoppable, and an accidental close should not wreck a run. Example: Step 4 is refreshing 150 clients, at about 39 s per report, and someone clicks Scan or closes the window.
@@ -420,7 +484,7 @@ A's way: A scans on the window's own line of work, so the window freezes. It run
 B's way: B runs the scan, Step 3 and Step 4 each in a background worker that talks to the window only through signals. A second job of the same kind is refused, but silently. Stop works in Step 3 (between clients) and in Step 4 (between Version folders) (B:gui/controllers/scan_controller.py:57-61; B:gui/controllers/processing_controller.py:256-298; B:gui/controllers/extraction_controller.py:60-63, 138-184). Jobs of different kinds can still run at the same time (B-G74). B never asks before closing (B:gui/pyqt_main_window.py:601-608), and its greyed-out Stop looks active.
 Evidence: RAN (B audit): B's workers never touch the screen; every screen update happens on the window's own line of work (comparison §8.2). Closing during Step 4 left an unrefreshed copy and no workbook, log or history. A scan and a whole Step 3 finished during an extraction. RAN (A audit): a scan during a Step 4 run switched its Start button back on, so a second run could be started beside the first (the second run itself READ), and the Step 3 worker was killed about 1 s after "Yes". RAN (B audit): a late clean-up of a finished job can end a newer running job and abort the program (B-G41). B's Stop acts only between items, and a stopped Step 4 run still ends "Extraction complete" with a green tab dot (B-G70; B audit 11.4.3, T12). Contract C14 (item 84) extends the one-job lock to other copies and PCs. Comparison §3 rows 2, 17, 25 and 34; §4 rows 4A-11, 4A-23 and 4B-1 to 4B-4; §5, Categories 13.4 and 16.6; §6 D10, D41, D47 and D55.
 Recommendation: B's model (background workers that talk to the window only by signals, and Stop in Steps 3 and 4, checked inside every wait, with a stopped run reported as "stopped"), plus one lock so that only one job of any kind runs at a time, and a "Stop and exit?" question during any run, because B's window stays responsive and safe while A's re-scan can break a running Step 3 and A's Step 4 cannot be stopped, and neither tool protects every run from an accidental close.
-Your answer: ____
+Your answer (24-10-2026): Agree: B's background model with Stop (taking effect even inside a wait; a stopped run reported as 'stopped'), only one job of any kind at a time, and 'Stop and exit?' if the window is closed during any run. With the SSD workbench, a Stop leaves every finished client safe on the server and marks the client in progress 'not done'.
 
 ### 18. An unexpected error inside the window                          Part 1 · refs A-F2, B-F1, A-G25 (example only), A-G30, B-G35
 What this is about: This is about what the user sees when something unforeseen (a bug) goes wrong inside a button's action. Example: on a busy afternoon, an unusual client name makes the Dry Run button fail with an error nobody planned for (in A, a client written as a number such as "0042" does this, A-G25).
@@ -429,7 +493,7 @@ B's way: The whole window vanishes - the program aborts (on the Linux test copy 
 Other choices: Your Standard 13 already settles this. Its error hooks log the error to the user's own folder and show a plain message box (`rebuild_pipeline_FINAL.md:984-1029`).
 Evidence: Comparison §6 D11 and §8.2. Neither tool shows a message on screen. Under Standard 13's no-console start, A's console text would be invisible too. The promise is contract C15 (item 85); the error hooks themselves are part of item 96.
 Recommendation: Follow Standard 13: a message on screen and an entry in the log, with the window kept open where possible, as A does. It is your own tested standard, and neither old tool meets it.
-Your answer: ____
+Your answer (24-10-2026): Agree: follow Standard 13 (a plain message box, the error written to the log, the window kept open where possible). Added for overnight runs: an error inside one client's work does not pop up a box that waits all night; it is logged, that client is marked failed, the run continues, and it appears in the end-of-run issues list. A message box only for errors that stop the whole tool.
 
 ### 19. Help texts, hover tips and message boxes                       Part 1 · refs A-F31, B-F33, A-R43, A-R44, A-R147, A-R152, B-R44, B-R45, B-R131, B-R141, A-G66, B-G72
 What this is about: These are the words on screen that tell staff what each choice does, and the boxes that pop up when something is wrong. Example: a run broke off half-way through the client list, and a new assistant must choose between Fresh, Re-Run and Resume.
@@ -437,7 +501,7 @@ A's way: A shows a hover tip (a small pop-up help text when the mouse rests on a
 B's way: B has no hover tips at all (none in the code). Every input problem is titled "Warning". Its help card says "Re-Run: Overwrite existing", while its own button and its code add a new Version folder (B:gui/views/setup_view.py:343-346, 510-512). Its Step 2 colour legend has no colour for "Has duplicates" (nor has A's), and its Step 1 note promises a long-name warning that does not exist (B:gui/views/setup_view.py:385).
 Evidence: A audit §10.12 (texts T1-T25); B audit §10.4 and §10.14. One gap is shared: neither tool says that Resume skips files only when it is started within the same minute as the interrupted run (RAN, comparison §5, Category 7.1). Comparison §3 row 31; §4 rows 4A-41 and 4B-21; §5, Categories 7.1 and 16.4; §6 D18, D25, D27, D64, D66 and 6.6. A's tips are not kept inside the screen near its edges (A audit 11.4.4, S3b-67). The expected-file-names card on Step 1 is item 24; the fold-away help cards are item 45.
 Recommendation: A's hover tips and its separate "Error" and "Warning" titles, with every help text rewritten against what the new tool actually does. Only A has hover help, and both tools' texts contradict their own code.
-Your answer: ____
+Your answer (24-10-2026): Agree: A's hover tips and separate 'Error' and 'Warning' boxes, with every help text rewritten to match what the new tool actually does.
 
 ### 20. Dark mode: whether the first build needs it, and how to build it                    Part 1 · refs A-F28, B-F28, A-R148, B-R144, A-G64, B-G69
 What this is about: A switch turns the window dark, for example for late-evening work before the GSTR-9 due date. Both tools have one, and in both some text becomes hard to read. The question is whether the first build needs it and, when it is built, which way to build it.
@@ -446,7 +510,7 @@ B's way: View > Dark Mode applies one colour sheet (a "style sheet": a single li
 Other choices: Build it now, in the first build, B's way; or drop dark mode altogether if nobody uses it (item 116 asks).
 Evidence: Comparison §3 row 28; §4 rows 4A-31 and 4A-37 to 4A-39; §5, 16.9; §6 D62 and D63. A's method suits only Tk and B's only Qt; the window kit is item 89. Both audits rate dark mode Tier 3, the lowest priority (A audit 11.3: "appearance only"; B audit 11.3). B's faults come mainly from colours set inside single screens (B-G69), which a rebuild can avoid by taking every colour from one sheet.
 Recommendation: Defer it to the Parking Lot, to be built later B's way (one colour sheet for the whole window, with no colours fixed inside single screens), because it is appearance only and, once every screen takes its colours from one sheet, it can be added later without touching any screen's logic.
-Your answer: ____
+Your answer (24-10-2026): Build dark mode now, in the main flow (not deferred), the clean way: one colour scheme for the whole window, with no colours fixed inside single screens. Sidhant prefers dark mode, so dark is the default, with a switch to light. _(Note: dark-as-default is Claude's reading of 'I prefer dark mode'.)_
 
 ### 21. Opening Step 4 on its own, and its log file                    Part 1 · refs A-F29, A-F30, B-F30, B-F32, A-R118, A-R121, B-R127, A-G32, B-G44
 What this is about: Besides the main program, both tools have `launch_extractor.py`, a second way to start straight into Step 4. Example: the partner only wants to refresh reports that Step 3 made yesterday.
@@ -455,7 +519,7 @@ B's way: B opens the normal four-tab window on Step 4 (B:launch_extractor.py:11-
 Other choices: Drop the second way of starting: Standard 13 describes one launcher and one desktop shortcut per app (item 96), and Step 4 is then one click from the opening window.
 Evidence: RAN (comparison §5, Category 14.5): A found the target and wrote its log. B, without pywin32, printed "Failed to launch". Comparison §3 rows 29 and 30; §6 D2. B's old `extractor_main.py` cannot even be loaded; that is item 52.
 Recommendation: B's way (the one window, opened on Step 4 from a second shortcut built like Standard 13's launcher), with the same logging as a normal start, because that leaves one screen to build and test instead of two, while A's separate window repeats Step 4 with faults of its own.
-Your answer: ____
+Your answer (24-10-2026): Keep it, B's way: a second desktop shortcut that opens the main window straight on Step 4, with normal logging. Used many times: after fixing errors in a client's GST data, to see the new consolidated figures. In about 95% of cases Sidhant refreshes by hand, in Excel, the '_Refreshed' copy that Step 4 made. So Step 4 gets a 'Collect figures only' mode: no refresh by the tool; it reads the current figures from the latest '_Refreshed' copy of each ticked client (in that client's chosen Version folder; never a '_Refresh_FAILED' copy, item 70) and writes the whole-batch consolidated workbook. A copy whose fingerprint differs from the tool's record (changed after the tool's confirmed refresh) is marked 'refreshed by hand, not confirmed by the tool', with the time it was saved; copies still matching the stamp show 'confirmed'; a client with no refreshed copy shows 'never refreshed'. _(Note: settled 24-10-2026; keep contract C7 (item 77) wording consistent with the 'refreshed by hand' label.)_
 
 ## Part 2 - GST rules applied differently
 
@@ -470,7 +534,7 @@ B's way: Nothing may follow the date (B:utils/constants.py:23), so the "(1)" cop
 Other choices: Accept the "(1)" copy but link the plain file when both exist; or accept the "(1)" copy only when there is no plain file.
 Evidence: RAN through both (MERGE_COMPARISON.md section 5, Category 1 (1.1); section 4, 4.4.1). Folder with `ImsReco-ClientA-Delhi-31032026.xlsx`, its " (1)" copy and ClientA's other five types: A - "Has duplicates", 8 files copied, B11 = `ImsReco-ClientA-Delhi-31032026_(1)`; B - "Complete", 7 copied, B11 = `ImsReco-ClientA-Delhi-31032026`. Only the "(1)" copy present: A - "Complete", B10/B11 filled; B - "Missing 1 files", B10/B11 keep the template's own text. Neither project checks which copy is the newer download. A's tests pin A's form (A:tests/test_file_patterns.py:46-67); 4 of them fail on B's code. Hint why: real IMS files arrived in this form (HIGH, A audit); where the "(1)" came from is not stated (MEDIUM: a browser saving twice).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): A: accept IMS Reco files with '(1)' after the date. When the plain file and the '(1)' copy are both present, the client shows 'Has duplicates' and the '(1)' copy is the one linked in ITC Links B10/B11.
 
 ### 23. Showing staff the files the tool could not use, with the naming hint                Part 2 · refs A-R12, B-R12 (with A-R61, B-R94, B-R95; A-F9/B-F9; gaps A-G67/B-G20)
 What this is about: For every file whose name matches no pattern, both projects work out the same hint ⚠, for example `ImsReco-ClientName-State-DDMMYYYY.xlsx` for an IMS download saved as "IMS Reco-…" with a space. The question is whether staff ever see the list of unused files and their hints.
@@ -479,7 +543,7 @@ B's way: Works out the same hint (B:core/file_parser.py:316-334) but hands the s
 Other choices: Also show the list on screen after the scan (neither does today).
 Evidence: RAN through both (section 5, Category 1 (1.6) and Category 8 (8.7)). Source folder with `Claims register ClientA.xlsx`: both work out the IMS hint (the word "claims" contains "ims"); A's Variations sheet has one row - file name · "No matching pattern found" · `ImsReco-ClientName-State-DDMMYYYY.xlsx` · size · "Rename file"; B's sheet says "No file variations found". The hint texts themselves are identical (Part 6, item 63). Whether files too small or not really Excel are listed is a separate technical difference (section 5, 1.3-1.4).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Show the problem files at Step 2, before the run, on screen: each file by name, with the reason and the suggested correct name for reference; a 'Show in folder' button that opens the file's folder in Explorer (so the file can be deleted by hand and a fresh copy downloaded; the tool itself never deletes client files); a 'Scan again' button to check the replaced files. The same list also goes into the 'Variations' sheet of the summary workbook (A's way), for the record. _(Note: fits Sidhant's practice: delete the problem file and re-download it before the big run (item 139c).)_
 
 ### 24. The example file names shown on Step 1                Part 2 · refs A-R16, A-R147, B-R13, B-R141 (A-F31/B-F33; gaps A-G66/B-G72)
 What this is about: Step 1 shows staff how each downloaded return must be named before a scan - the names your team types when they save the season's GSTR-2B, IMS, GSTR-3B, Sales, Sales Reco and Annual Report files ⚠. Which wording should they see?
@@ -488,7 +552,7 @@ B's way: A hand-typed short list without extension or type names: "GSTR-2B-Reco-
 Other choices: Either wording, adding what neither card says today: `.xls` files are also accepted; a hyphen inside a client or state name breaks the reading (Part 6, item 63); and the "(1)" form if you keep A's way in item 22.
 Evidence: RAN on both real screens (section 5, Category 1 (1.7); section 6.7, G1). Both name the same six types in the same order; A shows `.xlsx` and the type, B neither. Recognition itself does not depend on this card.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): B: the short list of example names. The other additions are not needed, because the source files are exports from Octa GST, which follow one simple naming rule. But a hyphen inside a client name or a state name must be highlighted (flagged at Step 2), because it can throw off the workings everywhere. _(Note: Claude's suggested detection: flag a file when its state part is not a known state, or when it has more parts than its type allows; ties to item 65 row 2 (made-up codes for unknown states).)_
 
 ### 25. The client key handed from Step 2 to Step 3, and where it is shown                Part 2 · refs A-R17, B-R17 (A-F8/B-F8; gaps A-G25, B-G73)
 What this is about: Each client is identified by "<client as written in the file names>-<state code>", for example `0042-MH` for a client your office files under the code 0042 in Maharashtra. Both projects build this key the same way at the scan; they differ in how Step 2 hands it back when you tick clients and press Start.
@@ -496,7 +560,7 @@ A's way: Rebuilds the key from the text shown in the Step 2 table (A:gui/handler
 B's way: Stores the key inside each row when the table is filled and hands it back unchanged (B:gui/views/validation_view.py:371, 412-421). Step 2 also shows the key in a "Folder Name" column (:379) - the key itself, not the shortened client folder, so `ClientB Private Limited-MH` is shown while the folder is `ClientB Pvt Ltd-MH` (gap B-G73). Came in with B's window rewrite `c258047` (07-02-2026); the message does not mention it.
 Evidence: RAN (section 5, Category 2 (2.1); section 4, 4.4.5). Ticking `0042`, ClientA and ClientE: A hands Step 3 `42-MH`, `ClientA-DL`, `ClientE-DL`; B hands `0042-MH`, `ClientA-DL`, `ClientE-DL`. Start in A with `42-MH` first: "Fatal error: '42-MH'", nothing written for any client, no summary workbook. Technical point only: the key formula and the state codes are the same in both; A's way stops the run for number-like client names. Other number-like names were not run.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): B with the 'Folder Name' column fixed: Step 2 stores each client's exact key in its row and hands it to Step 3 unchanged, and the 'Folder Name' column shows the real (shortened) folder name the run will create, not the key.
 
 ### 26. How Step 2 shows each client's completeness                Part 2 · refs A-R29, B-R27, A-R138 and B-R134 (the "Missing" column only) (A-F8/B-F8)
 What this is about: Step 2 lists each client as "Complete", "Missing <n> files" or "Has duplicates" - the rule that decides this is the same in both (Part 6, item 64). What differs is how it is shown: the colours, what the "Complete Only" button ticks, and whether the missing return types are named - for example a client whose IMS Reco and Sales Reco files have not come in yet, or one with two GSTR-2B reconciliations for the year.
@@ -505,7 +569,7 @@ B's way: Status without icon; the row's text is green (Complete), orange (Missin
 Other choices: A mix - for example B's three colours with A's named missing types.
 Evidence: RAN on both real screens (section 5, Category 5 (5.1); section 6.7, G2 and G3). ClientE (all six types, two GSTR-2B Reco files): A "⚠️ Has duplicates" in the same tint as a client with missing files; B "Has duplicates" in red-orange. ClientB lacking IMS Reco and Sales Reco: A's Missing cell "IMS Reco, Sales Reco"; B's "2". With today's three status texts "Complete Only" ticks the same rows in both. Whether rows start ticked (A none, B all) is a separate technical point.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): A mix: B's three distinct colours (green Complete, orange Missing, red-orange anything else such as Has duplicates) with A's Missing column naming the missing types (e.g. 'IMS Reco, Sales Reco'), plus B's summary label ('3 clients (1 complete)'). With the period idea (idea 2), the Missing column also names the months, e.g. 'GSTR-3B: Mar 2026 (not due yet)', with 'not due yet' shown in a neutral colour so it does not look like an error. _(Note: B's summary label and the neutral colour for 'not due yet' are Claude's additions; say if not wanted.)_
 
 ### 27. Shortest allowed client-folder name, and whether the state code may be cut off                Part 2 · refs A-R36, B-R32, B-R138 (with A-R35; A-F6/B-F4; gaps A-G21/B-G24, A-G26)
 What this is about: Each client folder is "<client>-<state code>", for example `ClientB Pvt Ltd-MH`, shortened to a maximum length set on Step 1 (default 35). The name builder is the same in both: if the maximum is so small that fewer than 6 characters would remain for the client, it cuts the whole name, state code included - so one client's Delhi and Maharashtra registrations can land in one folder. Which lowest value should be allowed, and may the state code ever be cut off? (How the box reacts to typed text, and B's greyed-out look, are technical and decided in item 5.)
@@ -514,7 +578,7 @@ B's way: A Qt number box held within 15-100 (B:gui/views/setup_view.py:374-382):
 Other choices: Allow any value but never cut the state code (that would change the shared name builder).
 Evidence: RAN (section 5, Category 6 (6.1); section 4, 4.4.3). Maximum 8 (possible only in A): ClientA/Delhi and ClientA/Maharashtra both get the folder `ClientA-` (state code gone, one shared folder). B's lowest value 15: `ClientA Private Limited`/Maharashtra → `ClientA Pvt -MH`. A three-letter made-up state code (item 65) is lost already at 9. Technical point: A's box also accepts text that stops the run.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Mix of B and Other: the length box is held within 15-100 (values outside are refused), AND the state code is never cut: when a folder name must be shortened, only the client-name part is trimmed and '-<state code>' always stays.
 
 ### 28. Names of the three category folders - also written into the Links cells ⚠                Part 2 · refs A-R39, A-R41, A-R54, A-R55, B-R35, B-R37, B-R54, B-R55 (A-F13/B-F12, A-F14/B-F13, A-F15/B-F14; gaps A-G41/B-G54)
 What this is about: Inside each Version folder the tool makes three folders: GSTR-3B exports; ITC files (GSTR-2B Reco and IMS Reco); Sales files (Sales and Sales Reco). Their full paths are written into the templates' Links cells - ITC B2, B7, B10 and Sales B2, B8 ⚠ - which the templates' queries read. So the names matter to your templates, not only to staff opening the folders.
@@ -523,7 +587,7 @@ B's way: `GSTR-3B Exports`, `Other ITC related files`, `Sales related files` (B:
 Other choices: A third set of names. Whatever you choose, batches already on the share carry the long names (every B batch, and A batches before 26-07-2026), so Step 4 of the new tool may meet both.
 Evidence: RAN (section 5, Category 6 (6.2, 6.4) and Category 8 (8.3); section 4, 4.4.2). ClientA, run at 21-10-2026 10:30: ITC B2 = `…\Version-211026 1030\GSTR3B` (A) / `…\Version-211026 1030\GSTR-3B Exports` (B); B7 and B10 = `…\ITC` / `…\Other ITC related files`; Sales B2 and B8 = `…\Sales` / `…\Sales related files`. Which file type goes into which folder is the same in both (item 66). NOT SURE whether your templates' queries take every folder only from these cells or also name a folder themselves - the templates are in neither repository. How to check: open each template in Excel, Data > Get Data > Launch Power Query Editor, open Advanced Editor for each query and search for "GSTR-3B Exports", "Other ITC related files" and "Sales related files". Item 140 asks you this fact.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): A: the short category folder names GSTR3B / ITC / Sales. They do not break the templates, because the whole path and file name are written into the Links sheet; older batches with the long names still work in Step 4 for the same reason.
 
 ### 29. Client's name in the category-folder names: per client, or for all clients only                Part 2 · refs A-R40, A-R136, A-R137, B-R35, B-R36 (A-F10/B-F4, B-F5; gap A-G19 in part)
 What this is about: An option adds the client's name in brackets to the three category folders inside each Version folder, for example `ITC (<Client A>)`. Those folder paths are also written into the template's Links cells, and the per-client choice is looked up by "<client>-<state code>", so this difference is treated as a GST rule "when in doubt" (MERGE_COMPARISON.md section 1.4 and section 4, 4.4.4; section 5, 6.3 calls it technical). Should the name be switchable for each client, or only for all clients at once? Example: staff want the name shown only for the two clients whose folders they open most often.
@@ -532,7 +596,7 @@ B's way: Only the tick for all clients. A per-client setting exists inside the c
 Other choices: Keep a per-client choice, with a table that shows exactly what the run will use; or defer the per-client choice to the Parking Lot (your list of later ideas).
 Evidence: RAN (section 4, 4.4.4; section 5, 6.3): a setting stored under `ClientA-DL` gives the folders `GSTR3B (ClientA)`, `ITC (ClientA)`, `Sales (ClientA)` in A and `GSTR-3B Exports (ClientA)`, `Other ITC related files (ClientA)`, `Sales related files (ClientA)` in B; one stored under `ClientA-Delhi` is ignored in both. So the folder builder is the same in both (A:core/file_organizer.py:121-134 = B:core/file_organizer.py:117-130), and only A's screen can write the setting. From the first commit (31-08-2025) until `33d0baf`, the screen stored the choice under the state's name while the folder builder looked it up under the state code, so a per-client "Yes" did nothing in both projects (READ `47a1492:gui/handlers/client_handler.py:178, 214`). No test protects A's fix (A audit, Appendix X3). Whether the office used the per-client toggle is not recorded; item 116 asks. The tick for all clients works the same in both; the category folder names themselves are item 28; a warning for long names is item 40.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Drop it: no option to add the client's name to the category-folder names, neither the tick for all clients nor the per-client switch. Not used, and dropping it keeps paths shorter. _(Note: affects item 40 (long-name warning) and item 116(a).)_
 
 ### 30. What must be chosen before a Dry Run                Part 2 · refs A-R51, A-R134, A-R139, B-R48, B-R133, B-R135 (A-F11/B-F11)
 What this is about: Before you process 40 clients you may press Dry Run to preview the copies and the "Would create: ITC Report / Sales Report" lines. Must both templates and the target folder be chosen before the preview runs?
@@ -540,7 +604,7 @@ A's way: The same check as Start: both template files chosen and present, and a 
 B's way: Only a ticked client is needed (B:gui/pyqt_main_window.py:326-343); Start still checks templates and target (:345-361). B's Dry Run came without the check in `c258047` (07-02-2026); no reason is given.
 Evidence: RAN on both real screens (section 5, Category 8 (8.1); section 6.7, G5). No templates chosen, three clients ticked, Dry Run: A shows the error box and no preview; B prints the whole preview, promising "📊 Would create: ITC Report" and "💰 Would create: Sales Report" for every client, ending "No files were actually moved or created". Start behaves alike in both.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Keep Dry Run (it removes the worry about what will be created), as a mix of A and B: it always runs with whatever is chosen so far (B), but never promises what Start won't do (A): report lines say 'can't be created yet: ITC template not chosen' and a top line lists what Start still needs. It doubles as a pre-flight check: the full folder and report names to be created on the server; any path too long for Excel (C13); clients that would be skipped for a name collision (item 9); files outside the chosen period (idea 2); whether the SSD working folder is ready (item 10). It creates nothing.
 
 ### 31. Which template file types can be picked                Part 2 · refs A-R52, B-R48, B-R51 (gaps A-G42/B-G30, B-G66)
 What this is about: Your ITC and Sales templates may be plain workbooks (`.xlsx`), Excel templates (`.xltx`, `.xltm`) or macro workbooks (`.xlsm`). The Browse button decides which types staff can pick with the mouse. Whatever is picked, the report is always saved under an `.xlsx` name (same in both). Listed here "when in doubt": the type list is tagged a GST rule in neither audit, only through the report name, which carries the state code.
@@ -549,7 +613,7 @@ B's way: Browse offers `*.xlsx *.xlsm`, label "(.xlsx or .xlsm)" (B:gui/views/se
 Other choices: Offer all four Excel types in the picker.
 Evidence: RAN (section 5, Category 8 (8.2)). `.xlsx`, `.xltx` and `.xlsm` templates are accepted by Start in both; so are `.xlsb` and even `.txt` (A's checklist flags them; nothing stops them). NOT SURE whether a report made from an `.xlsm` or `.xltx` template and saved as `.xlsx` opens normally (MEDIUM; how to check: run one client on Windows with such a template and open the report). It helps to know which type your templates are.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): B: the Browse button offers .xlsx and .xlsm. The templates are .xlsx today (.xltx did not work properly); .xlsm is there in case macros are added later. If a template is .xlsm, its reports are saved as .xlsm so the macros survive. _(Note: report names (item 66 row 7) and Step 4 recognition (item 34) must then also cover .xlsm.)_
 
 ### 32. A Links cell inside merged cells, when a report is made without Excel ⚠                Part 2 · refs A-R58, B-R53 (with A-R96, B-R97; A-F14/B-F13)
 What this is about: On a PC where Python cannot drive Excel, both projects make the reports with **openpyxl** (a Python library that writes Excel files without Excel; when it saves, it drops the template's Power Query and any drawn shapes such as text boxes and buttons). On that path a Links cell that lies inside merged cells (several cells joined into one, here A2:B2 with B2 the mapped cell) cannot be written. Should the report still be made with that cell empty, or fail?
@@ -558,7 +622,7 @@ B's way: The whole report fails and the unfilled template copy stays on disk und
 Other choices: Stop that report and name the cell that could not be written. This item matters only if the new tool keeps a way of making reports without Excel (item 93 recommends none; if you agree there, you may answer "falls away" here).
 Evidence: RAN (section 5, Category 8 (8.4); section 4, 4.4.7). B2 inside merged A2:B2: A - B2 empty, B4, B5, B11 written, "created", no message; B - fails, log "'MergedCell' object attribute 'value' is read-only", B4, B5, B11 still hold the template's placeholders (the stand-in text the test template had in those cells). When the merge starts at B2 (B2:C2) both write it. Through Excel both are identical. Whether your templates have merged Links cells is not known.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Falls away: item 93 removes the no-Excel way of building reports, which is the only place this merged-cell problem can occur.
 
 ### 33. Which template a batch uses if the Step 1 box is changed mid-run; order of clients                Part 2 · refs A-R60, B-R50, B-R60, B-R134 (A-F15/B-F14; gaps A-G14/B-G28)
 What this is about: During a Step 3 run for 40 clients someone notices that last year's ITC template is selected and picks the new one on Step 1. Should the remaining clients use the new template, or the whole batch the one chosen when Start was pressed? The two projects also process clients in a different order.
@@ -567,7 +631,7 @@ B's way: Takes one snapshot of all settings when Start is pressed (B:gui/pyqt_ma
 Other choices: B's snapshot with A's order, or A's live reading with B's order.
 Evidence: RAN (section 5, Category 8 (8.6); section 6.7, G6). Three clients; the ITC template changed from "v1" to "v2" after ClientA: A - ClientA from v1, ClientB and ClientD from v2 (two templates in one batch, no warning); B - all three from v1. Clients `Zeta Traders` (first file an Annual Report) and `Alpha Traders`: A does Zeta Traders first, B Alpha Traders first. B's re-sorting after a heading click was READ only (HIGH), not run. The order matters only when two clients share a folder or for the running totals in the per-client text reports. Both make both reports for every client (item 67).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): B: one snapshot of all settings when Start is pressed; the whole batch uses the template chosen then (changes apply only to the next run). Plus: Step 1's template and folder boxes are locked while a run is going ('Stop the run to change this'), and the template's file name and fingerprint are recorded in the run's log and summary workbook, so it is always known which template built a batch. Client order no longer matters. _(Note: Claude's suggestion at Sidhant's request; Sidhant agreed.)_
 
 ### 34. How Step 4 recognises the ITC and Sales reports                Part 2 · refs A-R59, B-R51, B-R61 (A-F20/B-F18; gaps A-G47/B-G46 in part)
 What this is about: Step 4 lists, per client, the reports Step 3 made: `ITC_Report_<client>_<state code>_<DDMMYY_HHMM>.xlsx` and `Sales_Report_…` (names identical in both, item 66). The two projects differ only for a report someone renamed by hand with a capital `.XLSX`.
@@ -575,7 +639,7 @@ A's way: Ticks a report when its name, in lower case, starts `itc_report_` / `sa
 B's way: Uses the wildcard search `ITC_Report_*.xlsx` / `Sales_Report_*.xlsx` both for the list and for the file (B:gui/pyqt_main_window.py:461-462; B:power_query_extractor/core/report_processor.py:72-89), from B's own Step 4 page in `b0e7d0e` (09-02-2026, "feat: Enhance extraction process with logging and statistics tracking").
 Evidence: RAN on Linux (the test machine's operating system, which, unlike Windows, treats `.XLSX` and `.xlsx` as different) (section 5, Category 8 (8.5)). A report renamed `…_0335.XLSX`: A lists and ticks it, then reports "No ITC report found"; B does not list it. On Windows both find it (HIGH: Windows searches ignore letter case; not run). The tool itself always writes a lower-case `.xlsx`, so only hand-renamed files are affected.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Step 4 recognises the ITC and Sales reports whatever the letter case of the name or ending, and accepts .xlsm reports as well as .xlsx (to match item 31). The app runs on Windows only.
 
 ### 35. "Skip refresh": which existing refreshed copy may be reused                Part 2 · refs A-R68, A-R69, B-R63 (with B-R136; A-F22/B-F21; gaps A-G2/B-G7, A-G15/B-G8, A-G16/B-G9)
 What this is about: Step 4 copies each report to a **refreshed copy** named with a **suffix** (default `_Refreshed_{timestamp}`, where `{timestamp}` becomes the date and time of the copy, `DDMMYY_HHMM`; editable on Step 4), refreshes that copy and reads its figures. With "Skip refresh" ticked, an existing refreshed copy is reused instead of refreshing again. So this decides which file the consolidated figures come from: today's refresh, an older copy, or - in one case below - the never-refreshed report.
@@ -584,7 +648,7 @@ B's way: Looks only for `<report name>_Refreshed_*.xlsx`, whatever the box says 
 Other choices: Reuse a copy only after checking that its own refresh had passed (neither project checks today).
 Evidence: RAN (section 5, Category 9 (9.4)). Suffix `_PQ_{timestamp}` with yesterday's `_PQ_` copy present: A reuses it; B refreshes again (about 39 s of Excel per report at the default wait). Suffix `_R{timestamp}`, original report only: A takes the ORIGINAL Step 3 report as a refreshed copy (`_r` is inside `_report_`) and reports success without refreshing; B refreshes. Suffix `_Refreshed` without a time stamp: A reuses the copy; B refreshes and overwrites it. With the default suffix both behave alike. In both, a copy left by a FAILED refresh is reused as a success (shared gap A-G2/B-G7). How the Step 4 status column shows refreshes is a separate technical point.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Reuse an existing refreshed copy only after checking that its own refresh had passed, made exact by: (1) a STAMP: when a refresh passes every check, Excel writes a hidden confirmation label into the copy before saving it (date and time, Version folder); a copy whose refresh failed never gets it; (2) a RECORD file noting the copy's fingerprint and the fingerprints of every input file the refresh read and of the report it came from; (3) the REUSE TEST when Skip refresh is ticked: take the newest stamped copy in the client's Version folder and reuse it only if it carries the stamp, still matches its fingerprint, every input file still matches (and no new input file appeared), and the source report is unchanged; otherwise refresh again and say why; (4) copies are recognised by the stamp, not by the file-name suffix (any suffix works; the '_R' mix-up cannot happen); (5) reuse is visible in the Step 4 list and the workbook ('reused: refreshed on <date, time>'); (6) batches made by the old tools have no stamps, so they are refreshed once; if the record file is missing, nothing is reused. _(Note: record file: one '_Refresh_Record.json' in the batch folder (no Links cell points there, so Power Query never reads it; travels with the batch; no figures; written safely; deleting it only causes a full refresh). Agreed 24-10-2026..)_
 
 ### 36. Consolidated workbook: one row per client, or one row per Version folder                Part 2 · refs A-R87, A-R91, B-R87, B-R90 (with A-R65, B-R61; A-F24/B-F23, A-F20/B-F18)
 What this is about: Step 4 writes every client's figures into the consolidated workbook `PQ_Extraction_Report_<YYYYMMDD_HHMM>.xlsx`, one sheet per output (for example "Reco Diff" or "Table 6J Match"). If a client was processed twice in one batch (a Re-Run adds a second Version folder), should its figures appear once or once per Version folder? Listed here "when in doubt": it decides how many rows of figures one client has (section 3 counts the row layout as technical).
@@ -593,7 +657,7 @@ B's way: One row per ticked Version folder, labelled `<client folder> / <version
 Other choices: One row per client, from a Version folder you choose.
 Evidence: RAN (section 5, Category 9 (9.3) and Category 11 (11.3)). ClientA with two Version folders, ClientB with one: A gives two rows (`ClientA-DL`, `ClientB-MH`), "Total Clients" 2; B, after Select All, gives three rows - `ClientA-DL / Version-311225 1000`, `ClientA-DL / Version-301225 0900`, `ClientB-MH / Version-311225 1000` - and "Total Clients" 3. The cells read and the figures in each row follow the same rules in both (items 68, 69). Which batch Step 4 offers, and how the newest folder is found, is a separate technical item (item 13); which Version folders are read is decided here.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): One row per client, from the Version folder in use for that client under item 13's rule (by default the newest by the date written in its name, shown on screen and changeable). That Version folder is the client's main version. _(Note: confirmed by Sidhant: you can switch a client to another Version folder in the Step 4 list.)_
 
 ## Part 3 - Found in only one project
 
@@ -605,7 +669,7 @@ A's way: "Yes" runs `<this Python> -m pip install -r requirements.txt` - the who
 B's way: nothing comparable.
 Evidence: your Standard 13 says "Nothing is installed on users' PCs" (`rebuild_pipeline_FINAL.md:924`). With the shared portable Python in the apps folder (`_runtime`), one user's "Yes" would change it for every app and user (A-G59); that embeddable Python normally has no pip (MEDIUM), and on a Python without pip the offer fails (RAN, A audit Section 9 and 11.1.4). The window is blocked while pip runs (A-G53); versions are not pinned ⚠. The start-up check itself is item 1, whose recommendation also leaves this offer out. MERGE_COMPARISON.md section 5, Category 15.3.
 Recommendation: Drop, because under Standard 13 packages go into the shared runtime once, by you, with exact versions.
-Your answer: ____
+Your answer (24-10-2026): Keep the install offer, changed: only while 'Use shared Python folder' is NO; it installs just the 3 packages the tool needs at fixed versions, never the test tools; no offer when the shared folder is in use. _(Note: decided with item 1.)_
 
 ### 38. Live Setup checklist                                  Part 3 · refs A-F4, A-R113, A-R133, A-G20 (part), A-G49, A-G75 (part)
 What this is about: while you type or browse the four paths on Step 1 (source folder, ITC template, Sales template, target folder), A shows ✓ / ○ / ✕ for each and a "Ready - all 4 items set" label. Example: the path of the FY 2025-26 GSTR-2B and GSTR-3B downloads folder on the network share, typed with a mistake, shows ✕ "Folder not found" before you press anything.
@@ -613,7 +677,7 @@ A's way: re-checks 350 ms (a third of a second) after typing stops, remembers an
 B's way: a fixed 7-line INSTRUCTIONS card; paths are checked only when SCAN or START is pressed (`B:gui/views/setup_view.py:469-486`; `B:gui/pyqt_main_window.py:218-225, 352-361`).
 Evidence: A's own defects (RAN): a file passes as the source folder and a folder as a template; a ✕ stays after the folder is created until restart or a dark-mode switch (A-G20); the checklist does not control Step 3's Start, which keeps its own weaker check (A audit Section 3, A-F4); the checks run on the window's own line of work, so an unreachable share can freeze the window (MEDIUM, A-G49). MERGE_COMPARISON.md section 3, row 4; section 5, Category 16.5.
 Recommendation: Keep, with real folder-or-file checks and the checks moved off the window's line of work, because it catches wrong paths before a run instead of in the middle of one.
-Your answer: ____
+Your answer (24-10-2026): Keep A's live Setup checklist, with proper checks (a folder must be a folder, a template must be a file) run in the background so an unreachable server never freezes the window; it also gets a fifth line for the SSD working folder (item 10).
 
 ### 39. Workflow choice: "organise only" or "full pipeline"                                  Part 3 · refs A-F5, A-R154, A-G66 (part)
 What this is about: before Step 3, A asks what the run should do. Example: in October you only sort the clients' files and build the reports; in December you go on to refresh them (re-run each template's Power Query so it pulls in the client's files) and collect the figures in Step 4.
@@ -621,7 +685,7 @@ A's way: "organise only" (default) stops after Step 3; "full pipeline" then open
 B's way: no choice; after every Step 3 run it rebuilds the Step 4 list and switches to Step 4 - in effect A's "full", and it never starts the refresh either (`B:gui/pyqt_main_window.py:384, 401`).
 Evidence: A's texts promise more and less than the code does: "Also refresh Power Query and extract the data" (the refresh is not started) and "Fast - no Excel automation" (Step 3 still drives Excel); the hand-over also runs after Stop and breaks Step 4's link to Step 1's target (RAN A audit). MERGE_COMPARISON.md section 3, row 5; section 5, Category 16.10.
 Recommendation: Keep A's choice, with texts that say exactly what each option does, because you added it deliberately in A's last week of work (`510f7b4`, 26-07-2026) and its faults are only its wording and the hand-over after Stop.
-Your answer: ____
+Your answer (24-10-2026): Keep the choice before Step 3, with honest labels, because both happen: 'Organise only' stops after Step 3 (Step 4 is run later on its own); 'Full pipeline' runs Step 3 and then really starts the Step 4 refresh by itself, unattended (overnight). Step 4 on its own stays available from its tab and its shortcut (item 21).
 
 ### 40. Warning about long client names                                  Part 3 · refs A-R136, B-R141 (note part)
 What this is about: a long name such as "<Client A> Infrastructure Private Limited" makes folder paths long, and Excel cannot open files whose full path exceeds about 218 characters ⚠. A warns before this happens; B only promises a warning in its help note.
@@ -629,7 +693,7 @@ A's way: warns at a fixed 10 characters when you switch a client's name toggle o
 B's way: no warning; its note "Names >10 chars will show warning" (`B:gui/views/setup_view.py:385-388`) describes code that does not exist in B.
 Evidence: the two thresholds disagree (10 against the setting), and names added per client are not covered at Start (A audit 11.4.4, S3a-10). The long-path problem is real: in one real run 1094 of 3030 files were over Excel's ~218-character limit ⚠ (A's commit `7347383` message). Whether names can be added per client at all is item 29; a check of every whole path against Excel's limit is proposed separately as contract C13 (item 83). MERGE_COMPARISON.md section 5, Category 16.1.
 Recommendation: Keep, as one warning before Step 3 for every folder name longer than your length setting, whichever option added the name (the A audit's plan for the rebuild, 11.4.4 S3a-10), because one warning before the run is cheaper than reports failing file by file.
-Your answer: ____
+Your answer (24-10-2026): No separate long-name warning (its trigger, the client name in category folders, was dropped in item 29). Instead, the pre-flight check (item 30: Dry Run and again at Start) lists every client folder name that will be shortened to the length setting (item 27) and every path too long for Excel (C13).
 
 ### 41. Export the ticked client list                                  Part 3 · refs A-F12, A-R142, B-F10, A-G31, B-G73 (part)
 What this is about: a button on Step 2 that saves the names of the ticked clients to a text file - for example to send a colleague the list of clients going into this batch. The rest of the Step 2 list is item 8.
@@ -637,7 +701,7 @@ A's way: writes the file and opens it (`A:gui/handlers/client_handler.py:225-257
 B's way: an "EXPORT LIST" button that is connected to nothing - clicking it does nothing (`B:gui/views/validation_view.py:186-200`; RAN B audit: no action connected); B's rewrite `a62d3cc` deleted the code behind the old button, while its message says "All functionality has been reimplemented".
 Evidence: A writes the file in an older Windows character set (the Windows code page), so some names may not survive, and opening it works on Windows only - elsewhere "Export Complete" is followed by "Export Error" (A-G31). Tier 3 (nice-to-have) in both audits' priority lists. MERGE_COMPARISON.md section 3, row 12.
 Recommendation: Keep A's export, written in UTF-8 (the standard text encoding that holds any character), because it is small, works in A, and both screens already show the button.
-Your answer: ____
+Your answer (24-10-2026): Yes: keep A's export of the ticked client list, saved in UTF-8 so every name survives. _(Note: answered alongside item 9.)_
 
 ### 42. Hand-written mouse-wheel rules                                  Part 3 · refs A-R146, A-G68
 What this is about: on a long page, such as Step 4's list of 150 clients in the GSTR-9 season, the mouse wheel should scroll. In Tkinter (A's toolkit) the wheel does not scroll such pages by itself, so A wrote its own rules. Qt-based toolkits - PyQt5 (B's) and PySide6 (the one your Standard 12 names, Qt 6) - scroll by themselves.
@@ -646,7 +710,7 @@ B's way: Qt's own scrolling; nothing extra.
 Other choices: if item 89 keeps Tkinter, carry A's final rule and its tests.
 Evidence: gaps remain in A (small wheel steps are dropped in the Step 4 log box - the on-screen list of what the program did; A-G68). MERGE_COMPARISON.md section 3, row 31; section 5, Category 16.1.
 Recommendation: Drop, because it exists only to patch Tkinter and the window toolkit your Standard 12 names scrolls by itself.
-Your answer: ____
+Your answer (24-10-2026): Drop: A's hand-written mouse-wheel rules exist only to patch Tkinter; PySide6 scrolls by itself.
 
 ### 43. B's run history and "Last Run" column                                  Part 3 · refs B-F17, B-R119, B-R120, A-R123, B-F25 (history part), B-G25, B-G59, B-G64 (part)
 What this is about: B saves a record of every run in your user profile (your own folder on the PC) and shows on Step 2 when each client was last processed - for example when <Client A>'s ITC and Sales reports were last built. It also stores every figure Step 4 extracted, for every client.
@@ -654,7 +718,7 @@ A's way: no history; the records of a run are the summary workbook, the per-clie
 B's way: `run_history.json` in `~/.gst_organizer/` (`B:models/run_history.py:16-148`; "Last Run" `B:gui/views/validation_view.py:381-385`; `c258047`, 07-02-2026).
 Evidence: RAN (B audit and comparison section 5): "Last Run" appears only after the next scan; client records are never trimmed; a wrongly typed history file makes B abort at the end of the next run; Step 4 results are filed under a name no screen looks up, marked "refreshed" even when the refresh failed; the figures stay for ever outside the client folders (B-G64). A per-run Step 4 log file without the figures is item 16; where client data may be written is contract C16 (item 86). MERGE_COMPARISON.md section 3, row 33; section 5, Category 14.7; section 10.3.
 Recommendation: Drop, because it keeps every client's figures indefinitely in a file outside the client folders, and the one thing it shows (Last Run) can be read from the dated run folders themselves.
-Your answer: ____
+Your answer (24-10-2026): Drop B's run history and 'Last Run' column: the dated batch folders show when a client was processed, the record file and run log (items 35, 16) keep the history inside the batch folder without figures, and figures kept forever in a profile file are a confidentiality risk.
 
 ### 44. Step 4 fills itself when the window opens                                  Part 3 · refs B-R126, B-G58 (part), A-R144 (part)
 What this is about: when you open the tool, B's Step 4 already lists the clients and Version folders of the latest batch; A's Step 4 stays empty until you press its Scan button. Example: on a December morning you open the tool only to scan one late GSTR-3B download, and B first walks the whole FY 2025-26 batch on the network share.
@@ -663,7 +727,7 @@ B's way: at start-up it reads the last SAVED target folder and walks it on the w
 Other choices: keep B's fill but run it in a background worker that shows which folder it read - the share is then still read at every start.
 Evidence: a slow or unreachable share delays B's start-up (B-G58, READ); a target typed but not yet saved is ignored (B-G28, RAN). A's `bfcb24a` gives its reason: scanning at start-up "would hit the network on every launch" (A audit 8.4.4). The Step 4 layout and where its folder walk runs are item 12; which batch counts as "latest" is item 13. MERGE_COMPARISON.md section 5, Category 16.13.
 Recommendation: Drop the start-up fill (A's way: Step 4 reads the share only when asked), because you chose this deliberately in A's latest work and pinned it with a test, so that opening the tool never waits on the network.
-Your answer: ____
+Your answer (24-10-2026): Drop the start-up fill (A's way): Step 4 reads the server only when asked, never when the app opens (consistent with item 12).
 
 ### 45. Fold-away help cards                                  Part 3 · refs B-F33 (collapsible part), A-F31 (collapsible part)
 What this is about: help boxes that fold away with one click - for example the card telling staff how GSTR-2B and IMS downloads must be named - so a 1366×768 laptop screen keeps room for the controls.
@@ -671,7 +735,7 @@ A's way: one fold-away box on Step 2 (`A:gui/widgets/collapsible_frame.py:7`, us
 B's way: two fold-away cards on Step 1, "INSTRUCTIONS" and "EXPECTED FILE NAMES / MODES", folding at each scan (`B:gui/views/setup_view.py:17-82, 469-517`; `7e09e5c`, 08-02-2026).
 Evidence: B's card text is typed by hand and its mode lines contradict the mode buttons ("Re-Run: Overwrite existing"); at the opening window size the Scan button is below the visible part of Step 1 in both (RAN for the comparison, section 6). The wording of the expected-file-names card is a GST rule ⚠ (item 24); the other help texts are item 19. MERGE_COMPARISON.md section 3, row 31; section 6.
 Recommendation: Keep fold-away help cards, with texts written from the new tool's real behaviour, because they keep help one click away without crowding small screens.
-Your answer: ____
+Your answer (24-10-2026): Keep fold-away help cards, with every text written to match what the new tool really does.
 
 ### 46. One-time import of the old settings file                                  Part 3 · refs B-F2, B-R118
 What this is about: the first time B opens on a PC where the Tkinter program was used - say an article assistant's PC that ran A last season - it copies the old settings (the four paths, mode, include-name tick, length, dark mode) into its own settings file, once.
@@ -679,7 +743,7 @@ A's way: nothing to import; A's settings file `~/.gst_organizer_cache.json` is e
 B's way: `B:models/cache_manager.py:93-131`, called at `B:gui/pyqt_main_window.py:47`; marker file `.migrated` (`c258047`, 07-02-2026).
 Evidence: RAN for the comparison (section 5, Category 14.3): A's recent-folders list and workflow choice are lost; a saved length of 0 becomes 15; a damaged old file is retried at every start; deleting the marker re-imports the old settings over the current ones (B audit 2.4.1 row 6; Section 3, B-F2 trace, point 5). The new tool keeps its settings in `%LOCALAPPDATA%\<App>\` (Windows' per-user folder for program data, Standard 13). MERGE_COMPARISON.md section 3, row 32; section 5, Category 14.4.
 Recommendation: Drop, because typing four paths once per PC carries less risk than an import that gets two values wrong.
-Your answer: ____
+Your answer (24-10-2026): Drop B's one-time import of A's old settings: runs happen on one PC, so typing the paths once (four plus the SSD working folder) is quicker and safer.
 
 #### Found in only one project, but asked in another item
 
@@ -707,7 +771,7 @@ A's way: in `A:utils/constants.py` - `EXCEL_EXTENSIONS` (:196), `TEMPLATE_EXTENS
 B's way: the same constants at `B:utils/constants.py:179-185, 217-228, 83`; the mode names, texts and icons (:157-173); the whole window table `GUI_CONFIG` (:126-151) and all message texts `MESSAGES` (:191-211), which died with the Tkinter screens in `a62d3cc`; the same extraction settings (identical file) and version labels.
 Evidence: A's are never read at any commit since the first one, `edac6a3` (31-08-2025) (A audit 12E.5); B's are the same, except `GUI_CONFIG`, `MESSAGES` and the mode names and texts, which the Tkinter screens read until `a62d3cc` (07-02-2026) deleted those screens (B audit 2.8.5-2.8.6, 12E.5). Dropping them changes nothing the tool does: the template types and extraction cells really used are your rules in items 31 and 68. `TEMPLATE_EXTENSIONS` is a third list that disagrees with both template pickers; A's own March 2026 audit even reported part of `EXCEL_SAFETY` as used, which was never true (A audit 2.9 #15). MERGE_COMPARISON.md section 8.3.
 Recommendation: Drop all, because nothing reads them and their values contradict what the code really does, which misleads anyone - or any AI - reading the code later.
-Your answer: ____
+Your answer (24-10-2026): Drop all settings and lists that nothing ever reads (they contradict what the code does and mislead anyone reading it later).
 
 ### 48. Helper functions that are never called                                  Part 4 · refs A-R18, A-R34, A-R49, A-R50, A-R63, B-R18, B-R30 (get_date_only part), B-R41, B-R46, B-R47, B-R58
 What this is about: small functions written but never used: unique names instead of overwriting (`get_unique_path`), a file fingerprint that could prove a copied GSTR-2B file matches its source (`calculate_file_hash`), relative paths for the Links cells (`get_relative_excel_path`), today's date (`get_date_only`), deleting a Version folder left empty after a client fails (`cleanup_on_error`), a run count (`get_summary`), and a client-name check whose result nobody reads.
@@ -715,7 +779,7 @@ A's way: `A:utils/helpers.py:29-31, 451-470, 529-547, 557-574`; `A:core/file_org
 B's way: the same functions at `B:utils/helpers.py:27-29, 344-363, 422-440, 450-467`; `B:core/file_organizer.py:364-409`; the same unread name check (`B:core/file_parser.py:104-115`) and progress callback.
 Evidence: none has a caller at `edac6a3`, at the split `47a1492`, or today (A audit 2.8.13, RAN; B audit 2.8.3); nine of the shared names were re-checked in both (MERGE_COMPARISON.md section 8.3).
 Recommendation: Drop, because none has ever run; the ideas worth having (a content check of copies, clean-up after a failure) are offered as new work in Part 5.
-Your answer: ____
+Your answer (24-10-2026): Drop the helper functions that are never called; the useful ideas return as new work in Part 5.
 
 ### 49. Dead or unreachable code in the Excel and Step 4 parts                                  Part 4 · refs A-R92, A-R94, A-R95, B-R72, B-R91, B-R93, A-G74, B-G79
 What this is about: Excel and consolidation code that looks like protection or a feature but can never act (a "branch" is a piece of code that runs only in one case; "unreachable" means no case ever gets there). Example: a comment says "Don't quit if Excel was already open", but the test behind it is always true, so the Excel in which you have <Client A>'s working open is quit every time.
@@ -723,7 +787,7 @@ A's way: the "don't quit" test and the clean-up on discard (`A:core/excel_handle
 B's way: the same at `B:core/excel_handler.py:57-63, 206-211`; `B:power_query_extractor/core/report_processor.py:122-137, 749-752`; `B:power_query_extractor/core/data_consolidator.py:51-65, 237-339, 341-399` (B removed the unreachable `return` and the doubled header in `c258047`).
 Evidence: all READ in both audits (A audit 2.8.3-2.8.4; B audit 2.8.3-2.8.4); all from `edac6a3` (shared). Leaving your own Excel open comes from your Standard 12's private Excel (item 94), not from this code; the older layout `_write_section` is the only code that would put a failure reason into the workbook - that idea is item 55. MERGE_COMPARISON.md section 8.3.
 Recommendation: Drop, because none of it can run, and what it pretends to do is provided properly elsewhere (Standard 12, item 55).
-Your answer: ____
+Your answer (24-10-2026): Drop the dead or unreachable Excel and Step 4 code; what it pretends to do comes properly from Standard 12 (item 94).
 
 ### 50. A's own leftovers                                  Part 4 · refs A-R129, A-R117
 What this is about: pieces A's July 2026 work left behind, plus older clutter A kept. Example: a Step 4 notice "Power Query refresh is unavailable ... needs pywin32" that can no longer appear when pywin32 is missing, and would blame pywin32 for any other error - say a damaged file on the day you refresh <Client A>'s reports.
@@ -731,7 +795,7 @@ A's way: the notice (`A:gui/tabs/extract_tab.py:21-30, 67-69, 84-105`; `c463256`
 B's way: none of these: B's rewrite `c258047` replaced these screens and removed most pasted comments (B's own leftovers are item 51).
 Evidence: the notice cannot appear for a missing pywin32 (RAN A audit 2.8.4 #6); the helpers above are reached only by A's tests (A audit 2.8.11). Two more pieces of A's clutter are decided elsewhere: the 14 "[DEBUG]" lines on the Step 3 screen, kept by `064c634` as "a separate UX decision" (UX: how the screen feels to use; item 11), and the empty `logs\` and `temp\` folders A creates in its program folder at every start (items 1 and 96). A audit 2.8, 12E.4-12E.5.
 Recommendation: Drop, because each is unreachable, kept only for tests, or clutter that nothing uses.
-Your answer: ____
+Your answer (24-10-2026): Drop A's own leftovers (misleading pywin32 notice, test-only helpers, unused settings, pasted AI comments).
 
 ### 51. B's own leftovers                                  Part 4 · refs B-R105, B-R117, B-R132, B-R143
 What this is about: pieces B's February 2026 rewrite created or left behind and never used - for example a file that records the season's recent source folders but is never read back. Another example: `models/signals.py`, a "central signal hub" (a signal is Qt's message from one part of the program to another) whose own description says all communication goes through it - nothing ever loads it.
@@ -739,7 +803,7 @@ A's way: none of these (A has no dead file or class, A audit 2.8.1-2.8.2).
 B's way: `B:models/signals.py` (18 unused signals, `c258047`); an unused fold-away widget `B:gui/widgets/collapsible_group.py`; the `B:power_query_extractor/gui/` folder, which holds only a one-line package marker since `a62d3cc` deleted the window inside it; unused helpers on the scan and processing records (`B:models/app_state.py:57-88`), `ProcessingView.reset`, `ThemeManager.toggle`, a colour table, an `#info` button style and a grey tab-dot colour (B-R132); `session_state.json` written at every close and never read (`B:gui/pyqt_main_window.py:604-607`; readers `B:models/cache_manager.py:82-89` never called); helpers dead since `7e09e5c` and `a62d3cc` (`get_file_info`, `validate_excel_file`, `truncate_path`); an empty `%TEMP%\gst_excel_temp` folder (in Windows' folder for temporary files) made at every run and never used (`B:core/excel_handler.py:52-53`).
 Evidence: RAN (B audit 2.8): never loaded, never created or never read; B's own docstring and commit message describe several of them as working ("Signal/slot architecture replaces 305 self.app.xxx callback references", `c258047`; B audit 2.9 #10, #16). Whether to build "reopen where you left off" properly is item 54. MERGE_COMPARISON.md section 8.3.
 Recommendation: Drop, because nothing uses them and they describe a design B never had, which misleads anyone reading the code.
-Your answer: ____
+Your answer (24-10-2026): Drop B's own leftovers (unused signal hub and widgets, session file never read, empty temp folder made every run).
 
 ### 52. The old extractor entry file `extractor_main.py`                                  Part 4 · refs B-F31, B-R128, B-G45, A-G32 (part), A-R118 (part), A-R121 (part)
 What this is about: up to the split (30-10-2025) the Step 4 extractor was a separate program, and its own start file, `power_query_extractor/extractor_main.py`, is still in both projects. Whether the new tool keeps a second way to open Step 4 on its own (`launch_extractor.py`) is item 21; this item is only the old file. Example: someone types `python -m power_query_extractor.extractor_main` (a command that starts one part of a program from the console) to refresh last week's ITC reports.
@@ -747,7 +811,7 @@ A's way: A's `launch_extractor.py` uses it, and it can also be started alone, bu
 B's way: `B:power_query_extractor/extractor_main.py` cannot even be loaded since `a62d3cc` deleted the window it imports; nothing calls it, and its log and look-up files are never created (B-F31, B-R128, B-G45).
 Evidence: RAN (A audit 2.8.1 #2: direct start fails, `-m` works; B audit B-G45: `ModuleNotFoundError`, Python's error for "a code file this needs is missing"). A stray settings file in the start folder can decide which folder A's version scans (A audit 11.4.4, S3b-60). Under Standard 13 the tool is started only through its `Run [App Name].bat` launcher (item 96), whatever item 21 decides. MERGE_COMPARISON.md section 3, rows 29-30; section 8.3.
 Recommendation: Drop it in both, because B's copy cannot run at all and A's is a console-only extra way into Step 4 that reads its settings from stray files.
-Your answer: ____
+Your answer (24-10-2026): Drop the old extractor start file extractor_main.py in both (item 21 keeps a second way into Step 4).
 
 ### 53. The old documents inside A, and the shared README                                  Part 4 · refs MERGE_COMPARISON.md section 10, D3, D4, D7, D9 (no feature IDs)
 What this is about: four documents in A and one in both describe an older state of the program: A's March 2026 audit `PROJECT_AUDIT_ANNUALSTATEMENT.md`, the design note `docs/superpowers/specs/2026-07-25-merge-extractor-design.md`, `tests/README.md`, the AI coding tool's setting `.claude/settings.local.json`, and `README.md`.
@@ -755,7 +819,7 @@ A's way: the March audit (`fc279af` 04-03-2026, rewritten `f7eb8f1` 05-03-2026, 
 B's way: only `README.md` (byte-identical to A's, from 29-10-2025, still describing two separate programs); `.claude/settings.local.json` removed in `c258047`.
 Evidence: the March audit uses a company-like name in its worked examples (lines 130-232), treated as a real client until you say otherwise (item 148 asks you), and holds your own folder path - it must never be copied; the new audits replace it and record where every old document disagrees with the code (A audit Appendix X4; B audit 2.9). The design note's two unbuilt plans are the "Continue to extraction" button (item 58) and moving the extractor's log set-up out of `extractor_main.py` (side-stepped in A since `bfcb24a`, A audit 12E.4, and moot once that file goes, item 52). MERGE_COMPARISON.md section 10 (D3, D4, D7, D9).
 Recommendation: Drop all five from the new project, because the new audits replace them, your pipeline writes a new README later (Step G), and the March audit must stay out because of the client-like name.
-Your answer: ____
+Your answer (24-10-2026): Drop all five old documents from the new project (A's March 2026 audit with its company-like name, the design note, the tests README, the AI tool's settings file, the README).
 
 ## Part 5 - Candidates to defer
 
@@ -767,7 +831,7 @@ A's way: a recent-folders list written at each save, never read (`A:gui/utils/ca
 B's way: `session_state.json` with recent folders, last tab and window size, written on close and never read; the window always opens on Step 1 at 1400×900 (`B:gui/pyqt_main_window.py:604-607`; `B:models/cache_manager.py:82-89`; `c258047`).
 Evidence: half-built in both (A audit 12E.4; B audit 12E.4); the four paths themselves are already remembered by both settings files (item 4). The unread lists themselves are dropped in items 50 and 51; this item is whether to build the idea properly later. MERGE_COMPARISON.md section 5, Category 14.3.
 Recommendation: Defer, because the four paths are already remembered, so this saves little in a first build.
-Your answer: ____
+Your answer (24-10-2026): Defer to the Parking Lot: reopen on the last tab with a recent-folders list.
 
 ### 55. Failure reason inside the consolidated workbook                                  Part 5 · refs A-R94, B-R93 (idea)
 What this is about: when a client's refresh fails, the consolidated workbook today shows only ✗ for that client; a never-used older layout would have written the reason ("Error Details") next to it, so you see why without opening a log.
@@ -775,7 +839,7 @@ A's way: the reason is shown on screen per report ("⚠️ ITC Report - <reason>
 B's way: the screen shows only "Result: ITC: FAIL" (`B:gui/controllers/extraction_controller.py:76-84`); the same never-called layout (`B:power_query_extractor/core/data_consolidator.py:237-339`).
 Evidence: the old code is dropped in item 49, so this is new work. Whether the figures of a failed refresh show as "Missing" is a GST rule (item 69, row 4) and is not touched here. MERGE_COMPARISON.md section 6.
 Recommendation: Defer, because the reason already shows on screen (item 12) and, if you agree to item 16, in the run folder's log file.
-Your answer: ____
+Your answer (24-10-2026): Build now, as part of item 10's whole-batch workbook: every row of a client without a confirmed refresh shows 'not refreshed' with the reason.
 
 ### 56. Content check of copied files                                  Part 5 · refs A-R50, B-R47 (idea)
 What this is about: after copying a client's GSTR-2B file into its folder, both projects check only that the copy has the same size. A never-used helper would compare an md5 fingerprint (a short code computed from every byte of a file, which changes if any byte changes).
@@ -783,7 +847,7 @@ A's way: `calculate_file_hash`, never called (`A:utils/helpers.py:529-547`); cop
 B's way: the same (`B:utils/helpers.py:422-440`; size check B-R42).
 Evidence: never called at any commit; the copy problem actually found - a half-written copy left under its final name (A-G11 / B-G26) - is cured by copying to a temporary name and renaming, not by a fingerprint; a fingerprint reads every file a second time over the share (HIGH). MERGE_COMPARISON.md section 8.5.
 Recommendation: Defer, because the size check plus a temporary name covers the failures seen so far without reading every file twice.
-Your answer: ____
+Your answer (24-10-2026): Build now: every file copied to the server is read back and compared by fingerprint with the original; any difference and it is copied again. Roughly doubles the copy time, which does not matter overnight.
 
 ### 57. Clean-up after a client fails                                  Part 5 · refs B-R41 (idea; A's same function has no rule ID)
 What this is about: if processing of <Client A> fails halfway, its new Version folder and any copies stay on disk. A never-called function would, in Fresh mode (the processing mode that starts a new batch), delete that Version folder - but only when no file other than names starting with "_" is in it, so it would remove empty leftovers, not half-done copies (`A:core/file_organizer.py:398-407`).
@@ -791,7 +855,7 @@ A's way: `cleanup_on_error`, never called (`A:core/file_organizer.py:381-407`).
 B's way: the same (`B:core/file_organizer.py:364-390`).
 Evidence: never called since `edac6a3` in either project; automatic deletion on a network share is risky to get wrong (a wrong folder deleted is worse than one left over). A audit 12E.4; B audit 12E.4.
 Recommendation: Defer, because a clear "failed" entry for the client in the run's summary makes leftovers easy to spot, while deleting on the share needs care.
-Your answer: ____
+Your answer (24-10-2026): Not needed: with the SSD working folder (item 10), a failed client never reaches the server, so there is nothing to clean up there; its SSD copy is kept for a retry.
 
 ### 58. A "Continue to extraction" button after an "organise only" run                                  Part 5 · refs A-F5 (part)
 What this is about: A's design note of 25-07-2026 planned, for "organise only" runs, a button at the end of Step 3 that takes you on to Step 4 when you decide to go on.
@@ -799,7 +863,7 @@ A's way: not built; a log line instead - "Workflow is 'organise only'. Open Step
 B's way: no choice; always moves to Step 4.
 Evidence: only the design note mentions it (RAN, `git log -S`: only `b276542`); it matters only if you keep A's workflow choice (item 39).
 Recommendation: Defer, because clicking the Step 4 tab does the same today.
-Your answer: ____
+Your answer (24-10-2026): Defer to the Parking Lot: a 'Continue to Step 4' button after 'Organise only' (the Step 4 tab does the same).
 
 ### 59. Start the refresh automatically after Step 3                                  Part 5 · refs A-F5 (text part), A-G66 (part)
 What this is about: a true "full pipeline" in which Step 4 starts refreshing every report by itself after Step 3 - for example overnight for 50 clients.
@@ -807,7 +871,7 @@ A's way: "full pipeline" opens Step 4 and lists the clients but never starts the
 B's way: moves to Step 4; never starts the refresh.
 Evidence: today's refresh presses keys (Alt+A, R, A - English Excel's shortcuts ⚠) into whatever window is in front and trusts fixed waits (A-G55 / B-G62, A-G3 / B-G6); how the new tool refreshes is still to be settled (item 95) and tested on an office PC; whether the choice between "organise only" and "full pipeline" stays at all is item 39. MERGE_COMPARISON.md section 6; section 9 (H3, H20).
 Recommendation: Defer, because an unattended refresh is safe only once the refresh method has been proven on an office PC.
-Your answer: ____
+Your answer (24-10-2026): Not deferred: build it now. 'Full pipeline' starts the Step 4 refresh automatically after Step 3, for unattended overnight runs, relying on the agreed safety nets (refresh confirmation and stamp, per-report time limit, per-client copy to the server, end-of-run issues list). _(Note: decided with item 39.)_
 
 ### 60. A settings screen for the GST configuration                                  Part 5 · refs none (idea from B audit 11.4.3, T10)
 What this is about: the file-name patterns, the Links cells and the 22 extraction cells live in Python files that you edit with AI help, guided by a "HOW TO EDIT THIS FILE" text. A screen could let you change them without touching code - for example when the portal renames a download or a template's GSTR-9 table moves to another cell ⚠.
@@ -815,7 +879,7 @@ A's way: `A:utils/constants.py` (patterns, Links cells) and `A:power_query_extra
 B's way: the same two files (`cell_mappings.py` byte-identical).
 Evidence: the B audit's blueprint keeps the files and adds a check when they load (B audit 11.4.3, T10); such a check also catches the setting that can silently overwrite another (A-G78 / B-G78). The values themselves are your GST rules ⚠ (items 63, 67 and 68) and are not changed by this item.
 Recommendation: Defer, because you change these rarely, and a check when the file loads gives most of the safety a screen would.
-Your answer: ____
+Your answer (24-10-2026): Build now, as part of idea 1: a settings screen to edit report profiles - file types found by pattern analysis, their naming, which are mandatory, how many files each may have, the folder each goes into, what each Links cell gets (path or file name), which cells are read after the refresh, and the output's name and how it is kept. Two profiles built in from the start (idea 1). A check when a profile loads still catches mistakes such as two settings that silently overwrite each other. _(Note: his answer, 24-10-2026.)_
 
 ### 61. Read the refreshed figures without a second Excel                                  Part 5 · refs A-F23 (reading method), B-F22 (reading method)
 What this is about: after refreshing a client's ITC report, both projects open the saved copy again in a second, hidden Excel just to read 22 cells ⚠ (such as the one for the consolidated sheet "Table 8D Limits"). Your Standard 12 allows reading such a workbook with openpyxl instead, without starting Excel (reading is safe; only saving with openpyxl loses Power Query).
@@ -823,7 +887,7 @@ A's way: a second Excel per report (`A:power_query_extractor/core/report_process
 B's way: the same (`B:power_query_extractor/core/report_processor.py:478-587`).
 Evidence: Standard 12: "Reading a Power Query workbook with openpyxl is fine" (`rebuild_pipeline_FINAL.md:827`); both blueprints advise comparing all 22 cells both ways on an office PC before the second Excel goes, because why openpyxl was not used is not recorded (A audit 11.4.3 T5, which also offers re-opening the copy in the same private Excel; B audit 11.4.3 T5). Which cells are read is your GST rule ⚠ (item 68) and does not change. MERGE_COMPARISON.md section 7.
 Recommendation: Defer, because the first build can read through Excel as both projects do, and switch only after the office-PC comparison shows identical figures.
-Your answer: ____
+Your answer (24-10-2026): Defer: the first build reads the figures through Excel; switch to reading without a second Excel only after a test on the run PC shows identical figures both ways.
 
 ### 62. Skill files written from the lessons of A and B                                  Part 5 · refs none (A audit 11.6, B audit 11.6)
 What this is about: both audits suggest 13 and 14 "skills" - instruction files (SKILL.md) that Claude loads for one kind of task, such as "Excel through COM, one safe session" (COM is Windows' way for one program to drive another) or "one naming rule, one finder" - so later projects do not relearn these lessons.
@@ -831,7 +895,7 @@ A's way: A audit 11.6, SK1 to SK13.
 B's way: B audit 11.6, SK1 to SK14.
 Evidence: the Excel and start-up rules several of them repeat are already in your CLAUDE.md (Standards 12 and 13); a skill is most useful when written from what a build has proved on the office PCs.
 Recommendation: Defer, because the skills are best written after the first working build, from what it proved.
-Your answer: ____
+Your answer (24-10-2026): Defer: instruction (skill) files written from these lessons after the first working build.
 
 ## Part 6 - Rules both projects share
 
@@ -857,7 +921,7 @@ B's way: the same as A's.
 
 Evidence: RAN (section 5, Category 1, rows A-R1, A-R3 to A-R7, A-R11, A-R12): 15 test names give the same results in both apart from the IMS "(1)" names; the hint function is identical. The hyphen and `Sales-Reco-` cases are shared gaps A-G33/A-G34 = B-G17. Row 10 is READ in both and unchanged since `edac6a3` (31-08-2025); it is never-used code that holds a GST rule, so it is yours to keep or drop rather than a Part 4 drop candidate.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Current Octa GST export names (fresh export checked by Sidhant on 24-10-2026; client names withheld), one fixed style per type: GSTR-2B Reco: GSTR-2B-Reco-<client>-<state>-<period>, period written '2025-26' (FY), 'Sep-2026' (one month) or 'Apr-2025-Sep-2026' (range). Sales Reco: SalesReco-<client>-<state>-<period>, same three period styles as GSTR-2B Reco. GSTR-3B: GSTR3B-<client>-<state>-<month>, month written 'Sep 2026' (no hyphen in the prefix). Sales: Sales-<client>-<state>-<period>, period written 'Sep 2026' (one month) or 'Apr 2025-Mar 2026' (range); a hyphen inside a month ('Apr-2022') is wrong and flagged. IMS Reco: ImsReco-<client>-<state>-<DDMMYYYY>, the date being the export date. Annual Report: AnnualReport-<client>-<state>-2025-26; an Annual Report with no state part covers several registrations and is ignored (listed at Step 2 as ignored with that reason). So: row 1 correct (hyphens allowed in the GSTR-2B period); row 2 correct; row 3 changed (single months accepted; hyphen inside a month flagged); row 4 changed to match row 1 (hyphens allowed, three styles); row 5 changed (no-state Annual Report ignored). Rows 6-9 correct; dormant row 10 dropped (his answers, 24-10-2026). Consistency notes (Claude, from item 140): an .xls input is flagged at Step 2 ('save as .xlsx first') instead of being accepted, because the templates add .xlsx to every file name; a trailing ' (1)' is never read as part of a period - the file is treated as a copy and flagged as a duplicate (items 22, 64). _(Note: rows 6-9 confirmed correct; row 10 (unused category and folder labels): drop. Settled 24-10-2026..)_
 
 ### 64. Expected return files and completeness ⚠                Part 6 · refs A-R26, A-R27, A-R28, A-R29 (status rule), A-R30, B-R24, B-R25, B-R26, B-R27 (status rule), B-R28 (A-F8/B-F8)
 What this is about: Which return files every client is expected to have, and how Step 2 decides "Complete" - for example whether a client with twelve monthly GSTR-3B files but two GSTR-2B reconciliations is complete.
@@ -874,7 +938,7 @@ B's way: the same as A's.
 
 Evidence: RAN (section 5, Category 5): identical function in both; for example a client with two GSTR-2B Reco files gets "Multiple GSTR-2B Reco (2 files)" in both, and completeness 100.0 / 33.3 / 16.7 come out alike.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Row 1: for the Annual Statement the six types are required (GSTR-2B Reco, IMS Reco, GSTR-3B, Sales, Sales Reco, Annual Report), but the set of types must not be fixed in code: per idea 1, other purposes will have other sets (e.g. a monthly ITC Claim sheet built from GSTR-3B, GSTR-3B-Portal, GSTR-2B Reco, IMS Reco and maybe others). Row 2 changed: GSTR-3B may have several files, one per month, at most 19 for a financial year (April of the year to October of the next: 12 + 7; corrected from 17 on 24-10-2026; idea 2). A second file for the same month is a duplicate: the client turns red at Step 2 and its ITC report is not built until one copy is removed and Scan pressed again, because the ITC template reads every file in the GSTR-3B folder (sub-folders too) that has an 'ITC Claims-Actions' sheet, so a second copy counts that month's ITC twice; the report profile marks GSTR-3B as read as a whole folder and the app warns when anything else shares that folder (Sidhant may instead filter the query by name; idea 1). Every other type must have exactly one file (it can be exported covering several months); two or more are flagged as duplicates. Row 3: completeness % = types found / 6 is right for the Annual Statement; other purposes will differ (idea 1). Row 4 changed: duplicates must be flagged, especially GSTR-3B; when a client has both problems the status shows both, e.g. 'Missing 1 · Duplicates'. Row 5 changed (critical types, kept): GSTR-3B and Annual Report are critical to the ITC report; Sales, Sales Reco and Annual Report are all critical to the Sales report. A client missing a critical file is shown in red at Step 2 ('Missing critical: <type>'); if ticked anyway, the report that needs it is not built, everything else for that client still goes ahead, and it is listed in the end-of-run issues list.
 
 ### 65. State codes, the client key, GSTIN/PAN and the period ⚠                Part 6 · refs A-R17 (scan), A-R21, A-R22, A-R23, A-R24, A-R25, A-R35, B-R17 (scan), B-R21, B-R22, B-R23, B-R32 (gaps A-G8/B-G15, A-G35, A-G36, A-G77/B-G16, A-G39/B-G49, B-G23)
 What this is about: How the state part of a file name becomes a code (`Maharashtra` → `MH`), how one client is told apart from another, and what the tool does - and does not do - with GSTIN, PAN and the period in the file names.
@@ -893,7 +957,7 @@ B's way: the same as A's.
 
 Evidence: RAN (section 5, Categories 2-4 and 6): 39 names and 36 codes in both; `Delhi`, `" delhi "`, `Tamil Nadu`, `Orissa`, `Ladakh` give DL, DL, TN, OD, LA in both; the name builder gives `ClientB Pvt Ltd-MH` in both. Shared gaps: one client spelled several ways becomes several incomplete clients (A-G35 = B-G16); two different clients can share one folder (A-G8 = B-G15); no period check (A-G39 = B-G49, B-G23).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Row 1 correct: all 18 state texts in the July 2026 run are standard full names, plus the '<State>_<label>' second registration. Row 2 replaced: no made-up codes; an unknown state text is flagged at Step 2 (item 24), except '<State>_<label>', read as that state plus a registration label: 'Delhi_Trading' = Delhi (DL) + label 'Trading', shown 'Client - Delhi (Trading)', folder and reports 'Client-DL_Trading', always kept fully separate from the plain Delhi registration (item 25; he will always split multiple registrations in one state this way). Row 3 kept: the client is its exact spelling; July 2026 had no client spelt two ways. Row 4 kept. Row 5 kept with item 27's change: the state code is never cut. Row 6: still no GSTIN or PAN at scan time; after a refresh the GSTIN from the Annual Report is checked against the client's state (item 69). Row 7 replaced by idea 2 (period-aware scanning). _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 66. Folder, file and report names                Part 6 · refs A-R32, A-R33, A-R38, A-R41 (type → folder), A-R46, A-R48, A-R59 (names), A-R61 (name), A-R62, A-R86 (name), B-R30, B-R31, B-R34, B-R37 (type → folder), B-R40, B-R43 (backup name), B-R51, B-R57, B-R86 (name), B-R94 (name) (A-F13/B-F12, A-F16/B-F15; gaps A-G9/B-G27, A-G76/B-G81)
 What this is about: The names of everything Step 3 and Step 4 create on the share, which staff open during the annual return season - apart from the three category folder names, which differ (item 28).
@@ -916,7 +980,7 @@ B's way: the same as A's.
 
 Evidence: RAN (section 5, Categories 6-8 and 11): `Annual Statement-211026 1030`, `Version-211026 1030`, `…_backup_211026_1030.xlsx` and `ITC_Report_ClientA_DL_211026_1030.xlsx` in both (the cleaned client name inside copy and report names can differ through the "Private"/"Limited" rule, a technical item). Shared gaps: a repeat in the same minute overwrites earlier output (A-G9 = B-G27); one run is named by two separate clock readings (A-G76 = B-G81).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): All correct as seen in the July 2026 batch (run, client and Version folder names; day-first times; which file goes where; copies keep their names with spaces as '_'; report names; summary workbook; per-client text report), with these changes: row 1, a new run never reuses an existing batch folder (two runs in one minute get distinct names) - only Resume and Re-Run deliberately work inside the chosen batch (items 10, 87); these names are the Annual Statement profile's defaults, and the folder tree is his to arrange (idea 1); category folders use the short names of item 28; row 7, an .xlsm template gives an .xlsm report (item 31). Row 11 keeps the consolidated workbook's year-first name as today. _(Note: from his files, 24-10-2026; row 7 confirmed by him the same day: the report names (full client name, state code, time) are deliberate and stay; a proposal to shorten them for path length was declined.)_
 
 ### 67. The template Links-sheet cells ⚠                Part 6 · refs A-R54, A-R55 (cells), A-R56, A-R57, A-R58 (Excel path), A-R60 (both reports), B-R50, B-R53 (Excel path), B-R54, B-R55, B-R56 (A-F14/B-F13, A-F15/B-F14; gaps A-G4/B-G4, A-G5/B-G2, A-G6/B-G3)
 What this is about: Which cell of each template's Links sheet receives which folder or file name - the hand-over between the tool and your templates' queries. Only the folder text differs between the projects (item 28) and, for IMS, which file is named (item 22); the cells and rules below are the same.
@@ -935,7 +999,7 @@ B's way: the same as A's.
 
 Evidence: RAN (section 5, Category 8 (8.3), rows A-R56, A-R57): with a made-up template holding "PLACEHOLDER-B3" etc., B3 keeps its placeholder and file names carry no extension in both; ClientD with two GSTR-2B Reco files gets B8 = `…-FY2025-26_(1)` in both; ClientD with only GSTR-3B and GSTR-2B files gets only ITC B2, B7, B8 and no Sales cell, in both. Shared gaps: no error for a template without a Links sheet (A-G4 = B-G4); missing types keep template text (A-G5 = B-G2); only the first file is linked (A-G6 = B-G3).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Rows 1-3 correct, checked in both master templates: same cells; folders written without a closing \, names without .xlsx (the queries add both). Row 4: the master cells are empty, so a missing file leaves its cell empty and only the parts that need it fail (item 69). Row 5 no longer arises: every type except GSTR-3B has exactly one file (item 64) and the GSTR-3B folder is read whole. Row 6: the template must have a sheet named 'Links' (any letter case); nothing is added silently - a template without it is refused at Step 1. Row 7 changed by item 64: a report whose critical file is missing is not built. _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 68. Extraction cells and the consolidated-workbook columns ⚠                Part 6 · refs A-R74, A-R75, A-R76, A-R77, A-R78, A-R79, A-R80, A-R81, A-R82, A-R83, A-R85, A-R88, B-R73, B-R74, B-R75, B-R76, B-R77, B-R78, B-R79, B-R80, B-R81, B-R82, B-R83, B-R84 (A-F23/B-F22, A-F24/B-F23; gaps A-G1/B-G1, A-G17/B-G52, A-G78/B-G78)
 What this is about: After the refresh, Step 4 reads 22 fixed cells from each client's refreshed ITC and Sales reports into the consolidated workbook - your GSTR-3B and GSTR-1 differences, turnover, the reconciliation differences, the GSTR-9 Table 6J and Table 8D checks, the IMS figures and the extra-in-purchase / extra-in-GSTR-2B figures. The file that holds this list (`power_query_extractor/config/cell_mappings.py`) is byte-for-byte the same in both projects, so every line reference below is the same in A and B. **A technical fact, the same in both: of the 22 configured columns, 9 - the IGST, CGST and SGST columns of "IMS Reco", "Extra In Purchase" and "Extra In GSTR2B" (rows 7-9) - show the `Diff GSTR-3B` J15/K15/L15 values instead of their configured cells.** Which cells are right is your call.
@@ -959,7 +1023,7 @@ B's way: the same as A's.
 
 Evidence: RAN through both (section 5, Category 10 (10.2, 10.3)): a made-up ITC report with J15 = 101, AA1 = 501, O1 = 601 gave, in both, "GSTR-3B Difference" Diff IGST 101, "IMS Reco" IGST 101 (not 501) and "Extra In Purchase" IGST 101 (not 601); with J15 empty, the configured 501 and 601 appeared. The mismatch dates from the last shared commit `47a1492` (30-10-2025, which added rows 4-9). For rows 7-9 you might answer, for example, "except 7-9: keep what they show today", "except 7-9: use the configured cells" or "except 7-9: Not sure yet". A latent trap (one that does no harm today but would if the list were edited), the same in both: a second mapping of the same cell would silently replace the first (A-G78 = B-G78).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Rows 1-6 correct: each cell reads what its label says (Diff GSTR-3B J15:L15 = totals of the IGST/CGST/SGST differences; Diff - GSTR-1 I1 = GSTR-1 taxable value total and N1:Q1 = 'Difference (GSTR-1 - Sales)' taxable value/IGST/CGST/SGST; Reco C37:E37 = 'Net Difference'; T6 of R9 K29 = 'Difference (I - A above)'; T8 of R9 G6 = 'Difference [A-(B+C)]'). Rows 7-9 changed: each sheet reads its own cells, fixing the bug seen in the July 2026 consolidated workbook (the three sheets repeated the GSTR-3B difference for 124 of 125 clients). IMS Reco shows BOTH the IMS totals (IGST, CGST, SGST) and the IMS-versus-purchase differences (IGST, CGST, SGST); Extra In Purchase shows Purchase IGST/CGST/SGST; Extra In GSTR2B shows GSTR-2B IGST/CGST/SGST. Sidhant will correct the template's IMS_Reco total formulas before the next run (after a refresh the totals row sits out of line with its headings), so the final cell addresses are taken from the corrected template. Row 10: exact sheet names, and every cell read is checked against the heading or column it should total, so an edited or shifted template is caught instead of giving a wrong figure. Row 11: exact one-to-one mapping (the 'contains' look-up caused the bug). Row 12: dropped. _(Note: IMS 'both' and template fix from him, 24-10-2026; the rest from his files (object if wrong).)_
 
 ### 69. When a refresh counts as successful, and how figures are shown ⚠                Part 6 · refs A-R66, A-R73, A-R89, A-R90, B-R61, B-R69, B-R70, B-R71, B-R88, B-R89 (A-F21/B-F19, B-F20, A-F24/B-F23; gaps A-G3/B-G6, A-G15/B-G8, A-G17/B-G10, A-G18/B-G11, A-G79)
 What this is about: How Step 4 decides that a client's report refreshed properly, and what the consolidated workbook shows when it did not - for example whether a ClientB row shows "Missing" or its figures.
@@ -976,7 +1040,7 @@ B's way: the same as A's.
 
 Evidence: RAN through both with a stand-in for Excel - a fake Excel that records what the program asks of it, since this machine has no Excel (section 5, Category 9 (9.7, 9.8) and Category 11 (11.4)): BB2 empty, blank, `0`, `0.0`, `#N/A` → fail; `ClientA`, `ClientB` (another client), `00`, `12.5`, `-2146826246` → pass, identically. What real Excel does could only be READ. Whether `Info!BB2` is still the cell your current templates fill after a refresh is for you to confirm ⚠. Shared gaps: the refresh cannot be confirmed (A-G3 = B-G6); a copy of a copy may be refreshed (A-G15 = B-G8); figures that exist shown as "Missing" (A-G17 = B-G10).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): From the real templates (shown to him in the gist, no objection): a report counts as refreshed only when Excel confirms every query finished without error after the start (item 95) AND the Info sheet, filled from the Annual Report's Overview, shows the company name (BB2), the financial year being worked on (BB5) and a GSTIN whose state code matches the client's state (BB4). Errors only in queries that need a missing non-critical file (for example no IMS Reco file) are expected: the report still counts as refreshed and those columns show 'no IMS file' instead of a figure. A failed refresh never overwrites the last good copy (item 70 row 1) and its row shows 'Refresh failed: <reason>' (item 55) instead of figures; an empty cell still shows 'Missing' and 0 stays 0; number display unchanged (row 5). _(Note: from his files, 24-10-2026; proposal shown to him in the gist the same day, no objection.)_
 
 ### 70. Waits, the refreshed-copy suffix, key presses and Excel limits ⚠                Part 6 · refs A-R67, A-R71, A-R72 (waits), A-R104, A-R105, A-R112, B-R62, B-R66, B-R67, B-R68, B-R100, B-R102, B-R103, B-R114 (A-F21/B-F19, A-F22/B-F21, A-F26/B-F26; gaps A-G41/B-G54, A-G44/B-G51, A-G50/B-G57, A-G55/B-G61, B-G62)
 What this is about: Fixed values the two projects share for driving Excel: how long they wait, how a refreshed copy is named, which keys start a refresh, which words mark an Excel error box, and the path length treated as Excel's limit. How the new tool should drive Excel is decided in items 94 and 95 (your Standard 12 sets most of it); here only confirm whether these values still match your office PCs and Excel.
@@ -994,7 +1058,7 @@ B's way: the same as A's.
 
 Evidence: RAN with a stand-in for Excel (section 5, Category 9 (9.5, 9.6, 9.9) and Category 12): the same call order, keys and waits in both (39 s per report at 10 s; 139 s at 60 s); what real Excel does is READ only. A's own commit `7347383` measured paths up to 270 characters on the share. Shared gaps: keys and clicks reach whatever program is in front (A-G55 = B-G61, B-G62); Excel set-ups the code does not expect, such as another display language (A-G44 = B-G51); fixed waits with no time-out (A-G50 = B-G57); long paths not measured (A-G41 = B-G54).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Row 1: one fixed name '<report>_Refreshed' with no time; he removes the timestamp himself, and all July 2026 copies are named so. The tool replaces that copy only after the new refresh is confirmed; a failed refresh never overwrites the last good copy, and the failed attempt is saved beside it as '<report>_Refresh_FAILED' to look at. Row 2: Alt+A, R, A stays the default (item 95). Row 3: fixed waits replaced by the confirmed-refresh check and the 'Maximum time per report' of 300 s + 5 s (item 95). Row 4: pop-ups are read and closed only in the tool's own Excel; others are never touched (item 94). Row 5: paths are measured before anything is created (C13 pre-flight, item 83). Evidence (corrected 24-10-2026): of the 44 clients copied to E:, 10 have report files over 218 characters on the server (6 built reports and 19 refreshed copies; longest 239). Row 6: technical pauses are the build's choice. _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ## Part 7 - Contracts
 
@@ -1006,7 +1070,7 @@ A's way: Keeps it today: reads only the first 8 bytes of each input file and cop
 B's way: Keeps it too: 8 bytes and a copy (B:core/file_parser.py:196; B:utils/helpers.py:169); the template is copied to the report's name (B:core/excel_handler.py:124); RAN in B's audit: the SHA-256 fingerprints of all 17 made-up source and template files were unchanged after a full Step 1-4 run (Appendix X1.1 #13).
 Evidence: No delete or rename call in either project touches an original (section 8.5, first row; RAN grep of every delete and rename call).
 Recommendation: Agree - both versions already keep this, and a test makes sure the new tool never loses it.
-Your answer: ____
+Your answer (24-10-2026): Agree (C1): after any run, every file in the source folder and both templates are exactly as before (same fingerprint); they are never changed, moved, renamed or deleted.
 
 ### 72. C2 - Every client file found is accounted for                                  Part 7 · refs A-F9, B-F9, A-R8, A-R9, A-R10, B-R1, B-R2, B-R3, A-G37, A-G67, A-G19, B-G20, B-G22, B-G46, B-G55
 What this is about: Proposed C2: "Every file in the chosen source folder is either recognised for a client (and copied into its folder when that client is ticked on Step 2) or named on screen in a 'not used' list with its reason; a folder that cannot be read is reported as an error, never as empty." Example: if `<Client A>`'s April GSTR-3B sits in a sub-folder, is a `.csv`, or is a 500-byte broken download, the screen must say so - not leave the client quietly "Missing 1 file". Which file names count as recognised stays your rule (Parts 2 and 6); the promise is only that nothing vanishes unseen.
@@ -1014,7 +1078,7 @@ A's way: Drops files in sub-folders, other formats, files under 1024 bytes and f
 B's way: Lists small and invalid files as problem files (B:core/file_parser.py:181-191), but the list never reaches the user: only a count on screen, and the summary workbook's "Variations" sheet (its list of problem files) is always empty (B-G20); sub-folders and other formats are ignored silently (B:utils/helpers.py:249-266; B-G46).
 Evidence: RAN in both (section 9, M16, M39, M9): a file in a sub-folder and a `.csv` were not found; a source-folder listing made to fail (a dropped share) gave 0 files and no error; a file with a blank client part was counted twice. Section 3 row 9. Items 7 and 23 choose how the list looks; this promise makes it testable.
 Recommendation: Agree - today a missing return is found only by opening the summary workbook (A) or not at all (B).
-Your answer: ____
+Your answer (24-10-2026): Agree (C2): every file in the source folder is either used, or listed on screen with the reason it was not (unrecognised, outside the period, multi-registration Annual Report, duplicate, broken); a folder that cannot be read is reported as an error, never as empty.
 
 ### 73. C3 - Clients shown separately are kept separately                                  Part 7 · refs A-G8 (folder part), B-G15, A-R35, B-R32
 What this is about: Proposed C3: "Two clients shown as separate rows on Step 2 never share a client folder or a report; if two would, the tool lists them and stops before copying anything." Example: `<Client A> Private Limited` and `<Client A> Pvt Ltd` in Gujarat are two rows on Step 2 but today land in one folder, where the second file overwrites the first. This touches a GST rule: the client key and the folder name carry the state code, and both audits and section 9 tag this gap [GST RULE]; whether those two spellings are one client is also your call (item 65), so this promise is yours too. The same-run overwrite of two files of ONE client is a technical promise, in C11 (item 81).
@@ -1022,7 +1086,7 @@ A's way: Step 2 key = client name as written + state code (A:core/file_parser.py
 B's way: The same code (B:core/file_parser.py:261-262; B:utils/helpers.py:513-537; B-G15).
 Evidence: RAN in both with invented names (section 9, H6): two such spellings gave one folder `<name> Pvt Ltd-GJ`, both files "Success", the first surviving only as a `_backup_` copy; two made-up 41-character names agreeing in their first 32 characters gave one folder. Live since the first shared commit `edac6a3` (31-08-2025).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Agree, in Sidhant's item 9 form (C3): two clients shown as separate rows on Step 2 never share a client folder or a report; if they would, BOTH are skipped and listed with the reason, and the run continues for everyone else.
 
 ### 74. C4 - Templates are checked before any report is built                                  Part 7 · refs A-G4, B-G4, A-G20, B-G30, A-G42, B-G66
 What this is about: Proposed C4: "Before any report is built, each template is checked - it opens as an Excel workbook, it contains Power Query queries, and it has its Links sheet - and if a check fails, no report is built from it and the window says which check failed." Example: if someone saves the ITC template without its queries, today every report of the batch says "Success" and none can ever refresh. How the Links sheet is recognised (exact name, or any sheet whose name contains "link") stays the rule you confirm in item 67, row 6.
@@ -1030,7 +1094,7 @@ A's way: Checks only that the path exists, so a folder passes (A:gui/handlers/fi
 B's way: The same existence check (B:gui/pyqt_main_window.py:353-361; B-G30) and the same silent success (B:core/excel_handler.py:135-153, :236-258; B-G4).
 Evidence: RAN in both (section 9, H4): a template whose only sheet was "Data" gave "returned: True" and no cell written. Templates of other kinds (`.xltx`, `.xlsm`) are copied under an `.xlsx` name (section 9, M21).
 Recommendation: Agree - one wrong template today spoils a whole batch while every line says "Success".
-Your answer: ____
+Your answer (24-10-2026): Agree (C4): before any report is built, each template is checked (it opens as an Excel workbook, contains Power Query queries, and has its Links sheet); if a check fails, no report is built from it and the window says which check failed.
 
 ### 75. C5 - No Power Query workbook is ever saved by openpyxl                                  Part 7 · refs A-G7, B-G32, A-R96, B-R97, A-R106
 What this is about: Proposed C5: "No workbook that contains Power Query is ever saved by openpyxl; before any openpyxl save into a workbook the tool did not create itself, it looks for the `DataMashup` part and, if found, uses Excel itself or stops with a message." Example: an ITC report saved by openpyxl looks normal but can never refresh again, and its drawn shapes are gone.
@@ -1038,7 +1102,7 @@ A's way: Keeps an openpyxl fallback for building reports (A:core/excel_handler.p
 B's way: The same fallback (B:core/excel_handler.py:219-262); it cannot be reached today only because B's window cannot start without pywin32 at all (B:power_query_extractor/core/report_processor.py:11-15; B-G32) - a side effect, not a design.
 Evidence: RAN in both audits on made-up workbooks with a Power Query part: the queries were gone and the function returned True; openpyxl 3.1.5 also dropped drawn shapes on both fallback paths. Neither has the check your Standard 12 asks for (Std:846-850; RAN grep: 0 hits for `DataMashup` in either). Section 7.1, row "How Power Query is protected".
 Recommendation: Agree - it is the failure A's own July 2026 work set out to prevent ("Producing damaged reports is worse than refusing to start", A:utils/requirements_check.py:52-53), and your Standard 12 already requires it.
-Your answer: ____
+Your answer (24-10-2026): Agree (C5): no workbook containing Power Query is ever saved without Excel (item 93); before any save of a workbook without Excel, the tool checks for Power Query inside and refuses if found.
 
 ### 76. C6 - The user's own Excel and other programs are never touched                                  Part 7 · refs A-G54, B-G63, A-G55, B-G61, B-G62, A-R97, B-R96, A-R105, B-R102, B-R103, A-F26, B-F26
 What this is about: Proposed C6: "The tool never takes over, hides or closes an Excel the user has open, and never presses keys or clicks buttons in any window; it drives only its own separate, hidden Excel." Example: while Step 3 runs, a colleague's unsaved work on `<Client B>`'s reconciliation must stay open and untouched, and a question from another program must never be answered for them.
@@ -1046,7 +1110,7 @@ A's way: Step 3 first takes over the user's running Excel, hides it and quits it
 B's way: Identical code (B:core/excel_handler.py:110-120, 203-211; B:power_query_extractor/core/report_processor.py:218-248, 368-476; B-G63, B-G61, B-G62; B-F26).
 Evidence: RAN in both audits (section 7.2 row 7; section 9, H19, H20): with stand-in Excel objects, `Quit()` was called on "your" Excel while its unsaved workbook was open; a made-up dialog of another program asking "Delete local copy?" had its "Yes" clicked. Standard 12: a separate hidden Excel, "Never take over the user's own open Excel" (Std:851-856).
 Recommendation: Agree - today the PC cannot safely be used during a run, and another program's question can be answered "Yes" without anyone seeing it.
-Your answer: ____
+Your answer (24-10-2026): Agree, reworded for item 95 (C6): the tool never takes over, hides or closes an Excel the user has open, and never touches other programs' windows; it presses keys only into its own separate Excel, after bringing that Excel to the front.
 
 ### 77. C7 - A report is shown as refreshed only when Excel confirmed the refresh                                  Part 7 · refs A-G3, B-G6, A-G73, B-G62, B-G7, A-F21, B-F19
 What this is about: Proposed C7: "In each run, a report is shown as refreshed only when Excel itself has reported that every query finished without error; otherwise the run shows it as failed, with the reason." The promise is about how the tool knows, not about what counts as a good result: the extra success test (today `Info!BB2` ⚠) and whether a failed copy is still saved and its figures read are your rules in item 69, and which copy "Skip refresh" may reuse is your rule in item 35.
@@ -1054,7 +1118,7 @@ A's way: Presses keys, waits a fixed time and never asks Excel whether the queri
 B's way: The same (B:power_query_extractor/core/report_processor.py:218-305, 589-636; B-G6, B-G62); its Step 4 list shows "Refreshed" in green for any refreshed copy that exists (B-G7).
 Evidence: RAN in both with stand-in Excel objects (section 9, H3, L8): the order was open, keys, save, then status; with BB2 already filled the status was "Validated" whatever the keys did. A copy left by a failed refresh is later reused as a success under Skip refresh (H2, your call in item 35). Standard 12's refresh steps give Excel's own confirmation (Std:860-867).
 Recommendation: Agree - today a slow or failed refresh is reported as good whenever the test cell already holds a value.
-Your answer: ____
+Your answer (24-10-2026): Agree, reworded for items 21 and 35 (C7): a report is shown as 'confirmed' only when Excel itself confirmed that every query finished without error (and the stamp is written); a copy refreshed by hand is shown as 'refreshed by hand, not confirmed by the tool'; anything else is shown as failed, with the reason.
 
 ### 78. C8 - Each consolidated column holds the figure from the cell your list names                                  Part 7 · refs A-G1, B-G1, A-G78, B-G78, A-R88, B-R83
 What this is about: Proposed C8: "Every column of the consolidated workbook holds the figure read from exactly the sheet and cell your approved list names for that column - never a figure meant for another column." Example: today `<Client A>`'s "IMS Reco" IGST column shows the same figure as its "GSTR-3B Difference" IGST column. This touches a GST rule: item 68 (rows 7-9 and 11) asks you which cells feed which columns and whether the "contains" look-up stays, so this promise is your call, and your answers there and here must agree.
@@ -1062,7 +1126,7 @@ A's way: Fills each column from the first extracted figure whose name merely con
 B's way: The same code and a byte-identical cell-list file, `cell_mappings.py` (B:power_query_extractor/core/data_consolidator.py:129-138; B-R83; B-G1).
 Evidence: RAN in both (section 9, H1): a different made-up number in every mapped cell; 9 of 22 columns showed the J15-L15 numbers. Live since the last shared commit `47a1492` (30-10-2025); no test in A catches it (section 8.1). A latent trap: two columns reading one cell lose the first (L12; A-G78, B-G78).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Agreed, worded to match item 68: every column of the consolidated workbook holds the figure read from exactly the sheet and cell the approved list names for that column - never a figure meant for another column; the look-up is exact one-to-one (no 'contains' matching), no two columns may read one cell by mistake, and each cell read is checked against the heading or column it should total, so a shifted template gives a clear error instead of a wrong figure. IMS Reco carries both the IMS totals and the IMS-versus-purchase differences. _(Note: follows from his item 68 answer, 24-10-2026 (object if wrong).)_
 
 ### 79. C9 - Every Step 4 client gets its row, and one bad value never loses the workbook                                  Part 7 · refs A-G29, B-G43, A-G58, B-G65, A-R86, B-R86
 What this is about: Proposed C9: "Every client processed in Step 4 gets its row in the consolidated workbook, and a problem with one value or one client never stops the workbook being written for the others." Example: after an hour of refreshing a batch, one odd value in `<Client C>`'s report must cost one row, not the whole workbook. How a missing or failed figure is shown in that row ("Missing", blank, a reason) is your rule in item 69 (section 9, H9).
@@ -1070,7 +1134,7 @@ A's way: Any error while writing the workbook is passed on, no usable workbook i
 B's way: The same (B:power_query_extractor/core/data_consolidator.py:20-174, :172-174; B-G43).
 Evidence: RAN in both (section 9, M14, M4): one made-up value with an invisible control character gave "IllegalCharacterError" and no workbook at all for a two-client run; a date carrying a time zone left a 2,729-byte file openpyxl cannot open. A related LOW gap, the same in both: text that starts with "=" (an odd file name in the summary's Variations sheet, or an extracted text) is written as a live formula (section 9, L6; A-G58, B-G65).
 Recommendation: Agree - it turns a one-value problem into a one-row problem instead of a lost run.
-Your answer: ____
+Your answer (24-10-2026): Agree (C9): every client processed in Step 4 gets its row in the consolidated workbook, and a problem with one value or one client never stops the workbook being written for the others.
 
 ### 80. C10 - Statuses and counts tell the truth                                  Part 7 · refs A-G19, B-G19, B-G21, B-G42, A-G69, B-G70, B-G71, A-R99, B-R59, B-R60, B-R112, A-F16, B-F15, A-F17, B-F16
 What this is about: Proposed C10: "A client, report or run is shown as 'Success' only when every part of it succeeded; a stopped run is shown as stopped; every failure is listed with its reason on screen and in the summary workbook." Example: if both of `<Client A>`'s reports fail, the end-of-run box must not say "Successfully processed 1/1 clients".
@@ -1078,7 +1142,7 @@ A's way: A client counts as "Success" when no error was raised, even if both its
 B's way: The same (B:gui/controllers/processing_controller.py:135-147; B:gui/pyqt_main_window.py:394-399; B-R59, B-R60, B-R112; B-G19, B-G21, B-G70); Step 4 shows "FAIL" without the reason (B-G71).
 Evidence: RAN (B audit: "Successfully processed 1/1" after both reports failed; A audit Section 3 t16). Section 9, H10, M8, M33; section 6.5.5. The two audits rate this identical code LOW-MEDIUM (A) and HIGH (B). One more shared LOW gap: the client look-up and the time estimate sit outside the per-client protection, so an error there ends the whole Step 3 run with one box (section 9, L14; B-G42).
 Recommendation: Agree - a batch whose reports all failed must never look like a full success.
-Your answer: ____
+Your answer (24-10-2026): Agree (C10): a client, report or run is shown as 'Success' only when every part succeeded; skipped is shown as skipped, stopped as stopped, failed as failed; every failure is listed with its reason on screen, in the issues list and in the summary workbook.
 
 ### 81. C11 - No file is ever silently overwritten                                  Part 7 · refs A-G9, B-G27, A-G16, B-G9, A-G8 (same-run file part), B-G14, A-R33, A-R45, A-R46, B-R30, B-R43, B-R122
 What this is about: Proposed C11: "A run never silently overwrites a file - one made by an earlier run, or one it copied itself a moment before: if a name it needs is already taken, it stops and tells the user before writing anything." Example: you run `<Client A>` at 10:05, fix one file and run again at 10:05; today the second run's reports replace the first's without a word. Or two downloads of `<Client A>`'s April GSTR-3B whose names differ only by a space and an underscore clean to one name, and one of them disappears. How names are formed stays your answer in item 66.
@@ -1086,7 +1150,7 @@ A's way: Folders and files are named to the minute, so a second run in the same 
 B's way: The same, and it also overwrites its `Extraction_Log` (B:utils/helpers.py:187-204; B:core/file_organizer.py:259-277; B-R30, B-R43, B-R122; B-G27, B-G14).
 Evidence: RAN in both (section 9, M2): two Fresh runs (the mode that starts a new batch) at 10:00 gave one run folder and a `…_backup_211026_1000.xlsx` beside each copy. RAN in both (H7): `…-Apr 24.xlsx` and `…-Apr_24.xlsx` gave one copy, both reported "Success" (Fresh kept the second plus a backup of the first; Re-Run kept only the second; Resume kept the first and skipped the second). A refreshed-copy suffix without `{timestamp}` overwrites the last run's copy (M6). Both contain a never-called helper that would have avoided this (`get_unique_path`, A:utils/helpers.py:451, B:utils/helpers.py:344).
 Recommendation: Agree - overwriting without a word destroys the earlier run you may need to compare against.
-Your answer: ____
+Your answer (24-10-2026): Agree, reworded in the item 9 style (C11): a run never silently overwrites a file; if a name it needs is already taken, that client is skipped and listed with the reason, and the run continues.
 
 ### 82. C12 - No half-written file ever sits under a final name                                  Part 7 · refs A-G11, B-G26, A-G12, B-G43, B-G5, A-R98, B-R52
 What this is about: Proposed C12: "No file under its final name is ever incomplete: every copy and every save is written under a temporary name first and renamed only when complete." Example: if the office network drops while `<Client A>`'s Sales file is being copied, the client folder must not keep a cut-off file that the Sales report's queries later read.
@@ -1094,7 +1158,7 @@ A's way: Copies straight to the final name, so an interrupted copy leaves a part
 B's way: The same copy and save code (B:utils/helpers.py:142-185; B-G26, B-G43); reports are built at their final name, so a failed fill leaves an unfilled report that Step 4 later refreshes (B:core/excel_handler.py:122-129; B-R52; B-G5).
 Evidence: RAN in both (section 9, M3, M4): a copy made to fail after 500 of 3,604 bytes left a 500-byte file; a failed save left a workbook openpyxl cannot open. Section 8.5 rates A narrowly safer for its staging; Item 10 chooses where reports are built.
 Recommendation: Agree - a file that looks finished must be finished, or Power Query will read a broken one.
-Your answer: ____
+Your answer (24-10-2026): Agree (C12): no file under its final name is ever incomplete: every copy and save is written under a temporary '.partial' name, verified by fingerprint (item 56), then renamed.
 
 ### 83. C13 - Paths that are too long are found before the run starts                                  Part 7 · refs A-G41, B-G54, A-R104, B-R100
 What this is about: Proposed C13: "Before a run creates anything, it works out the full path of every folder and file it will create and lists any that would be longer than Excel can open (about 218 characters today ⚠); no client fails half-way for that reason." Long client names on a deep network folder can pass Excel's limit; this limit is technical, not a GST rule, and its exact value is confirmed in item 70, row 5.
@@ -1102,7 +1166,7 @@ A's way: Nothing measures paths beforehand; 218 is used only in fallbacks and er
 B's way: The same (B:core/excel_handler.py:293; B-R100), with longer category-folder names (B:utils/constants.py:86-88); B's audit measured made-up paths of 236 and 287 characters (B audit Appendix X2.4).
 Evidence: Section 9, M20 (A-G41, B-G54); section 7.1. ⚠ because Excel's and Windows' limits change between versions.
 Recommendation: Agree - a path that is too long should stop a run before it starts, not fail file by file deep inside it.
-Your answer: ____
+Your answer (24-10-2026): Agree, reworded (C13), changed by him on 24-10-2026: the pre-flight check (Dry Run and again at Start) works out every path the run will create. Clients with a path the tool itself cannot handle are skipped and listed, and the rest of the run goes ahead. Report paths over Excel's limit (about 218 characters) are NOT skipped: the tool builds and refreshes on the SSD and Windows long paths are on, so it only warns, listing those reports before the run, because Excel may refuse to open them by hand from the server. (July 2026: 10 of the 44 clients checked had such report files.) _(Note: his answer, 24-10-2026.)_
 
 ### 84. C14 - Only one run at a time works on a batch                                  Part 7 · refs A-G71, B-G74, B-G82, B-R111, A-R135
 What this is about: Proposed C14: "Only one run at a time works on a target folder or drives the tool's Excel; a second run - from the same window, a second copy of the tool or a colleague's PC - is refused with a message naming who or what holds it." Example: two staff members starting Step 3 on the same target in the same minute today overwrite each other's folders.
@@ -1110,7 +1174,7 @@ A's way: Blocks a second Step 3 inside one window only (A:gui/handlers/processin
 B's way: One job of each kind per window (B:gui/controllers/*_controller.py; B-R111); processing and extraction can run together (B-G74); two copies or two users overwrite each other's settings, history and output (B-G82).
 Evidence: READ in both (section 9, M34; grep: no lock file or single-copy check in either). Item 17 proposes one lock per window; this promise extends it to other copies and other PCs.
 Recommendation: Agree - two runs on one batch at once give mixed, overwritten output that nobody notices.
-Your answer: ____
+Your answer (24-10-2026): Agree (C14): only one run at a time works on a batch or drives the tool's Excel; a second run, from any user account, copy of the tool or PC, is refused with a message naming who holds it.
 
 ### 85. C15 - Every error is shown; the tool never stops silently                                  Part 7 · refs A-G22, B-G34, A-G30, B-G35, A-G23, B-G33, A-G24, B-G36, A-R127, B-R125
 What this is about: Proposed C15: "Any error - at start-up, in a button or in a background job - is shown in the window or a message box and written to an error file; the tool never closes, or does nothing, without saying why." Example: if the shared Python folder is missing, staff see a message, not a shortcut that does nothing.
@@ -1118,7 +1182,7 @@ A's way: Without a console A dies at its first set-up line, before any log exist
 B's way: Starts without a console (B:main.py:11-13), but start-up errors are printed only (B:main.py:49-59; B-G34), and an error in any window action ends the whole program at once (it aborts; on the Linux test copy the exit code was 134), without saving its settings (B-G35).
 Evidence: RAN (section 7.1 row "How the app starts"; section 9, H11, M11, M12, M15): A stopped with "AttributeError: 'NoneType' object has no attribute 'buffer'"; a log file that cannot be created, or a settings file of an unexpected shape (for example after a hand edit), stops both before any message. Standard 13's error hooks and message box (Std:984-1037) exist in neither. Item 18 picks the behaviour; this promise gets it a test.
 Recommendation: Agree - under your no-console launcher every hidden error becomes "the tool just doesn't work".
-Your answer: ____
+Your answer (24-10-2026): Agree (C15): every error, at start-up, in a button or in a background job, is shown or listed and written to the log; the tool never closes or does nothing without saying why (overnight rule of item 18: per-client errors go to the issues list, a message box only for errors that stop the whole tool).
 
 ### 86. C16 - Client data is written only to the target folder and the user's own folder                                  Part 7 · refs A-G56, B-G64, B-G59, A-R120, A-R122, B-R119, B-R121
 What this is about: Proposed C16: "The tool writes client names, file names and figures only into the target folder the user chose, into that user's own `%LOCALAPPDATA%\<App>\` folder and, only while a report is being built, into that user's own `%TEMP%` - never into the shared app folder or any file other users also write to." Example: `<Client A>`'s turnover figure must not land in a log in the office's shared Apps folder that everyone can open.
@@ -1126,7 +1190,7 @@ A's way: Writes `gst_organizer.log` - client names, Links values and every extra
 B's way: The same log (B:main.py:20; B-R121); it also keeps every extracted figure in `run_history.json` in the profile root, never trimmed (B:models/run_history.py:73-95; B-R119; B-G59, B-G64).
 Evidence: Under Standard 13's launcher the start folder is the shared app folder (Std:962), so all users would append to one log there (section 7.1 row "Where settings, cache and logs live"; section 9, M27). The old run log is exactly how client data entered the public history (section 10.2 D1, 10.3).
 Recommendation: Agree - the shared app folder is open to every user, and the old run log has already escaped once.
-Your answer: ____
+Your answer (24-10-2026): Agree, reworded for item 97 (C16): client names, file names and figures are written only to the chosen target folder, the SSD working folder, the shared app folder C:\Users\Public\Statement Maker\ (setup and step log, no figures) and the user's own %TEMP%; never to the program folder or anywhere else.
 
 ### 87. C17 - "Resume" continues an interrupted run                                  Part 7 · refs A-G10, B-G13 (Resume part), A-R38, A-R43 (Resume part), B-R44 (Resume part)
 What this is about: Proposed C17: "Resume continues the interrupted run in its own Version folder: it copies only the files not yet there, makes only the reports still missing, and every report it makes names files that really are in that folder." Example: the office share drops after 60 of 150 clients late in the season; Resume should finish the other 90, not copy all 150 again into a new Version folder. Which file feeds which Links cell stays your answer in item 67.
@@ -1135,7 +1199,7 @@ B's way: The same (B:core/file_organizer.py:97-103; B-R44), with the same promis
 Other choices: Drop Resume and keep only Fresh and Re-Run, so no button promises what the tool does not do.
 Evidence: RAN in both (section 9, H8): a Fresh run at 10:00 followed by a Resume at 10:05 made `Version-211026 1005` and copied every file again, all "Success". RAN in both audits: after a same-minute Resume, the skipped files' Links cells named files that are not in the folder (the cleaned name is written back only after "Success", A:core/file_organizer.py:233-246, B:core/file_organizer.py:216-229). Live since `edac6a3` (31-08-2025, shared).
 Recommendation: Agree - today the one button meant for an interrupted run repeats the whole batch instead.
-Your answer: ____
+Your answer (24-10-2026): Keep Resume (C17), redefined for the SSD design: after an interrupted run, one click processes only the clients marked 'not done', into the same batch; every finished client already on the server is left untouched; a 'not done' client continues from its SSD copy where that is intact, otherwise it is rebuilt; every report it makes names files that really are in that client's folder.
 
 ### 88. What would you add?                                  Part 7 · refs item 153 (Zero-Defect Requirement)
 What this is about: Your own promises, in one sentence each - above all one that covers your Zero-Defect Requirement (the one thing that must work perfectly, asked in item 153), because the consistency check after your answers needs it covered by at least one contract. Promises that would settle a GST rule are yours alone; the evidence suggests three only you can word: what a client missing a file type gets in the Links cells (section 9, H5 ⚠), how a "Missing" or failed figure appears (H9), and how a text figure or an Excel error cell is carried into the consolidated workbook (M7).
@@ -1143,7 +1207,7 @@ A's way: No written promises; A's tests pin some behaviours (288 tests, section 
 B's way: No written promises and no tests.
 Evidence: `REBUILD_BRIEF_ASSISTANT.md` asks "What must the rebuilt tool ALWAYS guarantee, whatever the input?" and its check 6 flags a Zero-Defect Requirement with no contract. Left out above because other items settle them: "the same batch gives the same names on every PC" (one shared Python, item 91) and "closing the window during a run asks first" (item 17).
 Recommendation: Add any you want - your own promises carry the most weight in the build.
-Your answer: ____
+Your answer (24-10-2026): Promise 1 (accuracy must be flawless): before any report is copied from the SSD workbench to the server, the tool checks that every Links cell holds the real server path, never an SSD path; a report that fails this check is not copied and is marked failed with the reason. Promise 2 (his principle, item 150; covers the Zero-Defect Requirement, item 153): no figure is shown unless it is proven - every figure in the consolidated workbook comes from a confirmed refresh of that client's own report (items 68, 69, 78); anything unproven shows the reason instead of a number. _(Note: his answers, 24-10-2026.)_
 
 ## Part 8 - Tech stack
 
@@ -1156,7 +1220,7 @@ B's way: PyQt5 on Qt 5 (`PyQt5>=5.15.0`, B:requirements.txt:5); 14 program files
 Other choices: Keep PyQt5 under the exception - if your other apps already use PySide6, it would put a second, 50 MB copy of Qt into the shared runtime beside it, and both are locked while any app runs (Std:1051-1054; MEDIUM, B audit 9.9).
 Evidence: Section 7.1 row "Window toolkit", 7.3, 7.4 point 3. Tkinter is not part of the embeddable Python your runtime is built from (MEDIUM; Std:913-914). Nothing in either project draws charts, so PySide6-Addons does not arise (Std:840).
 Recommendation: PySide6-Essentials, as your standard says - this is a new tool, and B's Qt layout is the nearer starting point for it.
-Your answer: ____
+Your answer (24-10-2026): PySide6 (the PySide6-Essentials package), as the standard says.
 
 ### 90. Windows 10 or 11, and the PySide6 version                                  Part 8 · refs Std:833; A:README.md:52 = B:README.md:52
 What this is about: Qt 6.12 is the last Qt that supports Windows 10, so your standard pins PySide6 to version 6.12.x "while any PC runs Windows 10" (Std:833) ⚠. Example: one Windows 10 laptop that a partner uses for `<Client A>`'s annual-return work is enough to keep the pin.
@@ -1164,7 +1228,7 @@ A's way: Checks nothing; README says "Windows 10/11 (best), macOS, Linux" (A:REA
 B's way: The same README line (B:README.md:52; the README is byte-identical in both).
 Evidence: Neither project records the office PCs' Windows versions (A audit and B audit Appendix X2.6). Item 122 asks the same fact; one answer covers both.
 Recommendation: Pin PySide6 to 6.12.x until you confirm that no PC that will run the tool is on Windows 10 - that is your standard's own rule.
-Your answer: ____
+Your answer (24-10-2026): The run PC is on Windows 10, so PySide6 is pinned to 6.12.x (the last Qt line that supports Windows 10) until no PC that runs the tool is on Windows 10.
 
 ### 91. Python version and the shared portable runtime                                  Part 8 · refs A-R126, B-R124, A-G40, B-G80
 What this is about: Your Standard 13 runs every app from one shared portable Python in `_runtime\python\` beside the apps, with nothing installed on users' PCs, and all its testing used Python 3.14 ⚠ (Std:908-932). Example: with one Python everywhere, every PC cleans a client name such as "`<Client A>` Traders." into the same folder name.
@@ -1172,7 +1236,7 @@ A's way: Says "Python 3.7 or higher" (A:requirements.txt:2), never tested on 3.7
 B's way: The same "3.7 or higher" (B:requirements.txt:2); all 38 files compile on 3.11-3.14 (B audit 9.4); the 2025 developer used 3.12 and 3.13.
 Evidence: In both, a client name ending in a dot is cleaned differently on 3.14 than on 3.11-3.13 (RAN in both; section 9, M19; A-G40, B-G80), so two PCs with different Pythons give different file names. Section 7.1, 7.3.
 Recommendation: Python 3.14 in the shared runtime only, as Standard 13 says - one Python for every PC gives the same result everywhere.
-Your answer: ____
+Your answer (24-10-2026): Python 3.14, the regular build (not the free-threaded '3.14t'), kept on its latest patch release. Not 3.15 yet: it came out on 09-10-2026 and the tool's add-ons (PySide6 6.12 for Windows 10, pywin32) may not support it yet; revisit later. Moves into the shared folder once that exists (item 1). _(Note: Sidhant asked for a higher version if better; Claude advised staying on 3.14 for now.)_
 
 ### 92. The package list                                  Part 8 · refs A-R126, B-R124, B-G32, A-G59
 What this is about: Which packages the tool lists and how they reach the PCs. Standard 13: each app's `requirements.txt` lists the exact versions of the packages it imports, without pytest; packages go only into the shared runtime, put there by you; nothing is installed by the app (Std:924, 933-940). Example: a PC set up in April and one set up in October must run the same openpyxl.
@@ -1180,7 +1244,7 @@ A's way: Minimum versions only, and it also lists pytest (used only by its tests
 B's way: Minimum versions only; pywin32 is left as a comment although B cannot start without it (B:requirements.txt:13-14; B-R124, B-G32); lxml listed, never imported.
 Evidence: Section 7.1 row "Dependency handling"; section 4 rows 4A-33 to 4A-36. The start-up check itself is item 1.
 Recommendation: Follow Standard 13 - exact versions of the packages the tool imports (PySide6-Essentials, openpyxl, pywin32), no pytest or lxml, installed into the shared runtime by you only.
-Your answer: ____
+Your answer (24-10-2026): Claude's call at Sidhant's request: exact versions of only the three packages the tool imports (PySide6-Essentials 6.12.x, openpyxl, pywin32), pinned to the versions tested at build time; no pytest or lxml in the app's list; installed by Sidhant, or by the install offer while the shared-folder setting is NO (item 1).
 
 ### 93. Excel libraries, and the Power Query safety check                                  Part 8 · refs A-R96, B-R97, A-R106, A-R108, B-R104, A-G7, A-G61, B-G31, A-F14, A-F15, B-F13, B-F14
 What this is about: Your Standard 12 settles which tool handles which workbook: the ITC and Sales reports, which hold Power Query, are written and refreshed only by Excel itself through COM (Std:828); openpyxl is for workbooks without Power Query, such as the summary and consolidated workbooks the tool makes (Std:827); and before any openpyxl save into a workbook the tool did not create, it checks for the `DataMashup` part and, if found, uses Excel or stops (Std:846-850). Both old versions also switch off every Python warning, including openpyxl's warnings that it is about to drop part of a workbook.
@@ -1188,7 +1252,7 @@ A's way: Builds reports through Excel, with an openpyxl fallback that strips Pow
 B's way: The same split and the same fallback (B:core/excel_handler.py:219-262; B-R97), unreachable today only by accident; no `DataMashup` check; all warnings off (B:core/excel_handler.py:17; B-R104, B-G31).
 Evidence: Section 7.1 rows "Excel libraries" and "How Power Query is protected"; 7.2 row F (the fallback meets none of the three rules that apply); RAN in both audits (queries lost, function returned True). The promise itself is contract C5 (item 75). How Step 4 reads the figures is item 61.
 Recommendation: Follow Standard 12 - reports only through Excel, no openpyxl fallback, the `DataMashup` check before every openpyxl save, and openpyxl's warnings written to the log instead of switched off.
-Your answer: ____
+Your answer (24-10-2026): Agree: follow Standard 12. Reports are only ever built and saved by Excel itself; no fallback that builds reports without Excel (it silently strips Power Query); before any save of a workbook without Excel, check for Power Query inside and refuse if found; warnings written to the log instead of hidden. If Excel cannot be used, stop and say so (as in item 1).
 
 ### 94. How the tool drives Excel                                  Part 8 · refs A-R97, A-R100, A-R101, A-R102, A-R103, B-R96, B-R98, B-R99, B-R101, B-R110, A-G28, B-G38, A-G43, B-G53, A-G50, B-G39, B-G77, A-G51, B-G57
 What this is about: Standard 12 lists how every Excel session must run (Std:851-877): a separate hidden Excel started with `DispatchEx`; prompts off until it quits; `Quit()` always run at the end, even after an error; open with `IgnoreReadOnlyRecommended` (which skips Excel's "open as read-only?" question) and, if Excel reports the workbook `ReadOnly` (a colleague has it open), close it and ask the user; in a background job, `CoInitialize` first and `CoUninitialize` only after the Excel work has finished (these two calls open and close Python's link to COM). Example: a report a colleague has open is then reported plainly instead of failing to save.
@@ -1196,7 +1260,7 @@ A's way: Step 3 takes the user's Excel first (`GetActiveObject`, then `Dispatch`
 B's way: Identical calls (B:core/excel_handler.py:110-120, 203-211; B-R96, B-R98, B-R99, B-R101, B-R110; B-G38, B-G53, B-G39, B-G77); Stop acts only between items.
 Evidence: Section 7.2, one scoring for both: Step 3 meets 4 of 12 applicable rules, the refresh 6 of 17, the reading 6 of 12; RAN grep: 0 hits for `DispatchEx`, `ReadOnly` or any time limit in either. Section 9, H18, H19, M13, M22, M26, M40. Every failure sits in code shared since `edac6a3`, so neither version offers a compliant Excel layer to keep (section 7.4 point 1). How each opens a workbook is also the same in both (comparison §5, Category 12; A-R100 to A-R102 = B-R98, B-R99): reuse a workbook already open at the same path in that Excel; for a path over 218 characters ⚠, retry with Windows' old short name for the file (the "8.3" form: up to 8 characters, a dot, 3 characters) or the `\\?\` prefix (which tells Windows to accept a longer path); and in Step 4, before a second try, close every workbook of the same file name in that Excel without saving. With Standard 12's separate Excel nothing else is open in it, and long paths are caught before the run by contract C13 (item 83).
 Recommendation: Follow Standard 12's "Excel through COM" rules in full, plus a time limit on every Excel step - the old code misses most of them, and your rules were tested.
-Your answer: ____
+Your answer (24-10-2026): Agree, adjusted for item 95: the tool always uses its own separate Excel, never the user's; kept hidden except during the Alt+A, R, A refresh, when it is brought to the front; pop-ups from its own Excel are read (their message becomes the failure reason) and closed; other programs' windows are never touched; prompts off; its Excel always closed at the end, even after an error; read-only handling when a colleague has a workbook open; a time limit on every Excel step (300 s per report + 5 s, item 95). _(Note: promise C6 (item 76) must be worded to allow key presses into the tool's own Excel.)_
 
 ### 95. How a refresh is started and confirmed                                  Part 8 · refs A-F21, B-F19, A-F26, B-F26, A-R71, A-R72, A-R105, B-R65, B-R66, B-R67, B-R68, B-R69, B-R102, B-R103, A-G44, B-G51, A-G73
 What this is about: Today both tools show Excel, bring it to the front, "type" Alt, A, R, A ⚠ (the English shortcut for Refresh All), wait a fixed time, close anything that looks like an error box, and save. Standard 12 instead tells the hidden Excel to `RefreshAll`, waits with `CalculateUntilAsyncQueriesDone` (Excel's own "wait until every query has finished"), checks that no connection (each query's link to its source) is still `Refreshing`, and only then saves - tested on 60,000 rows (Std:860-867). The method is technical; what proves a good refresh (`Info!BB2` ⚠) is your rule in item 69.
@@ -1204,7 +1268,7 @@ A's way: Key presses and fixed waits (A:power_query_extractor/core/report_proces
 B's way: The same code (B:power_query_extractor/core/report_processor.py:218-305; B-R66 to B-R69, B-R102, B-R103; B-F26), with a wait box of 5-120 seconds (B-R65).
 Evidence: Section 7.2 rows 11-15; section 9, H3, H17 (another Excel language, a locked desktop), H18 (about 2 hours of fixed waiting for 100 clients), H20, L8 (RAN in both: keys sent with no workbook open). With Standard 12's method the fixed wait and the dialog closer are no longer needed; item 5 already notes the wait box may then go.
 Recommendation: Standard 12's `RefreshAll` method, dropping the key presses, the fixed waits and the desktop-wide dialog closer - it waits exactly as long as Excel needs and needs no window in front, so the keyboard and other programs stay free.
-Your answer: ____
+Your answer (24-10-2026): Keep Alt+A, R, A as the DEFAULT way to start the refresh (Excel's own refresh command only as an optional setting). The tool brings Excel to the front before sending the keys. Confirm every refresh the same way, whichever method started it: no query reported an error, no query is still running, and every query's last-refreshed time is after the run started, plus the Info sheet test (company name, financial year and GSTIN state; item 69). Time limit per report: default 300 seconds (changeable), plus an internal 5-second buffer; on timeout, close Excel, mark the report 'timed out' and move on. Runs happen on a single computer, overnight. No keep-awake feature needed in the tool: Microsoft PowerToys Awake already keeps the run PC from locking or sleeping (used for 3+ years without problems). _(Note: settled 24-10-2026.)_
 
 ### 96. How users start the tool                                  Part 8 · refs A-F1, B-F1, A-R127, A-R128, B-R125, A-G22, B-G34, A-G23
 What this is about: Standard 13 (Std:900-1037): staff double-click a desktop shortcut, set to Run: Minimized, that runs `Run <App Name>.bat`; it starts `pythonw.exe` (no console) with `-B` (writes no compiled files into the shared folder) and `-s` (ignores packages from a personal Python), and shows a message box if the shared Python is missing; `main.py` begins with error hooks that write an error file and show a message box.
@@ -1212,7 +1276,7 @@ A's way: `python main.py` typed in a console (A:main.py:136-137; README.md:112);
 B's way: `python main.py` (B:main.py:62-63); survives without a console (B:main.py:11-13), but every start-up error is printed only, so it is invisible (B:main.py:49-59; B-R125, B-G34); it creates no folders in the program folder (only its log lands there, when started from it).
 Evidence: Neither has a `.bat`, a shortcut, `pythonw` or an error hook (RAN grep: 0 in both; section 7.1 row "How the app starts"; section 9, H11). Whether a second way to open Step 4 (`launch_extractor.py`) stays is item 21; the old entry file `extractor_main.py` is item 52.
 Recommendation: Follow Standard 13 - one shortcut to `Run <App Name>.bat`, no console, and the error hooks at the top of `main.py`.
-Your answer: ____
+Your answer (24-10-2026): Yes: Standard 13: a desktop shortcut (Run: Minimized) to 'Run Statement Maker.bat', no console window, error hooks at the top of main.py; plus the second shortcut that opens straight on Step 4 (item 21). With the shared-folder setting at NO, the launcher names the PC's own regular Python 3.14 exactly.
 
 ### 97. Where settings, logs and temporary files live                                  Part 8 · refs A-F27, B-F27, A-F30, B-F32, A-R114, A-R118, A-R120, A-R121, B-R105, B-R115, B-R121, A-G24, B-G36, B-G37, B-G33, B-G44, A-G52
 What this is about: Standard 13: settings and logs go in each user's own folder, `%LOCALAPPDATA%\<App Name>\`, never in the shared app folder, and the app finds its own files from its own folder, never from the current folder (Std:997, 1034-1040). Temporary files are not covered by the standard. Example: today a log of `<Client A>`'s run lands wherever the tool happened to be started from.
@@ -1220,7 +1284,7 @@ A's way: One settings file in the profile root, `%USERPROFILE%\.gst_organizer_ca
 B's way: A folder in the profile root, `%USERPROFILE%\.gst_organizer\`, with settings, session and run-history files (B:models/cache_manager.py:16-37; B-R115); the log in the current folder, and no log at all when started through `launch_extractor.py` (B:main.py:20; B-R121, B-G44); `%TEMP%\gst_excel_temp` created and never used (B:core/excel_handler.py:52-53; B-R105).
 Evidence: Section 7.1 row "Where settings, cache and logs live"; section 9, M11, M12, M37 (RAN in both) and L5 (READ): a log that cannot be created, a settings file of an unexpected shape, or a blocked settings folder stops the start before any message (A-G24, B-G36, B-G33, B-G37); logs grow for ever (A-G52) and lose lines with ✓ or ❌ on cp1252 PCs (RAN with a stand-in for cp1252); every file is rewritten in place (section 8.5). What is remembered, and when, is item 4.
 Recommendation: Follow Standard 13 - settings and logs in `%LOCALAPPDATA%\<App Name>\`, logs in UTF-8 and kept to a limited size, a damaged settings file replaced by defaults with a message, temporary files in the user's own `%TEMP%`.
-Your answer: ____
+Your answer (24-10-2026): Changed from Standard 13 at Sidhant's suggestion: the shared setup everyone must use (folders, templates, SSD working folder, later the naming rules of idea 1) and the step log live in C:\Users\Public\Statement Maker\, so every user account on the PC shares one setup; only look-and-feel (dark/light, window size) stays per user in %LOCALAPPDATA%\Statement Maker\. Logs in UTF-8 and size-limited; a damaged settings file is replaced by defaults with a message; small temporary files in the user's own %TEMP% (the SSD working folder does the heavy work). Accepted: any account on that PC can read and change the shared setup, and the log holds client names and paths (no figures). Keep Windows' 'Public folder sharing' switched off so the folder is not visible on the network. _(Note: promise C16 (item 86) must allow this folder.)_
 
 ### 98. What the program log may contain                                  Part 8 · refs A-R122, B-R121, B-R123, A-G56, B-G64
 What this is about: Today the program log records client names, the paths and file names written into the Links cells, and every figure Step 4 extracts. Example: `<Client A>`'s Table 8D figure ⚠ sits in a plain text file outside the client folder.
@@ -1229,7 +1293,7 @@ B's way: The same lines (B:core/excel_handler.py:165; B:power_query_extractor/co
 Other choices: Keep everything (easiest to trace a wrong figure); or log nothing about clients (hardest to trace a problem).
 Evidence: Section 9, M27; section 10.3: the old run log is how client data entered the public history (D1). Item 16 already proposes a per-run file without the figures; B's run history is item 43.
 Recommendation: Log client names and paths, which are needed to trace a problem, but no extracted figures - the figures then live only in the target folder with the rest of the client's work.
-Your answer: ____
+Your answer (24-10-2026): Log every step the app performs (what it did, for which client and file, and the result), with client names and paths. The detail level is a setting rather than fixed, since the app is expanding (idea 1); by default no extracted figures (as item 16), with a higher level available when tracing a problem. _(Note: default 'no figures' is Claude's reading, consistent with item 16.)_
 
 ### 99. Testing, and what becomes of A's 288 tests                                  Part 8 · refs A-G60, A-R2, B-R7, A-R19, B-R19
 What this is about: Your pipeline settles how the new tool is tested: Fable writes the tests before any code, from the approved plan; tests live in `tests/`, run with `..\_runtime\python\python.exe -s -m pytest`, and `pytest.ini` holds `[pytest]`, `pythonpath = .` and `testpaths = tests` (Std:293-299, 344, 944-947). A has 288 tests and B none, and nothing old is copied into the new tool, so the question is also what becomes of A's tests. Example: a test feeds a made-up name such as `ImsReco-<Client A>-Delhi-31032026 (1).xlsx` to the file-name check and confirms that it is recognised (or not) as your answer to item 22 says.
@@ -1237,7 +1301,7 @@ A's way: 288 tests in 18 files in `A:tests/`, all added after the split (from `6
 B's way: No tests in any of its 17 commits. The B audit lists 8 B faults that a simple test would have caught on the day they came in (B audit Appendix X3.5), for example the dead EXPORT LIST button and the always-empty "Variations" sheet.
 Evidence: RAN: A's pure-logic tests on B's code: 7 failed, 66 passed - 4 pin A's IMS Reco "(N)" name rule [GST RULE] ⚠ (A-R2 / B-R7, item 22) and 3 the "Private/Limited" cleaning (A-R19 / B-R19, item 9). Putting 30 small deliberate bugs into the code one at a time, A's tests caught 14 (section 8.1). Copying A's test files into the new project is ruled out: no old code goes into NEW, and your pipeline writes its own tests first (Build Loop step .2, "Tests first", `rebuild_pipeline_FINAL.md:344`).
 Recommendation: Follow your pipeline - new tests written first by Fable, set up as Standard 13 says - and keep A's tests as reference only, their scenarios going into note 4 of item 106 (a test that pins a GST rule follows your Part 2 answer), because they record edge cases met in real use, such as the IMS "(1)" downloads, that the new tests should not lose.
-Your answer: ____
+Your answer (24-10-2026): Claude's call at Sidhant's request: follow the pipeline (Fable writes the tests first from the approved plan, set up as Standard 13 says); A's 288 old tests are used only as a reference list of scenarios (reference note 4, item 106).
 
 ## Part 9 - Context files and client files
 
@@ -1249,7 +1313,7 @@ A's way: Its picker offers `.xltx` and `.xlsx` (A:gui/handlers/file_handler.py:3
 B's way: Its picker offers `.xlsx` and `.xlsm` (B:gui/views/setup_view.py:612; B-R48); the same Links cells (B:utils/constants.py:96-120) and the same, byte-identical cell list.
 Evidence: A audit Appendix X2.1 and X2.8 point 1; B audit Appendix X2.1 and X2.8. Unknown from the code: what Links B3, B6 and B9 hold, which extension the queries add, whether the GSTR-3B query reads the whole folder (section 9, H5, M36). The cells themselves are your GST rules ⚠ (Parts 2 and 6).
 Recommendation: Provide anonymised - a copy whose Links cells and loaded query tables hold no client's paths or rows - because a master template can still carry the last client it was built with (section 9, H5).
-Your answer: ____
+Your answer (24-10-2026): Use the master ITC template from his Formats folder as it is (he also allows any non-refreshed report copy, which holds only the Links values). Checked: .xlsx, no macros, no drawn shapes (cell notes only), 39 queries, Links B-cells empty, query tables empty, no client data; queries, sheets, names and formulas identical to the July 2026 report copies. Links: B2 GSTR-3B folder; B4/B5 Annual Report folder/name; B7/B8 GSTR-2B Reco folder/name; B10/B11 IMS Reco folder/name; B3, B6, B9 are blank spacer rows. The queries add the closing \ to folders and .xlsx to names themselves. _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 101. The Sales report template                                  Part 9 · refs A-F15, B-F14
 What this is about: The same for the Sales template, which Step 3 also copies for every client. Please also say its file type and whether it holds drawn shapes.
@@ -1257,7 +1321,7 @@ A's way: Writes Links B2, B3, B5, B6, B8, B9 ⚠ and never touches B4 or B7 (A:u
 B's way: The same cells (B:utils/constants.py:96-120; the same cell-list file).
 Evidence: A audit Appendix X2.8 point 2; B audit Appendix X2.8. As for the ITC template, the template's queries are not in either repository.
 Recommendation: Provide anonymised, as for the ITC template - the build needs the real queries and sheet layout, not any client's leftover paths or rows.
-Your answer: ____
+Your answer (24-10-2026): Use the master Sales template from his Formats folder as it is. Checked: .xlsx, no macros, no drawn shapes, 24 queries, Links B-cells empty, no client data; identical to the July 2026 copies. Links: B2/B3 Sales folder/name; B5/B6 Annual Report folder/name; B8/B9 Sales Reco folder/name; B4, B7 blank spacer rows. It reads only the three named files. _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 102. One refreshed ITC report and one refreshed Sales report                                  Part 9 · refs A-F23, B-F22
 What this is about: One report of each kind after a successful refresh against made-up input files. It lets the build check, cell by cell, what `Info!BB2` and each extracted cell hold after a refresh, and it is the file you would look at to answer item 68's question on which cells feed the IMS Reco and Extra-in columns.
@@ -1265,7 +1329,7 @@ A's way: Step 4 reads 22 cells ⚠ plus BB2 from such a copy (A:power_query_extr
 B's way: The same cells, the same way (B:power_query_extractor/core/report_processor.py:478-587).
 Evidence: A audit Appendix X2.8 point 3; B audit Appendix X2.8. RAN in both: 9 consolidated columns show the J15-L15 figures today (section 9, H1).
 Recommendation: Provide anonymised (refreshed against made-up input files) - a refresh against real files would carry real figures into it.
-Your answer: ____
+Your answer (24-10-2026): Take any real refreshed pair (his words). Claude used one for the facts in items 68, 69 and 141. For the build, real refreshed reports stay only in the real-files folder of item 107, never in the project; for tests the build refreshes the templates on his PC against the made-up files of item 103.
 
 ### 103. One sample of each of the six input file types                                  Part 9 · refs A-F7, B-F6
 What this is about: The six file types each client is expected to have [GST RULE] ⚠: GSTR-2B Reco (`GSTR-2B-Reco-<Client>-<State>-<Period>.xlsx`), IMS Reco (`ImsReco-<Client>-<State>-<DDMMYYYY>.xlsx`), GSTR-3B export (`GSTR3B-<Client>-<State>-<Month>.xlsx`), Sales (`Sales-<Client>-<State>-<StartMonth>-<EndMonth>.xlsx`), Sales Reco (`SalesReco-<Client>-<State>-<Period>.xlsx`) and Annual Report (`AnnualReport-<Client>-<State>-<Year>.xlsx`). The tool itself reads only the first 8 bytes of each and copies it; only the templates' queries read the inside, so the build needs the real inside layout to test a refresh. Useful extras: one browser duplicate (`… (1).xlsx`), one `.xls` if old-format files still arrive, and a few awkward names with invented clients (a hyphen, "Private Limited", a state written as a code).
@@ -1273,7 +1337,7 @@ A's way: Six patterns (A:utils/constants.py:13-62); IMS Reco also accepts a "(N)
 B's way: The same six patterns, without the IMS "(N)" (B:utils/constants.py:13-62).
 Evidence: A audit Appendix X2.2 and X2.8 point 4; B audit Appendix X2.2 and X2.8 (RAN on invented names in both). Which names count is your rule (Parts 2 and 6).
 Recommendation: Provide anonymised, for all six - real layout and naming with invented client names, GSTINs and figures - so tests can refresh a template against them without any client data.
-Your answer: ____
+Your answer (24-10-2026): Claude makes anonymised samples from one real file of each of the six types: same sheets, headings and layout, with invented names, GSTINs and figures. Plus a full run of GSTR-3B months for one invented client, one '(1)' copy and one awkwardly named file.
 
 ### 104. A names-only listing of one source folder and one finished batch                                  Part 9 · refs A-G41, B-G54
 What this is about: File names only, no contents: one source folder as staff prepare it, and one target folder after a real run, with client names replaced by invented names of similar length, plus the real shape and length of the target's root path (a drive letter, or a UNC path with any financial-year folder level). It shows how files really arrive (flat or in sub-folders, several years together) and lets the build check path lengths against Excel's limit (the path-length promise, contract C13, item 83).
@@ -1281,7 +1345,7 @@ A's way: Reads one flat folder (A:utils/helpers.py:309-365) and builds `Annual S
 B's way: The same reading (B:utils/helpers.py:249-266) and layout, with the longer category folders `GSTR-3B Exports (<client>)`, `Other ITC related files (<client>)` and `Sales related files (<client>)` (B:utils/constants.py:81-89; B audit Appendix X2.4).
 Evidence: A's commit `7347383` measured real paths on the office share and called the margin "thin"; B's audit measured made-up paths of 236 and 287 characters (section 9, M20). A audit Appendix X2.8 points 5-6; B audit Appendix X2.8 "sample folder layout".
 Recommendation: Provide anonymised - invented client names of realistic length and the real root path's shape - since the lengths matter but the names themselves do not.
-Your answer: ____
+Your answer (24-10-2026): Claude writes the names-only listing from the real source folder and the July 2026 batch, with invented names of the same length and the real shape and length of the root path (server name not shown).
 
 ### 105. Old settings files and old logs from office PCs                                  Part 9 · refs A-R114, B-R115, B-R119
 What this is about: The settings each old tool keeps on a PC (A: `%USERPROFILE%\.gst_organizer_cache.json`; B: `%USERPROFILE%\.gst_organizer\`) and any `gst_organizer.log`. B's audit asks whether to carry them into the rebuild.
@@ -1289,7 +1353,7 @@ A's way: Holds the four paths, the options and the last five source folders (A:g
 B's way: Holds paths and Step 4 options, and in `run_history.json` client names and every extracted figure (B:models/run_history.py:73-95; B-R115, B-R119).
 Evidence: Section 10.3 lists them as client data outside the repositories; B audit Appendix X2.8 "Settings and history". Whether the new tool imports old settings is item 46.
 Recommendation: Not needed - they hold client paths and figures and nothing the build cannot learn from the code.
-Your answer: ____
+Your answer (24-10-2026): Not needed (agreed).
 
 ### 106. Reference notes I can write into context/ from the code                                  Part 9 · refs A audit Appendix X2, X3; B audit Appendix X2
 What this is about: Short notes, written from the two old projects' code with no client data, which the build reads before building a related feature. On offer: (1) the template cell map - every Links cell written and every sheet and cell read, what each means, and where A and B differ [GST RULE] ⚠ content, described only; (2) the file-name patterns - the six patterns, the state-code table and invented names each project accepts or rejects [GST RULE] ⚠, described only; (3) the folder layout each creates - run, client, Version and category folders, report, refreshed-copy and backup names; (4) the scenarios A's 288 tests cover, grouped, marking those that pin a GST rule; (5) a digest of the old Excel steps against Standard 12.
@@ -1297,7 +1361,7 @@ A's way: These facts sit across A's code, its tests and its audit (Appendices X2
 B's way: Across B's code and its audit (Appendix X2).
 Evidence: The audits and the comparison also move into `.build-docs/` in Phase 5, but they run to thousands of lines; a note gives the build the one table it needs. Note 5 would repeat Standard 12, which CLAUDE.md already holds, and section 7.2. Your answers in Parts 2 and 6 are written into notes 1 and 2 beside the old behaviour. Item 99 relies on note 4.
 Recommendation: Write notes 1 to 4, not 5 - each feeds a specific build step (writing the reports, scanning, organising, tests), while note 5 only repeats your standard.
-Your answer: ____
+Your answer (24-10-2026): Notes 1-4, not 5 (agreed), plus note 6: what the templates' queries actually do (which file each reads, where the financial year comes from), written from the real templates without client data.
 
 ### 107. Where real client files will live during the build                                  Part 9 · refs Std:333, 344
 What this is about: Some build steps check the tool against real files (the "real-data gate", where Fable re-counts the results independently); your Build Loop rule 7 says Claude names exactly which files are needed (company, export, period) in a checklist and you download them by hand (`rebuild_pipeline_FINAL.md:333`). Tests that use real files only read them and skip when they are absent (:344). The question is where those copies sit.
@@ -1305,7 +1369,7 @@ A's way: No rule; its `.gitignore` keeps out logs and the `Annual Statement-*` f
 B's way: The same rules (B .gitignore:39-56).
 Evidence: The old run log - the clearest client data in either history - got there because the program wrote its log into the project folder before any `.gitignore` existed (section 10.2 D1, 10.3). The new repository is public (checked 23-10-2026).
 Recommendation: A folder of copies on your own computer, outside the project folder and never on GitHub (for example `C:\GST-test-files\Annual Statement\`) - nothing in it can then be committed or published by mistake.
-Your answer: ____
+Your answer (24-10-2026): A folder of real-file copies on his own computer, outside the project and never on GitHub (for example on the E: drive); exact path chosen when the build first needs it.
 
 ## Part 10 - Housekeeping
 
@@ -1318,7 +1382,7 @@ B's way: "GST File Organizer", version "4.0" (B:main.py:41-42; title B:gui/pyqt_
 Other choices: "GST File Organizer" (staff know it); "Annual Statement 2.0" (the repository's name, but "2.0" would then stay in the folder name for good).
 Evidence: The tool now also refreshes and extracts (Step 4), not only organises; both already name every batch "Annual Statement-<DDMMYY HHMM>"; a name different from the old tools keeps the new settings apart from the old ones (B imports A's settings file once, B-R118).
 Recommendation: "Annual Statement" for the folder, the `.bat` and the shortcut, with "2.0" shown only in the window title - it matches the repository and the batch folders, and a name without a version number survives the next version.
-Your answer: ____
+Your answer (24-10-2026): Name the tool 'Statement Maker' (its scope is expanding beyond the annual statement): used for the app folder, the 'Run Statement Maker.bat' launcher, the desktop shortcut and each user's settings folder.
 
 ### 109. Should the new repository be private?                                  Part 10 · refs section 10.1
 What this is about: `Annual_Statement_2.0` was public on 21-10-2026 and still is (RAN `gh api`, 23-10-2026: visibility public). This session's branch, with the two audits and the comparison's section drafts, is already pushed there: they hold no client data, but they describe your templates, office set-up and file naming in detail. Phase 5 adds the Brief, the reference notes and the real-file checklist, and the build later adds code naming your office paths; item 126 asks for your shared apps folder path, which CLAUDE.md in NEW would hold.
@@ -1326,7 +1390,7 @@ A's way: Public (re-checked 23-10-2026).
 B's way: Public (re-checked 23-10-2026).
 Evidence: Section 10.1. A public repository shows every earlier version too, so making it private later does not undo what was public meanwhile. If you change it, tell me, and I will check that this session can still push before its next commit.
 Recommendation: Make it private now, before Phase 5 - everything that follows is then visible only to people you invite.
-Your answer: ____
+Your answer (24-10-2026): Yes: Sidhant will make the new repository private himself.
 
 ### 110. Keep your toolkit files in .build-docs/toolkit/ after setup?                                  Part 10 · refs MERGE_PROGRESS.md fingerprint table
 What this is about: In Phase 0 your five toolkit files were saved unchanged into `.build-docs/toolkit/` (`rebuild_pipeline_FINAL.md`, `Project_Audit_FINAL.md`, `REBUILD_BRIEF_TEMPLATE.md`, `REBUILD_BRIEF_ASSISTANT.md`, `DECISIONS_LOG_TEMPLATE.md`), with their fingerprints recorded. After Phase 5, CLAUDE.md holds the standards the build follows, and the toolkit files are not on the build's reading list. Whatever you choose also applies to this session's instruction file, `MERGE_ANALYSIS_PROMPT.md` (Phase 6).
@@ -1335,7 +1399,7 @@ B's way: No toolkit copy.
 Other choices: Delete them after Phase 6, so the project holds only one copy of your standards and nothing can read an outdated one; or keep only `rebuild_pipeline_FINAL.md`.
 Evidence: Releasing an app copies its folder without `.build-docs` (Std:948-949), so they never reach users' PCs either way. `MERGE_PROGRESS.md` records their SHA-256 fingerprints.
 Recommendation: Keep them - they record exactly which version of your standards and templates this project started from, at no cost to the tool.
-Your answer: ____
+Your answer (24-10-2026): Keep the five toolkit files in .build-docs/toolkit/ as a record of which version of the standards the project started from (they never reach users' PCs). _(Note: Sidhant answered 'ok' to the explanation; taken as the recommendation (keep).)_
 
 ### 111. A ready-to-paste Rebuild Prompt for two audits                                  Part 10 · refs rebuild_pipeline_FINAL.md:1172
 What this is about: The Rebuild Prompt is the message you paste into Claude Code to start the build (Part 2 of `rebuild_pipeline_FINAL.md`, from line 1172). As written it speaks of one original tool and one audit (its reading-list point 2 is `.build-docs/PROJECT_AUDIT_[PROJECT_NAME].md`). In Phase 5 I can save a copy with only what the merge makes untrue changed - the project name, the opening sentence (two original versions) and point 2 (both audits, plus MERGE_COMPARISON.md and MERGE_DECISIONS.md) - with every change listed at the top (old text → new text).
@@ -1343,7 +1407,7 @@ A's way: No Rebuild Prompt; A holds an older audit of its own (`PROJECT_AUDIT_AN
 B's way: No Rebuild Prompt and no audit.
 Evidence: `MERGE_ANALYSIS_PROMPT.md` Phase 5 step 7; any other line that seems affected by the merge would be asked about, not changed.
 Recommendation: Yes, prepare it - otherwise the build's first message points to a single audit file that does not exist.
-Your answer: ____
+Your answer (24-10-2026): Yes, prepare it: Claude Code, in Phase 5 as proposed - only what the merge makes untrue is changed (project name, opening sentence, reading-list point 2), with every change listed at the top (old text -> new text).
 
 ### 112. A .gitignore in the new project from the first commit                                  Part 10 · refs section 10.2 D1, D2; 10.3
 What this is about: Phase 5 does not create a `.gitignore`. Proposed: one that keeps out Excel files (`.xlsx`, `.xls`, `.xlsm`, `.xltx`), `.csv`, `.pdf`, log files, settings JSON and compiled Python files everywhere, except files you deliberately place in `.build-docs/context/`. Example: a copy of `<Client A>`'s workbook saved into the project folder by mistake could then never be committed.
@@ -1351,7 +1415,7 @@ A's way: A `.gitignore` since shared commit `1cb878b` (29-10-2025): it keeps out
 B's way: The same rules (B .gitignore:2, 39-68).
 Evidence: Both histories still hold the run log and 70 compiled `.pyc` files with folder paths, committed before any `.gitignore` existed (section 10.2, D1 and D2).
 Recommendation: Yes, add it in Phase 5 - it stops a client workbook or a log being committed by accident from day one.
-Your answer: ____
+Your answer (24-10-2026): Yes: add a .gitignore from the first commit that keeps Excel files, CSV, PDF, logs, settings and compiled Python files out of git everywhere, except what is deliberately placed in .build-docs/context/.
 
 ### 113. The old public history (advice only)                                  Part 10 · refs section 10.2 D1-D9
 What this is about: Both old repositories are public (re-checked 23-10-2026), and their early shared history still offers for download the old run log `gst_organizer.log` (803,193 bytes; judging by the code that wrote it, it holds client names, file names and folder paths - it was not opened) and 70 compiled `.pyc` files carrying folder paths of the PC that made them. A's current files and history also hold its March 2026 audit with a company-like name in its examples (lines 130-232; item 148 asks whether it is a real client) and your local project-folder path (lines 5 and 663); two of A's commit messages (`4f84ba9`, `7347383`) name the office's network share; every commit carries one of your e-mail addresses (all but one, `cbfa4a5`, your personal one). This session changes nothing in A or B.
@@ -1360,7 +1424,7 @@ B's way: The run log, the `.pyc` files and the e-mail addresses (D1, D2, D6); no
 Other choices: (a) leave both public; (b) make both private - one setting each, nothing rewritten; (c) once the new tool is in use, download a full copy for your records and delete both; (d) rewrite their history to remove the files - every commit code changes, copies others already made keep the old version, and GitHub may keep cached views (stored copies of pages) until its support removes them.
 Evidence: Section 10.1 (no forks on 23-10-2026), 10.2 D1-D9. If you change visibility before this session ends, tell me: I re-clone A and B if this computer is reclaimed, and will check my read access still works. For your future commits, GitHub's private-e-mail setting gives a stand-in "noreply" address (one shared commit, `cbfa4a5`, already used one).
 Recommendation: (b) Make both private now - one setting each stops anyone downloading the run log from today on, and it rewrites nothing.
-Your answer: ____
+Your answer (24-10-2026): (b) Sidhant will make both old repositories private himself.
 
 **Asked once, in item 148:** whether the company-like name in A's March 2026 audit document is a real client. Until you answer, it is treated as a real client and never copied; if it is real, that adds weight to the advice in item 113.
 
@@ -1374,7 +1438,7 @@ A's way: recognises each client's downloads by file name only, copies them into 
 B's way: the same job in the same four steps, in a PyQt5 window that calls itself "v4.0" (B audit Section 1; B-F6, B-F12, B-F13, B-F14, B-F19, B-F22, B-F23).
 Evidence: Section 1 of each audit; the comparison's summary is MERGE_COMPARISON.md section 1.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): In his words (drafted from his answers, corrected by him): Statement Maker takes a financial year's Octa GST exports for all his clients and checks that each client's set is complete. It files them into a dated folder per client, builds each client's ITC and Sales reports from his templates, refreshes them overnight, and gathers every client's key differences into one workbook, so he can see before GSTR-9/9C which clients need attention. Its scope is growing: the same way of working will build other reports from other sets of files. _(Note: his answer, 24-10-2026.)_
 
 ### 115. The problem you first built it for, and how it has changed                                  Part 11 · refs A-R109, A-R110, A-F7, B-F6
 What this is about: Knowing the job the tool was first built for, and how it has grown, tells the build what to make fast and safe - for example, whether it began as a way to sort one season's GSTR-2B and GSTR-3B downloads and only later took on the Power Query refresh. Please answer: (a) What problem were you solving when you first built it? (b) Is it bigger, smaller or different now - more clients, more file types, more people?
@@ -1382,7 +1446,7 @@ A's way: A's July 2026 commit messages describe a scan of 2,508 files on the off
 B's way: B's history holds no record of a real run (B X6-Q63); its scan is B-F6.
 Evidence: the tool existed before git: about 2½ months of unrecorded work before 31-08-2025, and the oldest surviving compiled copy of the refresh code (a copy Python makes from the code by itself) is dated 25-06-2025 (A audit Section 1; B audit 8.10 #1).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) To automate a boring, repetitive task - nothing else. (b) It is growing: renamed Statement Maker because its scope is expanding to other reports built the same way (item 108, idea 1). _(Note: his answer, 24-10-2026.)_
 
 ### 116. Parts of the tool you never use                                  Part 11 · refs A-F5, A-F6, A-F10, A-F11, A-F12, A-F13, A-F16, A-F22, A-F28, A-F29, B-F4, B-F10, B-F11, B-F12, B-F15, B-F17, B-F21, B-F25, B-F28, B-F30, B-F31, A-R43, A-R67, A-R68, B-R44, B-R62, B-R63, B-R65, A X6-Q9, A X6-Q33, A X6-Q58, A X6-Q60, A X6-Q61, B X6-Q6, B X6-Q28, B X6-Q48, B X6-Q54, A 11.7 #27, B 11.7 #6, B 11.7 #28, B 11.7 #36
 What this is about: A feature nobody uses costs build time and can hide bugs - for example a button no article assistant has pressed in two GSTR-9 seasons. Parts 3 and 4 then decide keep or drop with your answer in mind. Please answer: (a) Which of the features listed below do you and your staff never use? (b) Which refreshed-file suffix do you actually use? (c) Which "max client folder name length" do you use?
@@ -1390,7 +1454,7 @@ A's way: Dry Run (A-F11); EXPORT LIST, the Step 2 button that saves the ticked c
 B's way: Dry Run (B-F11); EXPORT LIST, which does nothing in B (B-F10); the Re-Run and Resume modes (B-F12, B-R44); the max length box (B-F4); the summary workbook and organisation report (B-F15); Skip refresh and the suffix box (B-F21, B-R62, B-R65); `launch_extractor.py`, which in B opens the main window on Step 4 (B-F30), and the old stand-alone extractor, which can no longer start at all (B-F31); dark mode (B-F28); the "Last Run" column and run history, B's record of past runs in your user folder (B-F17); the `Extraction_Log` text file, a copy of Step 4's on-screen log in the batch folder (B-F25).
 Evidence: A's `2aaa2b1` (25-07-2026) traces a "Reported" wrong refresh state to a customised suffix, so a custom suffix was in use at least once; B's Skip refresh finds only copies named `_Refreshed_` (B-R63; B X6-Q6). Which length is right is decided in item 27; here only what you use.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Used: Dry Run (item 30); Step 4 on its own (item 21); EXPORT LIST, kept (item 41); Resume, kept (item 87); the 'organise only / full pipeline' choice, both modes (item 39); dark mode (item 20). Not used: the client name in category-folder names (dropped, item 29; off in the July 2026 run); no Re-Run in the July 2026 batch. (b) '_Refreshed' with no time: he removes the timestamp himself. (c) 35 characters (nine client folders of the July 2026 batch are exactly 35 long). _(Note: his answers + his files, 24-10-2026 (object if wrong).)_
 
 ### 117. Who uses the tool, and how comfortable they are with computers                                  Part 11 · refs A-F4, A-F31, B-F33, A X6-Q59
 What this is about: The new tool is built for the least technical person who will run it - for example an article assistant who joins for the GSTR-9 season. Standard 13 assumes users "never run code" and start apps from a desktop shortcut (rebuild_pipeline_FINAL.md:902). Please answer: (a) Who besides you runs it (roles and how many)? (b) Can they type a folder path, read an error message, rename a wrongly named file? (c) Who reported the July 2026 problems - you or a colleague?
@@ -1398,7 +1462,7 @@ A's way: A's July 2026 work added a live checklist (`322717f`) and hover help (t
 B's way: Step 1 has fixed help cards and hover texts (B-F33); nothing in B's repository says who runs the tool (B audit Section 1: NOT SURE).
 Evidence: five A commits fix problems their messages call "Reported" (`2acffed`, `2aaa2b1`, `725fbaf`, `169c7b5`, `bf2f1dd`; A audit Section 1); two of them were reported "with a screenshot" (`169c7b5`) or "with screenshots" (`725fbaf`).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Mainly Sidhant himself; staff run it only on his instructions, with hand-holding. (b) Staff need guidance, so the tool must be safe for a guided, non-technical user (Standard 13: shortcut, no console, plain messages). (c) He did: he is the one who runs it. _(Note: his answer, 24-10-2026.)_
 
 ### 118. How often, and in which months                                  Part 11 · refs A-F13, B-F12
 What this is about: Whether the tool runs once a year in a rush or all year round changes how much speed, Resume and batch choice matter. Example: one big batch for every client in the annual-return season, then re-runs for clients whose downloads came late. Please answer: (a) In which months do you use it, and how many batches per season? (b) Do you re-run single clients later (new downloads, corrected files), and how often? (c) Is it used outside the season at all?
@@ -1406,7 +1470,7 @@ A's way: names each batch folder only by date and time (`Annual Statement-<DDMMY
 B's way: the same naming (`B:utils/helpers.py:23-25`) and the same Re-Run (B-F12).
 Evidence: A's own commits cluster in July 2026 (32 of its 34), B's in February 2026 (all 5) (MERGE_COMPARISON.md section 2).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) About 4-5 runs a year (item 95); the July 2026 run was one batch of all 126 clients. (b) No Re-Run in that batch: corrected downloads were put straight into the batch folders and the reports refreshed by hand (17 of the 44 clients copied to E:, late July to mid-September). (c) Yes: with 4-5 runs a year it is used outside the annual-return season too (the July 2026 run is one). _(Note: from his files and earlier answers, 24-10-2026 (object if wrong).)_
 
 ### 119. Which project is in daily use now, and since when                                  Part 11 · refs A-R39, B-R35, B-F2, B-R118, A-F27, B-F27, B X6-Q60, B X6-Q63 · [GST RULE] (category folder names, question d)
 What this is about: The names mislead: A ("oldv1") is the one you worked on in July 2026; B ("oldv2", PyQt5 "v4.0") stopped on 09-02-2026. Which one your office actually runs decides which behaviour people are used to, and which folder layout already sits on the share - for example whether last season's client folders hold a `GSTR3B` or a `GSTR-3B Exports` folder. Please answer: (a) A, B or an older version - since when, and on which PCs? (b) Was B ever used for real client work, and did Steps 3 and 4 run to the end? (c) Were both run on the same PC? (d) Do batches with the old long folder names still need Step 4 work?
@@ -1414,7 +1478,7 @@ A's way: category folders `GSTR3B` / `ITC` / `Sales` since `7347383` (26-07-2026
 B's way: category folders `GSTR-3B Exports` / `Other ITC related files` / `Sales related files`, as in all code before `7347383` (B-R35); last change 09-02-2026, no test and no record of a run on Windows (B X6-Q63). On its first start B copies A's settings file once into its own (B-F2, B-R118, B-F27), so running both on one PC leaves a trace.
 Evidence: MERGE_COMPARISON.md section 1.3. Which category-folder names the new tool uses is a GST rule decided in item 28, because the names are also written into the Links cells; here only what exists on your share.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) A for the July 2026 run (from his files: an IMS Reco '(1)' copy was accepted, which only A does, and the batch has the long category names A used until 26-07-2026). (b) Yes, B was used for real client work; its issues were handled by hand and he no longer remembers what they were. (c) Both ran on the same single run PC (code on the server, Python on that PC). (d) Old long-name batches can still need Step 4, so the new Step 4 never assumes folder names (item 140). _(Note: his answer + his files, 24-10-2026.)_
 
 ### 120. Your actual workflow, click by click                                  Part 11 · refs A-F3, A-F5, A-F7, A-F8, A-F11, A-F17, A-F18, B-F3, B-F6, B-F8, B-F11, B-F16, B-F18, B-F29
 What this is about: Brief Section 2 asks what you click first, second and third. The audits traced the path the code expects; please say where real use differs - for example, whether you wait for a client's late GSTR-2B download between Step 3 and Step 4. Please answer: (a) Which steps do you skip or repeat? (b) Between Step 3 and Step 4, what do you do - check the reports, wait a day, rename files? (c) Do you sometimes open the tool only for Step 4, on a later day?
@@ -1422,7 +1486,7 @@ A's way: Step 1 (source folder, two templates, target folder) → Scan → Step 
 B's way: Step 1 → Scan → Step 2 (clients start ticked) → optional Dry Run → Start → Step 3 → B moves to Step 4 by itself with the list already filled → Start Extraction; no end question (MERGE_COMPARISON.md section 6.3).
 Evidence: neither program starts the Power Query refresh without a click (MERGE_COMPARISON.md section 6.1). On a later day A needs a new Scan before Step 2, because the client list is not remembered; B fills Step 4 at start-up from the last saved target folder (MERGE_COMPARISON.md sections 6.2 and 6.3, "Variants").
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Step 4 is repeated often, after fixing data (item 21); Step 3 runs once per batch, with a Dry Run before it (item 30). (b) July 2026: Steps 3 and 4 ran back to back overnight (Step 3 01:53-02:01, Step 4 02:02-05:49); afterwards corrected downloads were put straight into the batch folders and reports refreshed by hand. (c) Yes: Step 4 on its own, often later (items 21 and 39). _(Note: his earlier answers + his files, 24-10-2026 (object if wrong).)_
 
 ### 121. How you use Step 4 in practice                                  Part 11 · refs A-F19, A-F20, B-F18, A-R42, B-R38, B-R39, B-R136, A-G45, B-G12, A X6-Q48, A X6-Q57, B X6-Q7, B X6-Q32, A 11.7 #26, B 11.7 #19
 What this is about: Step 4 picks the batch by itself. Example: you ran a batch on 15-07, then re-ran three late clients on 22-07. Which batch should Step 4 show, and do you ever go back to an older one? Please answer: (a) Do you ever need Step 4 on an older batch, and how do you do it today? (b) Do Re-Runs leave several Version folders per client that you then refresh? (c) Do you open files inside older batch folders before running Step 4?
@@ -1430,7 +1494,7 @@ A's way: takes the `Annual Statement-…` folder with the newest "date modified"
 B's way: takes the folder with the highest name, which starts with the day, so a 31-12-2025 batch beats a 21-10-2026 one (`B:gui/pyqt_main_window.py:430-448`; B-R39, B-G12), and lists every Version folder of each client (B-R136, B-F18). B's Re-Run and Resume, by contrast, add to the batch with the newest "date modified" (B-R38).
 Evidence: in A, opening and saving a file inside an older batch can change its "date modified" and so make it the batch Step 4 shows, and pointing Step 4 at a batch folder itself finds nothing (A-G45). Which batch Step 4 should use is decided in item 13; here only how you work.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Yes: he comes back to a batch for weeks after the run (July 2026 batch: hand refreshes until mid-September) and wants fresh consolidated figures then (item 21, 'Collect figures only'). (b) No Re-Runs in July 2026: one Version folder per client. (c) Yes: files inside the batch are opened, replaced and refreshed by hand before figures are collected again. _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 122. Which Windows, and which screens                                  Part 11 · refs B-G68, A-G57, A-F2, B-F1, A X6-Q67, B 11.7 #33, A 11.7 #29
 What this is about: Your Standard 12 pins PySide6 to version 6.12.x while any PC runs Windows 10 ⚠, because Qt 6.12 is the last Qt for Windows 10 (rebuild_pipeline_FINAL.md:833). Screen size and display scaling decide whether the window fits - for example on the laptop an article assistant takes to a client's office. Please answer: (a) Windows 10 or 11 on each PC and laptop that will run it ⚠? (b) Screen sizes and display scaling (100 / 125 / 150 %)? (c) Is it ever run on a Mac or Linux?
@@ -1438,7 +1502,7 @@ A's way: opens at 1200×800 (MERGE_COMPARISON.md section 6.2, row 2; A-F2). Off 
 B's way: opens at 1400×900 and cannot be made smaller than 1200×800 (`B:gui/pyqt_main_window.py:72-73`; B-F1), taller than a 1366×768 laptop screen (B-G68).
 Evidence: neither repository records the Windows version. In both, the Scan button sits below the visible part of Step 1 at the opening size (MERGE_COMPARISON.md section 6.1).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) The run PC is on Windows 10 (item 95); every screen is at least Full HD (item 2). (b) About 125% scaling on the run PC (his estimate): a Full HD screen then leaves about 1536 x 824 for windows, so the main window must fit that. (c) Never on a Mac or Linux: Windows only (item 34). _(Note: his answer, 24-10-2026.)_
 
 ### 123. Which Excel, in which language, set up how                                  Part 11 · refs A-F21, A-F26, B-F19, B-F26, A-R71, A-R105, B-R67, B-R102, A-G44, A-G79, B-G51, A X6-Q43, A X6-Q44, B X6-Q35, A 11.7 #19, B 11.7 #27
 What this is about: The refresh types Alt+A, R, A into Excel and looks for pop-ups by English words. Another Excel version or display language may not respond, and the refresh then silently does not happen ⚠ - for example on a PC whose Excel shows its menus in another language. Please answer: (a) Excel version on each PC (Microsoft 365, 2021, 2019 …) ⚠? (b) Display language - is the Data ribbon in English everywhere? (c) Any Excel add-ins, or Protected View pop-ups, on opening the reports? (d) Has IT blocked Windows Script Host on any PC? (e) Does every PC that will run the tool have Excel?
@@ -1446,7 +1510,7 @@ A's way: brings Excel to the front and types the keys through Windows Script Hos
 B's way: the same code (`B:power_query_extractor/core/report_processor.py:238-248`, pop-up words `B:…:376-387`; B-R67, B-R102, B-F19, B-F26).
 Evidence: MERGE_COMPARISON.md section 9, H17 (A-G44, B-G51; READ, as no Excel can run here, A-G79). Every PC that runs Step 3 or Step 4 needs Excel; in A, without it every Step 3 report fails with a message that blames the Links sheet (A X6-Q44).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Excel 2021 on the run PC (item 95). (b) English: Alt+A, R, A works every time (item 95). (c) Protected View appears every time a report is opened by hand; it does not affect the work (habit); no add-in problems. (d) Not blocked: today's key presses, sent through Windows Script Host, work. (e) Yes: runs happen only on the one run PC, which has Excel. _(Note: his answer, 24-10-2026.)_
 
 ### 124. Which Python, and how people start the tool today                                  Part 11 · refs A-F1, A-F30, B-F1, B-F32, A-R120, A-R124, A-R127, B-R121, B-R124, B-R125, A-G22, A-G23, B-G34, A X6-Q62, A X6-Q65, A X6-Q76, B X6-Q50, B X6-Q51, A 11.7 #38, A 11.7 #2, A 11.7 #3, B 11.7 #2, B 11.7 #3
 What this is about: Standard 13 says users double-click a desktop shortcut, see no console, and nothing is installed on their PCs. How the tool starts today shows how big that change is for your staff - for example, whether an article assistant now types `python main.py` every morning of the season. Please answer: (a) How do you and your staff start it - console, double-click on `main.py`, a shortcut, `launch_extractor.py`? (b) From a local folder or a shared network folder? (c) Who installed Python and pywin32 on each PC, and which Python version ⚠? (d) Which Python do you run A's tests with - `python` or `py`?
@@ -1454,7 +1518,7 @@ A's way: `python main.py` in a console; without a console A stops before its win
 B's way: `python main.py` in a console; without a console B shows nothing when start-up fails and leaves only a line in its log file (`B:main.py:49-59`; B-R125, B-G34); it writes the same log into the start folder (`B:main.py:15-23`; B-R121); it declares no exact versions and leaves pywin32 out of its package list (B-R124).
 Evidence: neither has a `.bat` launcher or a shortcut (MERGE_COMPARISON.md section 7.1). On your PC, `py` starts a "free-threaded" Python 3.14t (a special build of Python) without pywin32, while `python` starts the one with pywin32 (`c463256`, 26-07-2026) ⚠; which version `python` is, is not recorded (MEDIUM that it is 3.14; MERGE_COMPARISON.md section 7.1).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) He runs it himself with 'python main.py' in a console. (b) The code files sit on the server; it runs on the single run PC, which has Python and the packages installed. (c), (d) not recorded: the new tool brings its own launcher and fixed package versions (Standard 13, items 91-92). _(Note: his answer, 24-10-2026.)_
 
 ### 125. Office PCs only, or also from outside over a VPN                                  Part 11 · refs A-R109, A-R110, A X6-Q68, A 11.7 #30, B 11.7 #32
 What this is about: Standard 13 measured that loading Python and the window kit from the shared folder over a VPN took 50-100 seconds instead of 1-2, and asks to be consulted before an app is given to someone who works outside the office (rebuild_pipeline_FINAL.md:927-930) - for example a partner who runs a batch from home in the last week of the annual-return season. Please answer: (a) Who runs it from outside the office, and how often? (b) Only scans, or also Step 3 and the Step 4 refresh (Excel) over the VPN?
@@ -1462,7 +1526,7 @@ A's way: A's speed work was measured on the live office share over Tailscale: 2,
 B's way: none of this speed work; B's history records no run at all (B X6-Q63).
 Evidence: a measurement over Tailscale suggests that at least one scan was run from outside the office (an inference from the commit message; A X6-Q68). Nothing shows whether Step 3 or Step 4 was ever run that way.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Nobody runs it from outside the office. He connects to the run PC with AnyDesk to watch the status or step in when needed. (b) Not applicable: every step runs on the office PC. For the build: watching or working over AnyDesk must not disturb a run - the tool checks that its own Excel is in front before every key press and never sends keys anywhere else (C6, item 76). _(Note: his answer, 24-10-2026.)_
 
 ### 126. Your shared apps folder                                  Part 11 · refs Standard 13 (rebuild_pipeline_FINAL.md:908-949), Tech Stack (rebuild_pipeline_FINAL.md:213-216)
 What this is about: The Tech Stack in CLAUDE.md needs the path of the office shared apps folder (example name `\\server\share\Apps`), where `_runtime` and every released app live. The new tool would sit there in its own folder with its `Run <App Name>.bat`, like any other office app built to Standard 13 - for example a GSTR-2B reconciler. Please answer: (a) Does the shared apps folder with `_runtime` already exist (other apps built under Standard 13)? (b) Its path - or write "in chat" if you regard it as confidential; it will be written into CLAUDE.md in NEW, so your answer to item 109 on making NEW private matters. (c) Which Python version is in `_runtime` today ⚠?
@@ -1470,7 +1534,7 @@ A's way: no shared apps folder and no shared runtime; it runs from wherever its 
 B's way: the same (MERGE_COMPARISON.md section 7.1).
 Evidence: the office share path appears in two of A's commit messages (`4f84ba9`, `7347383`; MERGE_COMPARISON.md section 10, D5); it is not repeated here. Standard 13 says all its testing used Python 3.14 ⚠ (rebuild_pipeline_FINAL.md:931).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) No: the shared Python folder (_runtime) is not set up yet. The new tool gets a setting 'Use shared Python folder', default NO for now (item 1); its shared setup and step log go to C:\Users\Public\Statement Maker\ (item 97). (b) No path yet. (c) None yet. _(Note: from his earlier answers, 24-10-2026 (object if wrong).)_
 
 ### 127. Where client files sit while the tool works                                  Part 11 · refs A-R39, A-R56, A-R100, A-R104, B-R35, B-R56, B-R100, A-G15, A-G41, A-G46, B-G53, B-G54, B-G55, A X6-Q29, A X6-Q39, A X6-Q47, B X6-Q39, B 11.7 #31, A 11.7 #25 · [GST RULE] (the path form written into the Links cells, question b) ⚠
 What this is about: The source folder (the downloads) and the target folder (organised copies and reports) may be on a local disk, a network share or OneDrive. Each behaves differently for speed, long paths and files locked by someone else ⚠ - for example a colleague who has a client's GSTR-2B reco open while the batch runs. Please answer: (a) Source and target: local disk, Windows server share, NAS or OneDrive? (b) Drive letter (e.g. `P:`) or `\\server\share`, and the same on every PC? (c) Did the move to the shorter share root happen? (d) Is Windows long-path support switched on, if you know ⚠?
@@ -1478,7 +1542,7 @@ A's way: writes each path exactly as chosen - drive letter or `\\server\share` -
 B's way: the same Links values (B-R56) with the long category folder names (B-R35) and the same 218-character handling (B-R100); files already open elsewhere, and a share that drops out, are not handled (B-G53, B-G54, B-G55).
 Evidence: a drive letter on one PC and a `\\server\share` path on another can differ (A-G46); which form goes into the reports is a GST rule decided in item 67 (A audit 11.7 #25). On a NAS the order in which the folder lists files can change which report Step 4 treats as the original (A-G15, A X6-Q47). A's `7347383` measured a real run: worst path 270 characters, 1,094 of 3,030 files over Excel's ~218 limit ⚠, "which is why long client names have been failing"; its fix assumed a planned move to a shorter share root (A X6-Q39).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Source: one flat folder per financial year on a local disk (E:). Target: the office Windows server share, written as a \\server\share UNC path, which is also what goes into the Links cells. (b) UNC path. (c) Not known; the July 2026 batch still used the long root. (d) Yes: Windows long-path support is switched on on the run PC. Evidence (corrected 24-10-2026): of the 44 clients copied to E:, 10 have report files over 218 characters on the server - 6 built reports and 19 refreshed copies (longest 239); input files stay under 260 (longest 248 with the short category names). _(Note: his answer + his files, 24-10-2026.)_
 
 ### 128. How big a typical run is                                  Part 11 · refs A-R72, B-R68, A-G48, A-G50, B-G56, B-G57, B-G58, A X6-Q69, B X6-Q22, A 11.7 #39
 What this is about: Size decides how fast the tool must be, how it shows progress and how it survives interruptions. Example: 120 clients × 8 downloads = about 1,000 files in one source folder. Please answer: (a) Clients per batch, and files per client? (b) How long does a full batch take today, Step 3 and Step 4 separately? (c) One batch for all clients, or several smaller ones?
@@ -1486,7 +1550,7 @@ A's way: checks the first bytes of each file in parallel (A-R110), but reads the
 B's way: scans in the background (B-R111), but its scan log writes one line per file and slows sharply as it grows (B-G56, B X6-Q22); it walks the target folder on the window's own thread (B-G58); the same fixed Step 4 waits (B-R68, B-G57).
 Evidence: A's July runs had 2,508 source files and 3,030 output files (`4f84ba9`, `7347383`). Step 4 waits about 36-39 seconds per report at the default 10-second wait - about 2 hours for 100 clients (MERGE_COMPARISON.md section 9, H18).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) July 2026: 126 clients in one batch, 2,497 files, about 20 per client (15 GSTR-3B months + one each of the five other types). (b) Step 3 about 8 minutes (01:53-02:01); Step 4 about 3 h 47 min for 252 reports (02:02-05:49, about 54 s each). (c) One batch for all clients. _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 129. Two people, or two jobs, at the same time                                  Part 11 · refs A-F17, A-F21, B-F34, B-R111, A-G71, B-G82, A X6-Q45, A X6-Q50, B X6-Q38, B X6-Q39, A 11.7 #28, B 11.7 #30 · [GST RULE] (which template a report is built from, question d)
 What this is about: In the season two staff may work on one batch, or one person may run Step 3 for new clients while Step 4 refreshes earlier ones. Both steps drive Excel. Please answer: (a) Do two people ever process the same target folder or batch at the same time? (b) Has Step 3 ever run while Step 4 was refreshing? (c) Is the program ever open twice on one PC? (d) While Step 3 runs, does anyone change a template or a folder on Step 1, or press Scan again?
@@ -1494,7 +1558,7 @@ A's way: nothing stops two runs from working on the same Excel, folders or files
 B's way: refuses only a second job of the same kind, silently (B-F34, B-R111); two copies of the program, or two users, overwrite each other's settings, history and output (B-G82); B uses the template paths fixed when Start was pressed (MERGE_COMPARISON.md section 3.1, row 15).
 Evidence: RAN (MERGE_COMPARISON.md section 5, Category 8, 8.6): with the ITC template changed after the first client, A built one batch from two templates without a warning, and B built all reports from the first. Which template a client's report is built from is a GST rule decided in item 33; here only what happens in your office.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) No: runs happen on one PC, overnight (item 95). (b) No: Steps 3 and 4 run as one pipeline (items 39, 99). (c) Not expected, and the new tool allows one job at a time (item 17). (d) No: nobody changes templates or Step 1 during an overnight run; the new tool also locks Step 1 during a run and records the template used (item 33). _(Note: from his earlier answers, 24-10-2026 (object if wrong).)_
 
 ### 130. What you still do by hand after the tool finishes                                  Part 11 · refs A-F16, A-F24, B-F15, B-F23
 What this is about: Work done by hand after every run is the first place a new tool can save time (Brief Section 4). Please answer: what do you or your staff do after the consolidated workbook appears? For example: open each refreshed report to check it, copy figures into the GSTR-9 / 9C working papers, chase clients for missing files, rename files and re-run. Name each step and roughly how long it takes.
@@ -1502,7 +1566,7 @@ A's way: ends with the consolidated workbook - a Summary sheet and one sheet per
 B's way: the same consolidated workbook, with one row per Version folder and no end question (B-F23); the same summary workbook (B-F15).
 Evidence: neither program does anything with the consolidated workbook after writing it (A only offers to open it), so the code cannot show what happens next (READ; MERGE_COMPARISON.md sections 6.2 and 6.3).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Seen in his files: in the consolidated workbook he adds GSTR-9 and GSTR-9C applicability columns (turnover above Rs 2 crore / Rs 5 crore); he swaps corrected downloads into the batch and refreshes reports by hand; he keeps hand-made files in the batch (an outward-difference explanation for GSTR-9, a GSTR-1 data folder, a difference report). Time per step: depends on the client's data. _(Note: his answer + his files, 24-10-2026.)_
 
 ### 131. Anything you wish it also did                                  Part 11 · refs A-R94, A-R95, B-F24, B-G71, A-G39, A-G45, B-G12, B-G49, A X6-Q7, B X6-Q9 · [GST RULE] (period check, in the evidence) ⚠
 What this is about: Ideas from you, your staff or clients ("I wish this tool also did X") go into Brief Section 4, or into the Parking Lot if not for now - for example "print a one-page list of the clients whose files are still missing". Please answer: list your wishes, and say whether any client or colleague has asked for something the tool does not do.
@@ -1510,7 +1574,7 @@ A's way: shows a failure reason per report on screen, but the reason is in no sh
 B's way: Step 4 shows only "ITC: FAIL", with the reason in the log file (B-G71; B-F24).
 Evidence (prompts only, not suggestions): neither lets you pick which batch Step 4 works on (A-G45, B-G12); neither checks the period or year in file names [GST RULE] ⚠ (A-G39, B-G49).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Idea 1 (make the app configurable, with report profiles) and idea 2 (period-aware scanning), drag-and-drop on path boxes (item 144), and a best-in-class, butter-smooth UX (item 142). Nothing more for now. _(Note: his answer, 24-10-2026.)_
 
 ### 132. Gaps that hurt you: the Step 4 figures                                  Part 11 · refs A-F24, B-F23, A-R69, A-R80, A-R81, A-R82, A-R88, A-R89, B-R63, B-R79, B-R80, B-R81, B-R83, B-R88, A-G1, A-G2, A-G17, B-G1, B-G7, B-G10, B-G52, A X6-Q1, B X6-Q1, Section 9 H1, H2, H9, A 11.7 #9, B 11.7 #8 · [GST RULE] ⚠
 What this is about: Brief Section 6 asks which gaps actually caused you problems. These three sit in code both projects share, and none of them shows a message - for example a client's IMS Reco columns quietly repeating its GSTR-3B difference. Which cell should feed each column is asked in item 68 (and contract C8, item 78); here only what you have seen. Please answer: (a) Have the IMS Reco / Extra In Purchase / Extra In GSTR2B columns ever shown the GSTR-3B difference figures - was it noticed, and was any delivered work based on them? (b) Have you seen a client's row full of "Missing" although its report looked fine? (c) Has Skip refresh ever given you old figures?
@@ -1518,7 +1582,7 @@ A's way: fills each column with the first extracted figure whose name contains t
 B's way: the same code (`B:power_query_extractor/core/data_consolidator.py:129-138`; B-R83, B-R88, B-R63).
 Evidence (RAN in both, with made-up figures; MERGE_COMPARISON.md section 9): (1) in the consolidated workbook, the IGST / CGST / SGST columns of the "IMS Reco", "Extra In Purchase" and "Extra In GSTR2B" sheets show the `Diff GSTR-3B` J15 / K15 / L15 figures ⚠ whenever those were read, not their own configured cells (H1). (2) A report whose refresh check failed shows "Missing" in every column although its figures were read (H9). (3) With Skip refresh, a copy left by a failed refresh is reused next time as a success, with ✓ (H2).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) He does not remember noticing it, or whether such figures reached clients; his July 2026 consolidated workbook does show it (the IMS Reco, Extra In Purchase and Extra In GSTR2B sheets repeat the GSTR-3B difference for 124 of 125 clients). (b) Does not remember; in July 2026 one client's Sales refresh check failed, so its Sales figures show 'Missing'. (c) Does not remember. _(Note: his answer + his files, 24-10-2026.)_
 
 ### 133. Gaps that hurt you: the refresh and your own Excel                                  Part 11 · refs A-R71, A-R73, A-R97, A-R103, A-R105, B-R66, B-R67, B-R70, B-R96, B-R102, B-R103, A-G3, A-G7, A-G44, A-G50, A-G54, A-G55, B-G6, B-G32, B-G39, B-G51, B-G57, B-G61, B-G62, B-G63, A X6-Q41, A X6-Q42, B X6-Q34, B X6-Q36, A 11.7 #24, Section 9 H3, H17, H18, H19, H20 ⚠, A 11.7 #18, B 11.7 #21 · [GST RULE] (the `Info!BB2` test, in the evidence) ⚠
 What this is about: The refresh happens in a visible Excel that the program drives with key presses, and Step 3 borrows any Excel you already have open - for example the GSTR-2B reco you were checking when you pressed Start. Please answer: (a) Have your Excel windows vanished, or unsaved work been lost, during a run? (b) Letters typed into the wrong window, or another program's pop-up answered by itself? (c) A run that hung until Excel was closed by hand? (d) A refresh reported fine but with old figures? (e) A report whose Power Query - or a text box or button drawn on a sheet - had disappeared? (f) Do staff use the PC, or keep other workbooks open, during Step 3 or Step 4, and which Excel pop-ups appear during a refresh?
@@ -1526,7 +1590,7 @@ A's way: Step 3 attaches to your open Excel, hides it and quits it (`A:core/exce
 B's way: the same Step 3 and Step 4 code (`B:core/excel_handler.py:110-120, 203-211`; B-R96, B-R66, B-R67, B-R102, B-R103); without a working pywin32 B's window does not open at all (B-G32).
 Evidence (MERGE_COMPARISON.md section 9): your Excel hidden and quit (H19); a made-up "Delete local copy?" box of another program was answered Yes (RAN in both, H20); nothing times out (H18); apart from the pop-up check, a refresh is judged only by `Info!BB2` ⚠, so a value already there passes (H3; A-R73, B-R70) - which test proves a refresh is a GST rule decided in item 69.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a)-(e) He does not remember any of these happening. (f) Runs are overnight on the single run PC, so nobody uses it or keeps other workbooks open during Steps 3-4. Power Query privacy-level prompts are already solved in the templates; no other refresh pop-ups recalled. _(Note: his answer, 24-10-2026.)_
 
 ### 134. Gaps that hurt you: files, folders and counts                                  Part 11 · refs A-R35, A-R43, A-R45, A-R57, A-R60, B-R32, B-R43, B-R44, B-R56, B-R60, A-G4, A-G5, A-G6, A-G8, A-G9, A-G10, A-G19, A-G41, B-G2, B-G3, B-G4, B-G5, B-G13, B-G14, B-G15, B-G19, B-G20, B-G27, B-G54, Section 9 H4, H5, H6, H7, H8, H10, M1, M2, A 11.7 #15, B 11.7 #15 · [GST RULE] (H5, H6 and M1, in the evidence) ⚠
 What this is about: These gaps can lose or mix client files while the counts say "Success" - for example one month's GSTR-3B export silently missing from a client's folder. Please answer: (a) Has any of these happened to you - which, and roughly when? (b) Have long paths stopped reports from opening (`7347383` says long client names "have been failing")? (c) Have you ever relied on Resume after an interruption?
@@ -1534,7 +1598,7 @@ A's way: the client folder is the cleaned name plus the state code, cut to "Max 
 B's way: the same rules (B-R32, B-R43, B-R44, B-R60, B-R56); in addition B leaves an unfilled template under the report's name when a report fails (B-G5), and never shows its list of problem files (B-G20).
 Evidence (RAN in both on made-up clients; MERGE_COMPARISON.md section 9): "Beta Demo Private Limited" and "Beta Demo Pvt Ltd" became two clients but one folder, and one file replaced the other (H6) [GST RULE]; two downloads whose cleaned names coincide leave only one of them under the real name (Fresh keeps the other as a backup), both reported "Success" (H7); Resume copies the whole batch again into a new Version folder (H8); a client counts as "Success" although both its reports failed (H10); a template without a Links sheet gives no error (H4); Links cells for files a client lacks keep what the template holds (H5) [GST RULE] ⚠; only the first file of a type is linked (M1) [GST RULE]; a repeat run in the same minute overwrites earlier output (M2). Long paths: A-G41, B-G54.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a)-(c) He does not remember any of these happening. Files: the July 2026 run shows all 126 clients 'Success' and 100% complete. Long paths: see item 127. _(Note: his answer + his files, 24-10-2026.)_
 
 ### 135. Gaps that hurt you: starting, closing and the screens                                  Part 11 · refs A-R127, B-R124, B-R125, A-G22, A-G27, A-G48, B-G32, B-G34, B-G35, B-G40, B-G67, B-G68, Section 9 H11, H12
 What this is about: Problems you may meet before any figures appear - for example an article assistant double-clicks the program and nothing happens. Please answer: which of these have you or your staff met, and which annoyed you most?
@@ -1542,7 +1606,7 @@ A's way: started without a console, A dies silently (`A:main.py:17`; A-R127, A-G
 B's way: started without a console, B shows nothing when start-up fails (B-R125, B-G34); without pywin32 its window cannot open at all, and its message advises the wrong install command (`B:main.py:49-54`; B-R124, B-G32); closing never asks (B-G40); an error inside B's window ends the whole program (B-G35); three of B's four Browse buttons are white on white (`B:gui/widgets/colored_section.py:62`; B-G67); its smallest window is taller than a 1366×768 laptop screen (B-G68).
 Evidence: MERGE_COMPARISON.md section 9, H11 and H12; section 6.4.1.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): He does not remember meeting any of these. _(Note: his answer, 24-10-2026.)_
 
 ### 136. Protections that have saved you                                  Part 11 · refs A-F26, B-F26, A-R9, A-R10, A-R46, A-R47, A-R98, A-R101, A-R102, A-R104, A-R105, A-R110, B-R1, B-R2, B-R3, B-R42, B-R43, B-R98, B-R99, B-R100, B-R102, B-R103
 What this is about: Brief Section 6 also asks which handled cases saved you in real use, so the new tool keeps them on purpose - for example a re-run that would have overwritten a client's GSTR-2B reco but backed it up first. Please answer: which of these has visibly saved you, and from what?
@@ -1550,7 +1614,7 @@ A's way: client files are only copied, never moved or changed (A-R47); a file ab
 B's way: the same protections (B-R42; B-R43; B-R1, B-R2, B-R3; B-R98, B-R99, B-R100; B-F26, B-R102, B-R103), without A's two additions.
 Evidence: MERGE_COMPARISON.md section 4 (fixes only one side got) and section 5, Categories 7 and 12.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): He does not remember one visibly saving him. The new tool keeps them all anyway: source files only copied, never moved or changed (CL1); a backup before any overwrite; tiny or damaged files and Excel's ~$ lock files skipped and listed (item 7); Excel error pop-ups handled only in the tool's own Excel, with their text kept (item 94); reports built locally and copied up once (SSD workbench, item 10). _(Note: his answer, 24-10-2026.)_
 
 ### 137. How client and state names are really written in your file names                                  Part 11 · refs A-R1, A-R2, A-R3, A-R4, A-R5, A-R6, A-R7, A-R17, A-R19, A-R21, A-R22, A-R35, B-R5, B-R6, B-R7, B-R8, B-R9, B-R10, B-R11, B-R17, B-R19, B-R21, B-R22, B-R32, A-G8, A-G25, A-G33, A-G35, A-G36, A-G40, A-G77, B-G15, B-G16, B-G17, B-G18, B-G80, A X6-Q20, A X6-Q21, A X6-Q22, A X6-Q23, A X6-Q24, B X6-Q18, B X6-Q19, B X6-Q29, Section 9 H6, H13, H15, H16, A 11.7 #11, B 11.7 #9, B 11.7 #10 · [GST RULE] ⚠
 What this is about: Both projects recognise a file only by its name, for example `GSTR3B-Alpha Test Traders-Maharashtra-Apr.xlsx`. What your real downloads look like decides which mistakes matter. Asking only: the naming and state-code rules are decided in items 22, 63 and 65. Please answer: (a) Do client names contain hyphens or dots ("<X.Y.> <Client A>", "Pvt. Ltd.")? (b) How is the state written - full name, "MH", "Tamilnadu", the two-digit code "27"? (c) Any client names that are only digits? (d) Is one client ever spelt two ways? (e) Do two clients share their first 30-odd characters?
@@ -1558,7 +1622,7 @@ A's way: the six file-name patterns accept "anything but a hyphen" for client an
 B's way: the same patterns (`B:utils/constants.py:15-55`, identical except the IMS line; B-R5 to B-R11) and the same state codes (`B:utils/helpers.py:485-511`, table `B:utils/constants.py:234-275`; B-R21, B-R22).
 Evidence (RAN in both; MERGE_COMPARISON.md section 9): a hyphen inside a client name shifts the parts (`GSTR-2B-Reco-Alpha-Test-Traders-Maharashtra-Q1.xlsx` became client "Alpha", state "Test") or the file is not recognised (H13); "Tamil Nadu" gives TN but "Tamilnadu" gives TAM, and "Unknown Place" gives UP, Uttar Pradesh's letters (H16); "Private Limited" and "Pvt Ltd" spellings become two clients (H15); two clients whose names agree in their first 32 characters share one folder (H6). These are letter codes in folder and file names; neither project has GSTIN or PAN logic (H16).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Source files are Octa GST exports named by one fixed rule (item 24); a hyphen inside a client or state name must be flagged. (a) No hyphens or dots in client names; many contain '&' or a bracketed code such as '(X99)' (made-up example); 'Pvt' and 'Ltd' are common. (b) States written in full ('West Bengal'); a second registration in one state as '<State>_<label>', e.g. 'Delhi_Trading' (item 25). (c) No client name is only digits. (d) No client spelt two ways in the July 2026 run (all 126 complete). (e) No two clients share their first 30 characters (longest name 52). _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 138. File types, duplicates and periods in a real source folder                                  Part 11 · refs A-R2, A-R4, A-R5, A-R8, A-R25, A-R27, A-R57, B-R1, B-R7, B-R8, B-R10, B-R11, B-R14, B-R23, B-R25, B-R56, A-G6, A-G34, A-G37, A-G38, A-G39, B-G3, B-G23, B-G46, B-G47, B-G48, B-G49, A X6-Q11, A X6-Q16, A X6-Q17, A X6-Q18, A X6-Q19, B X6-Q13, B X6-Q16, B X6-Q17, B X6-Q20, Section 9 H14, M1, A 11.7 #10, A 11.7 #12, A 11.7 #17, B 11.7 #11, B 11.7 #12 · [GST RULE] ⚠
 What this is about: The same for the rest of the name and the folder. Example: a browser saves a second download of an IMS file as `ImsReco-<Client A>-<State>-31032025 (1).xlsx`. Asking only; which file should feed a report is decided in items 22 and 67. Please answer: (a) Do "(1)" downloads occur, and for which types? (b) Does a client ever have two files of one type (two half-year 2B recos, two Sales files)? (c) Do files of different periods or financial years ever sit in one source folder? (d) Do spellings like `Sales-Reco-`, `GSTR-3B-`, `Annual Report-` occur? (e) `.xlsm` downloads, or files in sub-folders? (f) Is the 8-digit date in IMS names the download date or a period date?
@@ -1566,7 +1630,7 @@ A's way: accepts such an IMS "(1)" copy as an IMS Reco file and, because it sort
 B's way: rejects it as an unrecognised file (`B:utils/constants.py:23`; B-R7).
 Evidence (MERGE_COMPARISON.md section 5, Category 1; section 9): both link only the first file of a type (M1; A-G6, B-G3), never check the period or year text (A-R25, B-R23; A-G39, B-G49), read `Sales-Reco-…` as a Sales file of a client called "Reco" (H14), ignore sub-folders, and do not recognise `.xlsm` downloads (A-R8, B-R1; A-G37, B-G46).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Yes, '(1)' downloads occur for all six types; the July 2026 run used 36 (Annual Report 14, GSTR-3B 13, Sales Reco 4, Sales 2, GSTR-2B Reco 2, IMS Reco 1). (b) No: in July 2026 every client had exactly one file of each type other than GSTR-3B. (c) No: one flat source folder per financial year. (d) No such spellings in the July 2026 run. (e) No: all .xlsx, no sub-folders. (f) The 8-digit date in IMS Reco names is the export (download) date, not a period (seen in a fresh Octa export). _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 139. The worst data you have received                                  Part 11 · refs A-F9, B-F9, A-G37, B-G20, B X6-Q41
 What this is about: Brief Section 6 asks for the messiest real case, so the new tool is built and tested against it - for example a season when a client sent its GSTR-2B as a PDF. Please describe it without client names (use `<Client A>`). Please answer: (a) The worst batch you remember, and what went wrong? (b) Any messy situation the audits do not mention - for example a client's download with renamed sheets, a password-protected file, files sent as a .zip, CSV instead of Excel? (c) Do you look at the "Variations" sheet of the Step 3 summary workbook to find mis-named files?
@@ -1574,7 +1638,7 @@ A's way: counts unrecognised names as variations on screen and lists them in the
 B's way: counts them too, but never shows the list, and its "Variations" sheet is always empty (B-F9, B-G20; B X6-Q41).
 Evidence: neither repository holds a sample file (MERGE_ANALYSIS_PROMPT.md section 3, fact 7), so the audits know only made-up cases.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a), (b) 'Just don't ask': people really don't know how to maintain data; Octa GST solves about 90% of it by producing everything in one fixed way. No single case named. (c) Problems are dealt with at Step 2, before the big run: the file with the issue is deleted by hand and a fresh copy downloaded (item 23); in July 2026 nothing was unrecognised and every client was 100% complete. _(Note: his answer + his files, 24-10-2026.)_
 
 ### 140. Your templates: how their queries find the client files                                  Part 11 · refs A-R39, A-R54, A-R55, A-R56, B-R35, B-R54, B-R55, B-R56, A-G5, A-G9, B-G2, B-G27, B-G29, B-G52, A X6-Q26, A X6-Q27, A X6-Q28, B X6-Q24, B X6-Q25, Section 9 H5, M2, A 11.7 #8, B 11.7 #14 · [GST RULE] ⚠
 What this is about: The templates are in neither repository, so only you can say how their Power Query uses the Links cells. This decides, for example, whether A's short folder names (`GSTR3B` / `ITC` / `Sales`) work with your templates, and whether backups sitting in a folder get read. Please answer: (a) Do the queries read only the named file, or every file in the linked folder? (b) Does any query name a folder itself, such as "Other ITC related files" or "GSTR-3B Exports"? (To check: open the template, Data > Get Data > Launch Power Query Editor, open the Advanced Editor of each query and search for those names.) (c) What do the Links cells hold in the blank template - nothing, sample paths, or the last client's? (d) Which extension do the queries add (and what happens with `.xls` inputs)?
@@ -1582,7 +1646,7 @@ A's way: writes a folder path and, for most file types, a file name without its 
 B's way: the same cells (`B:utils/constants.py:96-120`; B-R54, B-R55, B-R56) ⚠, with the folders named `GSTR-3B Exports` / `Other ITC related files` / `Sales related files` (B-R35).
 Evidence (MERGE_COMPARISON.md section 9): cells for a file type the client lacks keep what the template holds (H5; A-G5, B-G2); ITC B3, B6, B9 and Sales B4, B7 are never written ⚠ (B-G52; B X6-Q25); backups and "(1)" copies can land in the linked folders (M2; A-G9, B-G27, B-G29). Item 28 depends on your answer to (b).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Only the named file, except GSTR-3B: that query reads every file in the GSTR-3B folder, sub-folders included, that has an 'ITC Claims-Actions' sheet (hidden files skipped), and keeps the rows whose claim period falls in the financial year; any extra copy there is counted. (b) No: the queries never hard-code any folder, file name or path; everything comes from the Links cells. (c) Nothing: the Links B-cells are empty in both master templates. (d) The queries add .xlsx to every file name (and the closing \ to folders), so an .xls input can never refresh. _(Note: from his files, 24-10-2026 (object if wrong).)_
 
 ### 141. Your templates: format, refresh settings and the success cell                                  Part 11 · refs B-F20, A-R52, A-R73, A-R74, A-R75, A-R76, A-R77, A-R78, A-R79, A-R80, A-R81, A-R82, B-R48, B-R71, B-R73, B-R74, B-R75, B-R76, B-R77, B-R78, B-R79, B-R80, B-R81, B-R82, A-G3, A-G42, A-G43, B-G6, B-G30, B-G52, B-G66, A X6-Q3, A X6-Q4, A X6-Q5, A X6-Q25, A X6-Q31, A X6-Q32, B X6-Q2, B X6-Q3, B X6-Q26, B X6-Q27, A 11.7 #21, B 11.7 #20, B 11.7 #24 · [GST RULE] ⚠
 What this is about: Facts about the two template files that change how the new tool must open, refresh and check them - for example whether a template opens with a "read-only" prompt. Asking only; whether `Info!BB2` is the right proof of a refresh, and which cells are read, are decided in Parts 2 and 6. Please answer: (a) Template format, and do they contain macros? (b) Are they marked read-only on the share? (c) Is any query set to "Refresh data when opening the file" or "Enable background refresh"? (d) What fills `Info!BB2`, and can it hold a value before a refresh? (e) Have cell positions or sheet names changed between template versions, and who updates the code when they do? (f) Does K29 hold a number or a text such as "Match"?
@@ -1590,7 +1654,7 @@ A's way: the template picker offers `.xltx` / `.xlsx` (A-R52); a refresh counts 
 B's way: the template picker offers `.xlsx` / `.xlsm` (B-R48); the same refresh test (`B:power_query_extractor/core/report_processor.py:589-636`; B-F20, B-R71).
 Evidence: reports are always saved under an `.xlsx` name, whatever the template's type (A-G42, B-G30). The 22 cells read in Step 4 ⚠ (for example `T6 of R9!K29`, "Table 6J Match") are fixed in a code file, `power_query_extractor/config/cell_mappings.py`, identical in both (MERGE_COMPARISON.md section 5, Category 10; B audit 8.10 #10 asks who edits it).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) .xlsx with no macros (.xltx did not work properly); .xlsm may come later (item 31). (b) The masters sit in a Formats folder on his E: drive, not on the share; the tool only copies them, so a read-only mark makes no difference. (c) No query refreshes on opening; every query has background refresh switched on. (d) BB2 is filled by the BasicDetails query: 'Company Name' from the Annual Report's Overview sheet; empty before a refresh. The same query fills BB4 (GSTIN with the state in brackets) and BB5 (Financial Year, e.g. 2025-26); every ITC query takes its year from there. (e) The masters are unchanged since the July 2026 run; after a template change he sets the cell positions himself in the app's settings rather than the code (idea 1, decided), and the tool checks each cell against its heading (item 68). (f) K29 holds a number (an absolute-difference formula); G6 of 'T8 of R9' also holds a number. _(Note: his files + earlier answers, 24-10-2026 (object if wrong).)_
 
 ### 142. A's screens: what you like and dislike                                  Part 11 · refs A-F2, A-F4, A-F8, A-F10, A-F12, A-F17, A-F18, A-F20, A-F25, A-F28, A-F31, A-R140, A-R148, A-G64
 What this is about: Brief Section 7. Name what you would keep and what annoys you every time, from your own use of A (the Tkinter version) - for example the pale progress bar during a 100-client batch. Please answer: what you like, and what annoys you (a line each).
@@ -1598,7 +1662,7 @@ A's way (MERGE_COMPARISON.md sections 6.1 and 6.2): a blue title strip with a Da
 B's way: see item 143.
 Evidence: dark mode leaves screen parts created later (boxes, buttons) light and makes some text unreadable (A-G64; A-R148); the Step 3 log colours are in A-R140. How Step 2 shows the missing files is a GST rule decided in item 26 [GST RULE]; here only what you like.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Beyond what is already decided (B's frame and layout with A's behaviour, A's live checklist and hover help, dark mode): he wants the app to be the best in its functionality, 'smooth as butter', with an incredible user experience. _(Note: his answer, 24-10-2026.)_
 
 ### 143. B's screens: what you like and dislike                                  Part 11 · refs B-F1, B-F3, B-F7, B-F8, B-F10, B-F16, B-F18, B-F24, B-F28, B-F29, B-F33, B-R134, B-R136, B-G7, B-G67, B-G68, B-G69, B-G71, B-G73, B X6-Q42, B X6-Q47
 What this is about: The same for B (the PyQt5 "v4.0" version), if you have used it; if not, write "not used" or answer from a quick look. Please answer: (a) What you like and dislike. (b) Can you see the three Browse buttons on your PC? (c) Were the "Stop and exit?" question and the "Open the consolidated report?" prompt dropped on purpose in the rewrite?
@@ -1606,7 +1670,7 @@ A's way: see item 142; A asks "Stop and exit?" when closed during Step 3 and "Op
 B's way (MERGE_COMPARISON.md sections 6.1 and 6.3): File and View menus and coloured dots on the tabs (B-F29); two columns of coloured cards and a dark SCAN LOG on Step 1, with three Browse buttons invisible; Step 2 starts all ticked, counts the missing files ("2"), has Folder Name and Last Run columns and sortable headers (B-R134), and an EXPORT LIST button that does nothing; a green progress bar with a percentage; Step 4 is one page with a client → version tree (a list that folds out from each client to its Version folders) and a Stop button (B-F24), no end question, shows "Refreshed" in green even when every refresh failed (B-R136, B-G7), and keeps failure reasons in the log file only (B-G71).
 Evidence: B's rewrite dropped both of those questions, which the shared Tkinter code had (B X6-Q47); the Browse buttons are white on white (B-G67); dark mode darkens only part of the window (B-G69); the client tables lose ticks and sort numbers as text (B-G73). How Step 2 shows the missing files is a GST rule decided in item 26 [GST RULE]; here only what you like.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) As item 142. (b) No longer relevant: the new window is built fresh, and Browse buttons must be clearly visible in both colour schemes. (c) Both come back: 'Stop and exit?' (item 17) and 'Open the consolidated report?' (item 15). _(Note: his answers, 24-10-2026.)_
 
 ### 144. How you want the new tool to look and behave                                  Part 11 · refs A-F2, A-F28, A-F31, B-F1, B-F28, B-F33
 What this is about: The general preferences of Brief Section 7, beyond A against B (the window kit itself is decided in item 89) - for example whether an article assistant would rather drag a client's downloads onto the window than browse for a folder. Please answer: (a) One window with step tabs, or something else? (b) Browse buttons, drag-and-drop, or both? (c) Errors shown in the main window, or as pop-ups? (d) If you could change one thing, what? (e) Any complaints from your team? (f) Any other app whose look you find pleasant?
@@ -1614,7 +1678,7 @@ A's way: one Tkinter window with four step tabs (A-F2), 25 message boxes and six
 B's way: one PyQt5 window with four step tabs (B-F1), 14 message boxes, all with a single OK button, and four pickers (MERGE_COMPARISON.md section 6.4.7).
 Evidence: neither accepts files dragged onto the window (READ: no drag-and-drop code in either, by a search of both); errors appear as pop-up boxes and in the on-screen log, and in B's Step 4 only in the log file (MERGE_COMPARISON.md sections 6.1 and 6.4.7). Help texts: A-F31, B-F33; dark mode: A-F28, B-F28.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) One window with step tabs in B's frame (items 2, 12). (b) Both Browse buttons and drag-and-drop: dropping a folder or file from File Explorer onto a box fills in its full real path, local (E:\...) or network (\\server\share\...); he wanted it only if the real path is captured, which it is. (c) Messages in the main window and the log; a pop-up only when the tool itself must stop (item 18). (d), (f) He wants it best-in-class in functionality, 'smooth as butter', with an incredible user experience; he admires modern apps' UI and UX but named none. (e) None mentioned. _(Note: his answer, 24-10-2026.)_
 
 ### 145. How the refresh came to be done this way                                  Part 11 · refs A-F21, A-F23, B-F19, B-F22, A-R71, A-R98, A-R103, B-R66, B-R67, B-R101, A X6-Q46, B X6-Q37, A 11.7 #20, B 11.7 #22, B 11.7 #23, B 11.7 #26
 What this is about: Your Standard 12 refreshes with Excel's own Refresh All command, called from code, in a hidden Excel, waiting until every query has finished before saving (rebuild_pipeline_FINAL.md:844-878). Both projects instead show Excel and type Alt+A, R, A. If you know why, the build can test the right thing - for example whether a Power Query privacy prompt (Excel's question about how data sources may be combined) appeared when Excel was hidden. Please answer: (a) Did you try Refresh All from code, and what went wrong? (b) What does "Keep it visible to avoid issues" refer to - a pop-up, a hang, old figures? (c) Why are the figures read through a second Excel? (d) Was `12d505f`'s Windows check done, and do locally built reports refresh correctly? (e) Did an earlier version build reports in a temporary folder, and why was that dropped?
@@ -1622,7 +1686,7 @@ A's way: shows Excel ("Keep it visible to avoid issues", `A:power_query_extracto
 B's way: the same refresh (`B:power_query_extractor/core/report_processor.py:181`; B-R66, B-R67, B-F19, B-F22) and the same second Excel (B-R101); builds each report in place, yet creates an unused temporary folder at every run (B audit 8.4.3).
 Evidence: the oldest surviving copy (25-06-2025) already used key presses and never Refresh All (B audit 8.4.1). B's unused folder may mean that an earlier version worked through temporary files, or a plan that was never coded (B audit 8.4.3, MEDIUM).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Yes: early versions refreshed with Excel's RefreshAll from code. He does not remember the details, but it gave him no confidence: a few queries seemed not to run. Likely cause, from his templates: every query has background refresh switched on, so a RefreshAll started from code returns at once, and code that saves straight afterwards cuts off the queries still running. So the optional code refresh (item 95) must switch background refresh off in the tool's own copy, or wait until Excel reports that every query finished; the default stays Alt+A, R, A with the per-query confirmation. (b)-(e) He does not remember. _(Note: his answer + his templates, 24-10-2026.)_
 
 ### 146. Why there are two versions                                  Part 11 · refs A-F10, A-F12, B-F1, B-F5, B-F10, A X6-Q84, B X6-Q47, B X6-Q60
 What this is about: The history splits after 30-10-2025. B was rewritten in PyQt5 on 07-02-2026 (`c258047`, made with an AI assistant); A's repository was created on GitHub the same morning and continued in Tkinter until 27-07-2026 (MERGE_COMPARISON.md sections 1.2 and 10.1). Your reasons matter for the merge - for example, which program the office treats as "the" tool next season. Please answer: (a) Why PyQt5 for the rewrite? (b) Why did the July 2026 work go into A (Tkinter) rather than B - was B set aside on purpose? (c) Was the copilot-worktree branch the same work as B? (d) Were the features B left out dropped on purpose?
@@ -1630,7 +1694,7 @@ A's way: kept the Tkinter window; 34 commits of its own after the split (2 in Ma
 B's way: the PyQt5 rewrite and four more commits up to 09-02-2026; the rewrite left out a working EXPORT LIST (B-F10), the per-client name switch (B-F5) and the long-name warning (B audit 8.10 #8); B-F1 is the new window's start-up.
 Evidence: GitHub's creation dates make B's repository probably the original and A the later copy (B audit Section 12, before 12A, also noted in its Section 9.0; MEDIUM). A's older audit document says the PyQt5 branch "was subsequently abandoned" and names a branch `copilot-worktree-2026-03-04T11-52-56` that exists nowhere today (A X6-Q84; B X6-Q47, B X6-Q60).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) The PyQt5 rewrite (B) was made to merge Tab 4 (the separate extractor) into the main app and to make it look better. (b)-(d) Not answered. _(Note: his answer, 24-10-2026.)_
 
 ### 147. Records that live only with you                                  Part 11 · refs A-F27, A-G60, A X6-Q75, A X6-Q77, A X6-Q78, A X6-Q85, A X6-Q86, A X6-Q88, B X6-Q57, B X6-Q58, B X6-Q59, B X6-Q61
 What this is about: Some history is in neither repository. Anything that still exists can help the build (items 100 to 105 ask how to supply files) - for example an older copy of the tool that a colleague still has on a laptop. Please answer: (a) Do the pre-git versions or the uncommitted test files still exist? (b) Were two computers used in 2025? (c) Which AI tools wrote the October 2025 review and README (`6237597`, `d674386`) and B's last two commit messages (`7e09e5c`, `b0e7d0e`)? (d) Did running A's tests ever change your saved settings? (e) Did the old extractor ever fill in its target folder by itself?
@@ -1638,7 +1702,7 @@ A's way: commit `d64d3a9` says "140 tests pass" but holds 132, and the test harn
 B's way: B's first three own commits end with a line naming an AI assistant as co-author; its last two, `7e09e5c` and `b0e7d0e`, do not (B audit Section 12, before 12A; B X6-Q58).
 Evidence (shared history): before git there was a single-file `gui/app.py`, of which only compiled copies (the `.pyc` files Python makes from the code by itself) survive at `edac6a3`; the 2025 compiled files come from Python 3.12 and 3.13, and `47a1492` is under the name "Sidhant" (A X6-Q75, A X6-Q85, A X6-Q88; B X6-Q57, B X6-Q59); `.gitignore` names a web AI tool's working folder, `/mnt/user-data/` (A X6-Q86); the old extractor read its target folder from a settings file in its start folder that the organiser never wrote (B X6-Q61; A changed that path in `c1583d6`).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) No: no pre-git versions or old test files remain. (b)-(e) Not asked. _(Note: his answer, 24-10-2026.)_
 
 ### 148. Two confidentiality facts only you know                                  Part 11 · refs A X6-Q81, MERGE_COMPARISON.md section 10 D3, D5
 What this is about: Both old repositories were public on 21-10-2026 (re-checked 23-10-2026). Until you say otherwise, these documents treat both items below as confidential and never copy them - as you would never put a client's GSTIN in a public post. What to do about the old public history is item 113. Please answer: (a) Is that business name one of your clients, or an example the AI picked? (b) Do you regard the share path - and the run figures quoted from the same commit messages (file counts, scan times, path lengths) - as confidential?
@@ -1646,7 +1710,7 @@ A's way: (1) a company-like business name is used in the worked examples of A's 
 B's way: neither item is in B's files or history (MERGE_COMPARISON.md section 10, D3 and D5).
 Evidence: MERGE_COMPARISON.md section 10, D3 and D5 (RAN: searches that printed only hashes - scrambled fingerprints of the text - line numbers and commit ids); A X6-Q81.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Not settled: he could not find the name. It is in A's older audit, PROJECT_AUDIT_ANNUALSTATEMENT.md, around line 130 (the client part of the example file names); it is covered either way once the old public repositories are made private (item 113). (b) His question, Claude's view: the server path holds no IP address or password and works only inside the office network, so it is internal rather than secret - kept out of the code and public places (the tool takes the target folder as a setting), fine in his private repository and documents. [partly answered] _(Note: his question, 24-10-2026; (b) recorded as Claude's view unless he objects.)_
 
 ### 149. What surprised you, and what you had forgotten                                  Part 11 · refs Brief Section 8
 What this is about: Brief Section 8 ("What I learned") must be in your words; this item and the next collect it. Please write freely, two or three sentences each. Please answer: (a) What surprised you most in the audits or the comparison? (b) Did they show a feature or rule you had forgotten existed?
@@ -1654,7 +1718,7 @@ A's way: not applicable - this item asks for your own view.
 B's way: not applicable.
 Evidence: this part does not suggest answers. The comparison's summary is MERGE_COMPARISON.md section 1, and the gaps both projects share are in section 9.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): Not being a coder, he did not know so much could be done with Python. The overnight run makes him feel his work is happening while he is away; his assistants are happy not to do the boring, repetitive task by hand; and the area of error has shrunk - he no longer has to doubt anyone's ability to arrange files, fill formats and refresh them. _(Note: his words, lightly tidied, 24-10-2026.)_
 
 ### 150. What you would do differently, and the principle above all                                  Part 11 · refs Brief Section 8
 What this is about: The second half of Brief Section 8, in your words. Please answer: (a) What would you do differently if you could go back to day one (mid-2025)? (b) Is there a mistake in the old tools you never want to repeat? (c) What is the one principle the rebuild must follow above all?
@@ -1662,7 +1726,7 @@ A's way: not applicable - this item asks for your own view.
 B's way: not applicable.
 Evidence: not applicable - your own view.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) Not answered. (b) No single mistake: 'mistakes make you a better person'. (c) 'No figure is shown unless it is proven' is one of his principles, alongside best-in-class functionality with a butter-smooth UX (item 142). _(Note: his answer, 24-10-2026.)_
 
 ### 151. Office-PC time for the checks the build needs                                  Part 11 · refs A-F21, A-F26, B-F19, B-F26, A 11.7 #20, A 11.7 #24, B 11.7 #40
 What this is about: Some things cannot be tested on the build computer, because Excel and Power Query run only on Windows with your templates: the side-by-side check of the key-press refresh against Excel's own Refresh All, the list of pop-ups that really appear and which button to press on each, and acceptance sessions (sessions where you try the new tool on real work and accept it or not) - ideally not in the last weeks of the annual-return season. Please answer: (a) Can you give office-PC time for these - roughly how many hours, and when? (b) On which PC (Windows and Excel version as in items 122 and 123)? (c) Should they happen outside the season?
@@ -1670,7 +1734,7 @@ A's way: A's audit plans the side-by-side refresh check and the pop-up list on a
 B's way: B's audit plans the refresh check, a check of the two ways of reading the figures back (through a second Excel, or straight from the saved file) and three acceptance sessions (B audit 11.7 #40; B-F19, B-F26).
 Evidence: A's 288 tests never exercise the Power Query refresh, and B has no tests at all (A audit Section 1; MERGE_COMPARISON.md section 8.1).
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): (a) After December, perhaps January 2027 - outside the annual-return season; hours not given. (b) The run PC: Windows 10, Excel 2021 (item 95). (c) Yes, outside the season. Runs happen on that single computer only, overnight. _(Note: his answer, 24-10-2026.)_
 
 ### 152. Your top three priorities                                  Part 11 · refs Brief "Top 3 Priorities"
 What this is about: "If you could only ship THREE things in this rebuild and had to cut everything else, which three would you keep?" (REBUILD_BRIEF_ASSISTANT.md). They go at the top of the Brief and are checked against your other answers (the consistency check made after all your answers, point 3). Please answer: 1. ____ 2. ____ 3. ____
@@ -1678,7 +1742,7 @@ A's way (what the tool does today - not suggestions): sorts each client's downlo
 B's way: the same five jobs.
 Evidence: not applicable - your own priorities.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): He could not pick ('I don't know what to say'). Proposed from his own answers, to confirm when the Brief is reviewed: 1. Right figures, proven: the right client, the right cell, a confirmed refresh (items 68, 69, 153; item 149 'the area of error has reduced'). 2. An overnight run that finishes on its own and never stops for one client's problem (items 18, 95; item 149). 3. A configurable app that grows to other reports, with a butter-smooth UX (items 114, 142, idea 1). [not sure yet] _(Note: Claude's proposal from his answers, 24-10-2026.)_
 
 ### 153. The one thing that must work perfectly (Zero-Defect Requirement)                                  Part 11 · refs Brief "Zero-Defect Requirement", Part 7
 What this is about: "What is the ONE thing that MUST work perfectly - the thing where a bug would be unacceptable?" It goes at the top of the Brief and must be covered by at least one contract in Part 7 (the consistency check made after all your answers, point 4); item 88 asks for your own promises. Please answer: in one sentence.
@@ -1686,7 +1750,7 @@ A's way: no written promise of this kind; A's 288 tests do not exercise the refr
 B's way: no written promise and no tests (MERGE_COMPARISON.md section 8.1).
 Evidence (for orientation only, not a suggestion): among the 20 shared gaps the comparison rates HIGH are columns that show another cell's figure than the one configured (H1 [GST RULE]), refreshes judged good without proof (H2, H3) and client files lost or mixed (H6, H7) - MERGE_COMPARISON.md section 9.
 Recommendation: No recommendation - your call.
-Your answer: ____
+Your answer (24-10-2026): His words: 'any functionality in this app' - every function of the app must work perfectly; no bug is acceptable anywhere. Within that, the figures promise (item 88, promise 2) is tested hardest, because a wrong figure is the costliest bug. _(Note: his answer, 24-10-2026; the 'tested hardest' line is Claude's addition (object if wrong).)_
 
 ## Same in both and working - no decision needed (object if you disagree)
 
@@ -1710,7 +1774,12 @@ Ideas you mention while answering, kept for later. Items you answer "Defer" are 
 
 | Idea | When it came up | Priority | Status |
 |---|---|---|---|
-|  |  |  |  |
+| Reopen where you left off: open on the last tab, with a list of recent folders | 24-10-2026, item 54 (answered "Defer") | Later | Deferred |
+| A "Continue to Step 4" button after an "Organise only" run (the Step 4 tab does the same) | 24-10-2026, item 58 (answered "Defer") | Later | Deferred |
+| Read the refreshed figures without a second Excel, only after a test on the run PC shows identical figures both ways | 24-10-2026, item 61 (answered "Defer") | Later | Deferred |
+| Skill files (SKILL.md) written from the lessons of A and B, after the first working build | 24-10-2026, item 62 (answered "Defer") | Later | Deferred |
+| GSTR-9 and GSTR-9C applicability columns in the consolidated workbook (turnover above Rs 2 crore / Rs 5 crore ⚠), which he adds by hand today | 24-10-2026, item 130 and "Read this first" (seen in his files) | Not requested | Candidate only |
+| Special handling for quarterly (QRMP) filers beyond the due-date table: none among the July 2026 clients, so "no special handling for now" | 24-10-2026, idea 2 ("proposed") | Later | To revisit |
 
 ## Coverage
 
